@@ -51,6 +51,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Connecting India’s Finest Spices to the World',
       subline: 'Whole Seed Spices, Pure Ground Powders & Custom Sourcing',
       description: 'From prime whole pods and Sortex-cleaned seeds to ultra-fine pulverized powders, Origintra Exim connects international importers, food processors, and re-packers directly to certified Indian agricultural belts.',
+      mobileHeadline: 'India’s Finest Export Spices',
       mobileDescription: 'Direct farmgate sourcing of export-grade whole spices and pure ground powders.',
       ctaText: 'Request a Quote',
       mobileCtaText: 'Get Quote',
@@ -66,6 +67,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Premium Indian Dried Red Chilli & Pure Powder',
       subline: 'S17 Teja, Sanam S4, Byadgi & 334 Varieties with Standardized SHU Heat',
       description: 'Machine-stemmed whole red chillies and vibratory-sifted powders milled under low temperature controls. Guaranteed negative for synthetic Sudan dyes and fully tested for Aflatoxin and pesticide MRL compliance.',
+      mobileHeadline: 'Premium Dried Red Chilli & Powder',
       mobileDescription: 'Machine-stemmed chillies & pure powders with certified SHU heat and zero Sudan dye.',
       ctaText: 'Enquire for Red Chilli',
       mobileCtaText: 'Enquire Now',
@@ -81,6 +83,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Curcumin-Rich Indian Turmeric Fingers & Powders',
       subline: 'Double-Polished Whole Fingers & Pure Golden Milled Powders',
       description: 'Harvested from premier turmeric cultivation hubs in Southern and Central India. High natural curcumin concentration, zero lead chromate, and packed in multi-wall moisture-barrier export sacks.',
+      mobileHeadline: 'Curcumin-Rich Golden Turmeric',
       mobileDescription: 'High-curcumin double-polished fingers and pure golden milled turmeric powders.',
       ctaText: 'Enquire for Turmeric',
       mobileCtaText: 'Enquire Now',
@@ -96,6 +99,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Sortex-Cleaned Machine Purity Indian Cumin Seeds',
       subline: '99% to 99.5% Purity Singapore & European Machine Cleaned Grades',
       description: 'Direct procurement from primary farm yards in Unjha and Western India. Free from foreign seeds and dirt with moisture below 8-9% and high volatile essential oil retention for extractors and blenders.',
+      mobileHeadline: 'Sortex Machine-Cleaned Cumin',
       mobileDescription: '99% to 99.5% Sortex machine-cleaned cumin seeds direct from Unjha Mandi.',
       ctaText: 'Enquire for Cumin',
       mobileCtaText: 'Enquire Now',
@@ -111,6 +115,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Eagle & Scooter Quality Green Coriander Seeds',
       subline: 'Aromatic Whole Round, Split (Dal), & Fragrant Ground Powders',
       description: 'Sun-cured golden-green coriander seeds with sweet citrusy aroma. Available in whole round, split, and ultra-fine ground powder tailored for commercial spice seasoning mixes and curry powders.',
+      mobileHeadline: 'Eagle & Scooter Green Coriander',
       mobileDescription: 'Eagle & Scooter grade aromatic whole seeds, split dal, and pure ground powders.',
       ctaText: 'Enquire for Coriander',
       mobileCtaText: 'Enquire Now',
@@ -146,6 +151,26 @@ export const HomePage: React.FC<HomePageProps> = ({
       setFadeState('in');
     }, 250);
   }, []);
+
+  const touchStartXRef = React.useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartXRef.current - touchEndX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        goToSlide((currentHeroSlide + 1) % heroSlides.length);
+      } else {
+        goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length);
+      }
+    }
+    touchStartXRef.current = null;
+  };
 
   React.useEffect(() => {
     const timer = setInterval(() => {
@@ -266,7 +291,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div className="bg-white text-[#0F172A]">
       
       {/* 1. HERO SECTION (Dynamic Spice Image & Matching Content Carousel) */}
-      <section className="relative overflow-hidden min-h-[560px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white">
+      <section className="relative overflow-hidden min-h-[540px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white">
         {/* Authentic Indian spice background slides (responsive mobile portrait vs desktop landscape) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {heroSlides.map((slide, idx) => (
@@ -281,7 +306,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                  className={`w-full h-full object-cover object-[center_40%] sm:object-center transition-transform duration-[7000ms] ease-out ${
                     idx === currentHeroSlide ? 'scale-105' : 'scale-100'
                   }`}
                 />
@@ -293,58 +318,66 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#071120] via-[#071120]/90 via-50% lg:via-45% to-transparent z-[1]" />
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]" />
 
-          {/* Mobile Directional Gradient: Compact top vignette for text, subtle bottom vignette for CTAs, letting the photograph begin sooner */}
-          <div className="sm:hidden absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-[#071120]/95 via-[#071120]/50 to-transparent z-[1]" />
-          <div className="sm:hidden absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#071120]/95 via-[#071120]/50 to-transparent z-[1]" />
+          {/* Mobile Directional Gradient: Calibrated subtle gradient letting photography shine while text remains crisp */}
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/80 via-[#071120]/55 to-[#071120]/85 z-[1]" />
         </div>
 
         {/* ============================================================== */}
-        {/* Mobile Hero section fix: keep the photo reveal and CTA layout readable on small screens without crowding the headline. */}
-        {/* High-Density Top, Immediate Photograph Reveal, Bottom CTAs    */}
+        {/* Mobile Hero section: Centered Text & Bottom Controls           */}
+        {/* Large Title & Subtitle, Background Gradient, Bottom Navigation */}
         {/* ============================================================== */}
-        <div className="sm:hidden relative z-10 w-full px-4 pt-3.5 pb-4 flex flex-col justify-between min-h-[500px] h-[calc(100svh-120px)] max-h-[580px]">
-          {/* Top Zone: Commodity Eyebrow & Slide Counter on Side, Dense Centered Typography */}
-          <div className={`transition-all duration-300 ease-out transform ${
-            fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-          } space-y-1`}>
-            {/* Top Row: Clean Editorial Label on Left, Slide Counter on the SIDE (NOT middle) */}
-            <div className="flex items-center justify-between px-0.5 pb-0.5">
-              <div className="flex items-center space-x-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-                <span className="text-[10.5px] font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
-                  {currentSlideData.badge}
-                </span>
-              </div>
-              <div className="text-[10.5px] font-mono tracking-widest text-slate-300/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
-                <span className="text-[#38BDF8] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
-                <span className="text-slate-400">/{String(heroSlides.length).padStart(2, '0')}</span>
-              </div>
-            </div>
-
-            {/* Dense Centered Headline, Sourcing Corridor & Description */}
-            <div className="text-center space-y-1 pt-0.5">
-              <h1 className="text-[1.32rem] font-display font-bold text-white tracking-tight leading-[1.14] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] max-w-[340px] mx-auto">
-                {currentSlideData.headline}
-                <span className="text-[#38BDF8]">.</span>
-              </h1>
-
-              <p className="text-[10.5px] font-medium text-slate-300 flex items-center justify-center space-x-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-center">
-                <MapPin className="w-3 h-3 text-[#38BDF8] shrink-0" />
-                <span>{currentSlideData.eyebrow}</span>
-              </p>
-
-              <p className="text-[11.5px] text-slate-200/90 leading-snug font-normal drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)] max-w-[320px] text-center mx-auto">
-                {currentSlideData.mobileDescription}
-              </p>
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="sm:hidden relative z-10 w-full px-4 pt-3.5 pb-3 flex flex-col justify-between min-h-[540px] h-[calc(100svh-110px)] max-h-[620px]"
+        >
+          {/* Top Row: Slide Counter on the side (NOT in the middle) */}
+          <div className="flex justify-end w-full">
+            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/20 backdrop-blur-md text-[10.5px] font-mono tracking-widest text-slate-200 shadow-md">
+              <span className="text-[#38BDF8] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
+              <span className="text-white/30 mx-0.5">/</span>
+              <span className="text-slate-400">{String(heroSlides.length).padStart(2, '0')}</span>
             </div>
           </div>
 
-          {/* Center Zone: Compact spacer so the photograph begins sooner */}
-          <div className="flex-1 min-h-[40px] pointer-events-none" />
+          {/* Middle / Center Zone: Large Headline & Subtitle with proper contrast */}
+          <div className={`transition-all duration-300 ease-out transform ${
+            fadeState === 'in' ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.98]'
+          } w-full max-w-[360px] mx-auto flex-1 flex flex-col items-center justify-center text-center py-3 space-y-2 relative`}>
+            {/* Soft subtle backdrop for text legibility */}
+            <div className="absolute inset-0 -inset-x-3 -inset-y-2 bg-[#071120]/25 rounded-3xl blur-xl -z-10 pointer-events-none" />
+            
+            {/* Commodity Editorial Eyebrow (Clean bespoke typography, no generic AI pill) */}
+            <div className="flex items-center justify-center gap-2 pb-0.5">
+              <span className="h-px w-4 bg-sky-400/50" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300 drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+                {currentSlideData.badge}
+              </span>
+              <span className="h-px w-4 bg-sky-400/50" />
+            </div>
 
-          {/* Bottom Zone: Dual Pill CTAs & Slide Controls */}
-          <div className="space-y-2.5 pt-1">
-            <div className="grid grid-cols-2 gap-2.5">
+            {/* Main Headline (INCREASED SIZE for commanding visual impact) */}
+            <h1 className="text-[1.82rem] sm:text-[2.1rem] font-display font-bold text-white tracking-tight leading-[1.14] text-center drop-shadow-[0_3px_14px_rgba(0,0,0,0.98)] max-w-[340px]">
+              {currentSlideData.headline}
+              <span className="text-[#38BDF8]">.</span>
+            </h1>
+
+            {/* Sourcing Corridor Subtitle (INCREASED SIZE) */}
+            <p className="text-[13px] sm:text-[14px] font-semibold text-sky-200 flex items-center justify-center gap-1.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.98)] text-center pt-0.5">
+              <MapPin className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
+              <span>{currentSlideData.eyebrow}</span>
+            </p>
+
+            {/* Description (INCREASED SIZE) */}
+            <p className="text-[12px] sm:text-[13px] text-slate-100 font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.98)] max-w-[330px] text-center mx-auto pt-0.5">
+              {currentSlideData.mobileDescription}
+            </p>
+          </div>
+
+          {/* Bottom Zone: Placed firmly at the bottom */}
+          <div className="w-full space-y-2.5 pt-2 pb-0.5">
+            {/* CTAs matching user reference exactly */}
+            <div className="grid grid-cols-2 gap-2.5 w-full">
               <button
                 onClick={() => handleHeroCta(currentSlideData)}
                 className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-2.5 px-3 rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg transition-all flex items-center justify-center space-x-1.5 border border-sky-400/30"
@@ -362,8 +395,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               </button>
             </div>
 
-            {/* Mobile Slide Dot Controls & Next/Prev Touch Buttons */}
-            <div className="flex items-center justify-between pt-0.5">
+            {/* Mobile Slide Dot Controls on Left & Next/Prev Circular Buttons on Right (at the bottom) */}
+            <div className="flex items-center justify-between w-full pt-1 px-0.5">
               <div className="flex items-center space-x-1.5">
                 {heroSlides.map((slide, idx) => (
                   <button
