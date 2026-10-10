@@ -13,6 +13,7 @@ import { BlogPage } from './pages/BlogPage';
 import { ContactPage } from './pages/ContactPage';
 import { MeetingPage } from './pages/MeetingPage';
 import { AdminPage } from './pages/AdminPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { PRODUCTS } from './data/products';
 import { BLOG_POSTS } from './data/blog';
 import { Product, BlogPost } from './types';
@@ -121,6 +122,14 @@ export const App: React.FC = () => {
           ogType: 'website'
         });
         break;
+      case 'not-found':
+        updatePageSeo({
+          title: '404 - Page Not Found | Origintra Exim',
+          description: 'The requested page could not be found. Explore our export commodities or return to the Origintra Exim homepage.',
+          canonicalPath: '/404',
+          noIndex: true
+        });
+        break;
     }
   }, []);
 
@@ -150,9 +159,9 @@ export const App: React.FC = () => {
         setCurrentPage('product-detail');
         applyRouteSeo(route, found);
       } else {
-        setCurrentPage('products');
+        setCurrentPage('not-found');
         setSelectedProduct(null);
-        applyRouteSeo({ page: 'products', path: '/products' });
+        applyRouteSeo({ page: 'not-found', path: route.path });
       }
     } else if (route.page === 'global-reach') {
       setCurrentPage('global-reach');
@@ -165,14 +174,22 @@ export const App: React.FC = () => {
       setBlogArticleSlug(null);
       applyRouteSeo(route);
     } else if (route.page === 'blog') {
-      setCurrentPage('blog');
       setSelectedProduct(null);
-      setBlogArticleSlug(route.blogSlug || null);
       if (route.blogSlug) {
         const allPosts = AdminStorage.getBlogPosts();
         const found = allPosts.find((p) => p.slug === route.blogSlug || p.id === route.blogSlug) || BLOG_POSTS.find((p) => p.slug === route.blogSlug);
-        applyRouteSeo(route, null, found || null);
+        if (found) {
+          setCurrentPage('blog');
+          setBlogArticleSlug(route.blogSlug);
+          applyRouteSeo(route, null, found);
+        } else {
+          setCurrentPage('not-found');
+          setBlogArticleSlug(null);
+          applyRouteSeo({ page: 'not-found', path: route.path });
+        }
       } else {
+        setCurrentPage('blog');
+        setBlogArticleSlug(null);
         applyRouteSeo(route);
       }
     } else if (route.page === 'contact') {
@@ -193,6 +210,11 @@ export const App: React.FC = () => {
         setActiveLegalType(route.legalType);
       }
       setLegalModalOpen(true);
+      applyRouteSeo(route);
+    } else if (route.page === 'not-found') {
+      setCurrentPage('not-found');
+      setSelectedProduct(null);
+      setBlogArticleSlug(null);
       applyRouteSeo(route);
     }
   }, [applyRouteSeo]);
@@ -349,6 +371,13 @@ export const App: React.FC = () => {
           <AdminPage
             onNavigate={handleNavigate}
             onOpenProductDetail={handleOpenProductDetail}
+          />
+        )}
+
+        {currentPage === 'not-found' && (
+          <NotFoundPage
+            onNavigate={handleNavigate}
+            onOpenQuote={handleOpenGeneralQuote}
           />
         )}
       </main>

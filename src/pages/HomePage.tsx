@@ -44,6 +44,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'spices-assortment',
       image: '/assets/hero/spices-hero-banner.jpg',
+      mobileImage: '/assets/hero/hero-mobile-spices.jpg',
       alt: 'Origintra Exim premium whole spices and export agricultural assortment',
       badge: 'All Indian Spices',
       eyebrow: 'Direct Farmgate Sourcing • Multi-Commodity FCL',
@@ -58,6 +59,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'red-chilli',
       image: '/assets/hero/banner-red-chilli.jpg',
+      mobileImage: '/assets/hero/hero-mobile-red-chilli.jpg',
       alt: 'Export grade Indian whole dried red chilli and ground powder',
       badge: 'Red Chilli Specialist',
       eyebrow: 'Guntur & Byadgi Belts • Stemless Pods & Powders',
@@ -72,6 +74,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'turmeric',
       image: '/assets/hero/banner-turmeric.jpg',
+      mobileImage: '/assets/hero/hero-mobile-turmeric.jpg',
       alt: 'High curcumin Indian turmeric fingers and ground turmeric powder',
       badge: 'Golden Turmeric',
       eyebrow: 'Salem, Nizamabad & Alleppey • Curcumin up to 5.5%+',
@@ -86,6 +89,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'cumin',
       image: '/assets/hero/banner-cumin.jpg',
+      mobileImage: '/assets/hero/hero-mobile-cumin.jpg',
       alt: 'Machine cleaned Sortex Indian cumin seeds jeera',
       badge: 'Cumin (Jeera) Seeds',
       eyebrow: 'Unjha Mandi Hub • Gujarat & Rajasthan Belts',
@@ -100,6 +104,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'coriander',
       image: '/assets/hero/banner-coriander.jpg',
+      mobileImage: '/assets/hero/hero-mobile-coriander.jpg',
       alt: 'Eagle and Scooter quality Indian coriander seeds and powder',
       badge: 'Coriander (Dhaniya)',
       eyebrow: 'Kota & Ramganj Mandi • Fresh Harvest Crop',
@@ -261,8 +266,8 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div className="bg-white text-[#0F172A]">
       
       {/* 1. HERO SECTION (Dynamic Spice Image & Matching Content Carousel) */}
-      <section className="relative overflow-hidden min-h-[500px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white">
-        {/* Full-bleed authentic Indian spice background slides */}
+      <section className="relative overflow-hidden min-h-[560px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white">
+        {/* Authentic Indian spice background slides (responsive mobile portrait vs desktop landscape) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {heroSlides.map((slide, idx) => (
             <div
@@ -271,101 +276,189 @@ export const HomePage: React.FC<HomePageProps> = ({
                 idx === currentHeroSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10'
               }`}
             >
-              <img
-                src={slide.image}
-                alt={slide.alt}
-                className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
-                  idx === currentHeroSlide ? 'scale-105' : 'scale-100'
-                }`}
-              />
+              <picture className="w-full h-full block">
+                <source media="(max-width: 639px)" srcSet={slide.mobileImage} />
+                <img
+                  src={slide.image}
+                  alt={slide.alt}
+                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                    idx === currentHeroSlide ? 'scale-105' : 'scale-100'
+                  }`}
+                />
+              </picture>
             </div>
           ))}
-          {/* Directional enterprise editorial gradient: strong dark navy behind text on the left side, smoothly feathering to transparent on the right */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#071120] via-[#071120]/90 sm:via-[#071120]/90 via-65% sm:via-50% lg:via-45% to-transparent z-[1]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]" />
+
+          {/* Desktop/Tablet Directional Editorial Gradient (left-to-right) */}
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#071120] via-[#071120]/90 via-50% lg:via-45% to-transparent z-[1]" />
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]" />
+
+          {/* Mobile Directional Gradient: Compact top vignette for text, subtle bottom vignette for CTAs, letting the photograph begin sooner */}
+          <div className="sm:hidden absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-[#071120]/95 via-[#071120]/50 to-transparent z-[1]" />
+          <div className="sm:hidden absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#071120]/95 via-[#071120]/50 to-transparent z-[1]" />
         </div>
 
-        {/* Foreground Content */}
-        <div className="container-x mx-auto max-w-[1440px] relative py-8 sm:py-16 md:py-24 lg:py-28 z-10 w-full">
-          <div className="max-w-xl sm:max-w-2xl lg:max-w-3xl space-y-3 sm:space-y-4 md:space-y-6">
-            
-            {/* Animated Text Container with smooth transition */}
-            <div className={`transition-all duration-300 ease-out transform ${
-              fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-            } space-y-3 sm:space-y-4 md:space-y-5`}>
-              
-              {/* Sourcing Corridor & Commodity Eyebrow */}
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
-                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+        {/* ============================================================== */}
+        {/* Mobile Hero section fix: keep the photo reveal and CTA layout readable on small screens without crowding the headline. */}
+        {/* High-Density Top, Immediate Photograph Reveal, Bottom CTAs    */}
+        {/* ============================================================== */}
+        <div className="sm:hidden relative z-10 w-full px-4 pt-3.5 pb-4 flex flex-col justify-between min-h-[500px] h-[calc(100svh-120px)] max-h-[580px]">
+          {/* Top Zone: Commodity Eyebrow & Slide Counter on Side, Dense Centered Typography */}
+          <div className={`transition-all duration-300 ease-out transform ${
+            fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+          } space-y-1`}>
+            {/* Top Row: Clean Editorial Label on Left, Slide Counter on the SIDE (NOT middle) */}
+            <div className="flex items-center justify-between px-0.5 pb-0.5">
+              <div className="flex items-center space-x-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
                   {currentSlideData.badge}
                 </span>
-                <span className="hidden sm:inline text-slate-300 font-light">•</span>
-                <span className="hidden sm:inline text-xs sm:text-sm font-medium text-slate-200 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
-                  {currentSlideData.eyebrow}
-                </span>
               </div>
+              <div className="text-[10.5px] font-mono tracking-widest text-slate-300/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                <span className="text-[#38BDF8] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
+                <span className="text-slate-400">/{String(heroSlides.length).padStart(2, '0')}</span>
+              </div>
+            </div>
 
-              {/* Main Headline - fluid typography curve across Mobile, Tablet, and Desktop */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-display font-semibold text-white tracking-tight leading-tight sm:leading-[1.16] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-xl sm:max-w-none">
+            {/* Dense Centered Headline, Sourcing Corridor & Description */}
+            <div className="text-center space-y-1 pt-0.5">
+              <h1 className="text-[1.32rem] font-display font-bold text-white tracking-tight leading-[1.14] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] max-w-[340px] mx-auto">
                 {currentSlideData.headline}
                 <span className="text-[#38BDF8]">.</span>
               </h1>
 
-              {/* Body Description: Streamlined concise text on mobile, rich technical brief on tablet and desktop */}
-              <p className="sm:hidden text-xs text-slate-200/90 leading-relaxed font-normal max-w-sm drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]">
+              <p className="text-[10.5px] font-medium text-slate-300 flex items-center justify-center space-x-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-center">
+                <MapPin className="w-3 h-3 text-[#38BDF8] shrink-0" />
+                <span>{currentSlideData.eyebrow}</span>
+              </p>
+
+              <p className="text-[11.5px] text-slate-200/90 leading-snug font-normal drop-shadow-[0_2px_5px_rgba(0,0,0,0.95)] max-w-[320px] text-center mx-auto">
                 {currentSlideData.mobileDescription}
               </p>
-              <p className="hidden sm:block text-sm sm:text-base md:text-base lg:text-lg text-white/95 leading-relaxed font-normal max-w-xl lg:max-w-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+            </div>
+          </div>
+
+          {/* Center Zone: Compact spacer so the photograph begins sooner */}
+          <div className="flex-1 min-h-[40px] pointer-events-none" />
+
+          {/* Bottom Zone: Dual Pill CTAs & Slide Controls */}
+          <div className="space-y-2.5 pt-1">
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                onClick={() => handleHeroCta(currentSlideData)}
+                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-2.5 px-3 rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg transition-all flex items-center justify-center space-x-1.5 border border-sky-400/30"
+              >
+                <span>{currentSlideData.mobileCtaText}</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+              </button>
+
+              <button
+                onClick={() => handleSecondaryCta(currentSlideData)}
+                className="w-full border border-white/35 hover:border-white text-white bg-black/40 hover:bg-black/60 backdrop-blur-md active:scale-[0.98] py-2.5 px-3 rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
+              >
+                <span>{currentSlideData.mobileSecondaryText}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 ml-0.5" />
+              </button>
+            </div>
+
+            {/* Mobile Slide Dot Controls & Next/Prev Touch Buttons */}
+            <div className="flex items-center justify-between pt-0.5">
+              <div className="flex items-center space-x-1.5">
+                {heroSlides.map((slide, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => goToSlide(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/40'
+                    }`}
+                    aria-label={`Slide ${idx + 1}: ${slide.badge}`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center space-x-1.5 text-white/90">
+                <button
+                  onClick={() => goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length)}
+                  className="w-7 h-7 rounded-full bg-black/45 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => goToSlide((currentHeroSlide + 1) % heroSlides.length)}
+                  className="w-7 h-7 rounded-full bg-black/45 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================================== */}
+        {/* DESKTOP & TABLET FOREGROUND (>= 640px)                         */}
+        {/* Full-Bleed Cinematic Editorial Carousel                        */}
+        {/* ============================================================== */}
+        <div className="hidden sm:block container-x mx-auto max-w-[1440px] relative py-12 md:py-20 lg:py-28 z-10 w-full">
+          <div className="max-w-xl sm:max-w-2xl lg:max-w-3xl space-y-4 md:space-y-6">
+            
+            {/* Animated Text Container with smooth transition */}
+            <div className={`transition-all duration-300 ease-out transform ${
+              fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+            } space-y-4 md:space-y-5`}>
+              
+              {/* Sourcing Corridor & Commodity Eyebrow */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                  {currentSlideData.badge}
+                </span>
+                <span className="text-slate-300 font-light">•</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-200 tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                  {currentSlideData.eyebrow}
+                </span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-display font-semibold text-white tracking-tight leading-tight sm:leading-[1.16] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                {currentSlideData.headline}
+                <span className="text-[#38BDF8]">.</span>
+              </h1>
+
+              {/* Body Description */}
+              <p className="text-sm sm:text-base md:text-base lg:text-lg text-white/95 leading-relaxed font-normal max-w-xl lg:max-w-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                 {currentSlideData.description}
               </p>
 
-              {/* Technical Specifications Subline (Desktop / Tablet) */}
+              {/* Technical Specifications Subline */}
               {currentSlideData.subline && (
-                <div className="hidden sm:flex pt-0.5 text-xs sm:text-sm font-mono text-sky-200 items-center space-x-2 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                <div className="flex pt-0.5 text-xs sm:text-sm font-mono text-sky-200 items-center space-x-2 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8] shrink-0" />
                   <span className="truncate sm:whitespace-normal">{currentSlideData.subline}</span>
                 </div>
               )}
 
-              {/* CTAs (Executive Symmetrical Action Pair - Responsive wrapping and sizing) */}
-              <div className="pt-1.5 sm:pt-2 md:pt-3 flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4">
+              {/* CTAs */}
+              <div className="pt-2 md:pt-3 flex flex-wrap items-center gap-3 md:gap-4">
                 <button
                   onClick={() => handleHeroCta(currentSlideData)}
-                  className="btn-pill btn-pill-primary bg-[#0070E0] hover:bg-[#005bb5] text-white px-3.5 sm:px-5 md:px-7 py-2 sm:py-2.5 md:py-3.5 text-xs sm:text-sm font-semibold tracking-wide cursor-pointer shadow-md hover:shadow-lg transition-all flex items-center space-x-1.5 sm:space-x-2 shrink-0"
+                  className="btn-pill btn-pill-primary bg-[#0070E0] hover:bg-[#005bb5] text-white px-5 md:px-7 py-2.5 md:py-3.5 text-sm font-semibold tracking-wide cursor-pointer shadow-md hover:shadow-lg transition-all flex items-center space-x-2 shrink-0"
                 >
-                  <span className="hidden sm:inline">{currentSlideData.ctaText}</span>
-                  <span className="sm:hidden">{currentSlideData.mobileCtaText}</span>
-                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5" />
+                  <span>{currentSlideData.ctaText}</span>
+                  <ArrowRight className="w-4 h-4 ml-0.5" />
                 </button>
 
                 <button
                   onClick={() => handleSecondaryCta(currentSlideData)}
-                  className="btn-pill btn-pill-outline border-white/30 hover:border-white text-white hover:bg-white/10 px-3.5 sm:px-5 md:px-7 py-2 sm:py-2.5 md:py-3.5 text-xs sm:text-sm font-semibold tracking-wide cursor-pointer transition-all flex items-center space-x-1.5 sm:space-x-2 shrink-0"
+                  className="btn-pill btn-pill-outline border-white/30 hover:border-white text-white hover:bg-white/10 px-5 md:px-7 py-2.5 md:py-3.5 text-sm font-semibold tracking-wide cursor-pointer transition-all flex items-center space-x-2 shrink-0"
                 >
-                  <span className="hidden sm:inline">
+                  <span>
                     {currentSlideData.id === 'spices-assortment' ? 'Explore Products' : 'View Specifications'}
                   </span>
-                  <span className="sm:hidden">
-                    {currentSlideData.mobileSecondaryText}
-                  </span>
-                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-300" />
                 </button>
               </div>
 
-            </div>
-
-            {/* Mobile Slide Navigation Indicator Dots */}
-            <div className="flex items-center space-x-2 pt-1 sm:hidden">
-              {heroSlides.map((slide, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => goToSlide(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/40'
-                  }`}
-                  aria-label={`Slide ${idx + 1}: ${slide.badge}`}
-                />
-              ))}
             </div>
 
           </div>

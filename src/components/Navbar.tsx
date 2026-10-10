@@ -11,7 +11,12 @@ import {
   MapPin,
   Clock,
   BookOpen,
-  ShieldCheck
+  ShieldCheck,
+  Globe,
+  Building2,
+  PackageCheck,
+  CheckCircle2,
+  Award
 } from 'lucide-react';
 import { COMPANY_CONFIG } from '../data/company';
 import { getHref } from '../utils/routes';
@@ -153,6 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="container-x mx-auto max-w-[1440px]">
           <div className="flex h-20 items-center justify-between">
 
+          {/* Nav bar button fix: keep the header actions and menu controls aligned and clickable in mobile layouts. */}
           {/* Logo with strict proportion preservation and SEO clean URL */}
           <a
             href={getHref('home')}
@@ -207,7 +213,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 aria-expanded={aboutDropdownOpen}
                 aria-haspopup="true"
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer flex items-center space-x-1.5 ${
-                  currentPage === 'about' || currentPage === 'quality'
+                  currentPage === 'about' || currentPage === 'quality' || aboutDropdownOpen
                     ? 'text-[#0070E0] font-semibold bg-blue-50/60'
                     : 'text-slate-700 hover:text-[#0A1C3E] hover:bg-slate-100/70'
                 }`}
@@ -216,15 +222,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${aboutDropdownOpen ? 'rotate-180 text-[#0070E0]' : 'text-slate-400'}`} />
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu (Exact match to reference screenshot: rounded card, boxed icons, inverted dark hover state) */}
               {aboutDropdownOpen && (
                 <div
-                  className="absolute left-0 top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+                  className="absolute left-0 top-full pt-2.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
                   onMouseEnter={handleAboutMouseEnter}
                   onMouseLeave={handleAboutMouseLeave}
                 >
-                  <div className="w-56 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 backdrop-blur-md">
-                    {/* Our Story */}
+                  <div className="w-[330px] bg-white rounded-2xl shadow-[0_20px_50px_rgba(10,28,62,0.16),0_0_0_1px_rgba(10,28,62,0.06)] border border-slate-200/90 p-2 space-y-1">
+                    {/* 1. Our Story */}
                     <a
                       href={getHref('about')}
                       onClick={(e) => {
@@ -234,20 +240,30 @@ export const Navbar: React.FC<NavbarProps> = ({
                           handleLinkClick('about');
                         }
                       }}
-                      className={`flex items-center space-x-2.5 px-4 py-2.5 text-sm transition-colors cursor-pointer ${
+                      className={`group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer ${
                         currentPage === 'about'
-                          ? 'text-[#0070E0] font-semibold bg-blue-50/70'
-                          : 'text-slate-700 hover:text-[#0A1C3E] hover:bg-slate-50'
+                          ? 'bg-slate-100/90'
+                          : 'hover:bg-slate-100/80'
                       }`}
                     >
-                      <BookOpen className={`w-4 h-4 shrink-0 ${currentPage === 'about' ? 'text-[#0070E0]' : 'text-slate-400'}`} />
-                      <div>
-                        <div className="font-medium">Our Story</div>
-                        <div className="text-[11px] text-slate-400 font-normal">Founding story & ethos</div>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-150 ${
+                        currentPage === 'about'
+                          ? 'bg-[#0A1C3E] border border-[#0A1C3E] text-white'
+                          : 'bg-white border border-slate-200/90 shadow-2xs text-slate-800 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white'
+                      }`}>
+                        <BookOpen className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Our Story
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          Origins, leadership ethos & sourcing
+                        </p>
                       </div>
                     </a>
 
-                    {/* Certificates */}
+                    {/* 2. Certificates */}
                     <a
                       href={getHref('quality')}
                       onClick={(e) => {
@@ -257,16 +273,134 @@ export const Navbar: React.FC<NavbarProps> = ({
                           handleLinkClick('quality');
                         }
                       }}
-                      className={`flex items-center space-x-2.5 px-4 py-2.5 text-sm transition-colors cursor-pointer ${
+                      className={`group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer ${
                         currentPage === 'quality'
-                          ? 'text-[#0070E0] font-semibold bg-blue-50/70'
-                          : 'text-slate-700 hover:text-[#0A1C3E] hover:bg-slate-50'
+                          ? 'bg-slate-100/90'
+                          : 'hover:bg-slate-100/80'
                       }`}
                     >
-                      <ShieldCheck className={`w-4 h-4 shrink-0 ${currentPage === 'quality' ? 'text-[#0070E0]' : 'text-slate-400'}`} />
-                      <div>
-                        <div className="font-medium">Certificates</div>
-                        <div className="text-[11px] text-slate-400 font-normal">APEDA, FSSAI, Spice Board</div>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-150 ${
+                        currentPage === 'quality'
+                          ? 'bg-[#0A1C3E] border border-[#0A1C3E] text-white'
+                          : 'bg-white border border-slate-200/90 shadow-2xs text-slate-800 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white'
+                      }`}>
+                        <ShieldCheck className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Certificates
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          APEDA, FSSAI & Spices Board licenses
+                        </p>
+                      </div>
+                    </a>
+
+                    {/* 3. Global Reach */}
+                    <a
+                      href={getHref('global-reach')}
+                      onClick={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                          e.preventDefault();
+                          setAboutDropdownOpen(false);
+                          handleLinkClick('global-reach');
+                        }
+                      }}
+                      className={`group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer ${
+                        currentPage === 'global-reach'
+                          ? 'bg-slate-100/90'
+                          : 'hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-150 ${
+                        currentPage === 'global-reach'
+                          ? 'bg-[#0A1C3E] border border-[#0A1C3E] text-white'
+                          : 'bg-white border border-slate-200/90 shadow-2xs text-slate-800 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white'
+                      }`}>
+                        <Globe className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Global Reach
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          Export corridors across 14+ countries
+                        </p>
+                      </div>
+                    </a>
+
+                    {/* 4. Why Choose Us */}
+                    <a
+                      href={getHref('about')}
+                      onClick={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                          e.preventDefault();
+                          setAboutDropdownOpen(false);
+                          handleLinkClick('about');
+                        }
+                      }}
+                      className="group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer hover:bg-slate-100/80"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-800 shrink-0 transition-all duration-150 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white">
+                        <CheckCircle2 className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Why Choose Us
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          Gujarat sortex processing & port access
+                        </p>
+                      </div>
+                    </a>
+
+                    {/* 5. Quality Standards */}
+                    <a
+                      href={getHref('quality')}
+                      onClick={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                          e.preventDefault();
+                          setAboutDropdownOpen(false);
+                          handleLinkClick('quality');
+                        }
+                      }}
+                      className="group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer hover:bg-slate-100/80"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-800 shrink-0 transition-all duration-150 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white">
+                        <Award className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Quality Standards
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          Moisture, MRL & lab compliance
+                        </p>
+                      </div>
+                    </a>
+
+                    {/* 6. Schedule Meeting */}
+                    <a
+                      href={getHref('meeting')}
+                      onClick={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                          e.preventDefault();
+                          setAboutDropdownOpen(false);
+                          handleLinkClick('meeting');
+                        }
+                      }}
+                      className="group flex items-center gap-3.5 p-2 rounded-xl transition-all duration-150 cursor-pointer hover:bg-slate-100/80"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-800 shrink-0 transition-all duration-150 group-hover:bg-[#0A1C3E] group-hover:border-[#0A1C3E] group-hover:text-white">
+                        <Calendar className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
+                          Schedule Meeting
+                        </div>
+                        <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
+                          Direct 30-min call with export desk
+                        </p>
                       </div>
                     </a>
                   </div>
@@ -331,43 +465,43 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Prominent CTA: Schedule Meeting & Request a Quote */}
-          <div className="hidden lg:flex items-center space-x-2.5">
+          <div className="hidden lg:flex items-center space-x-2.5 shrink-0">
             <button
               onClick={() => handleLinkClick('meeting')}
-              className="rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs font-semibold py-2.5 px-4 shadow-sm shadow-blue-900/30 transition-all flex items-center space-x-1.5 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+              className="rounded-full bg-[#0A1C3E] hover:bg-[#0070E0] text-white text-xs font-semibold py-2.5 px-5 shadow-xs transition-all duration-200 flex items-center space-x-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             >
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span>Schedule Meeting</span>
             </button>
             <button
               onClick={onOpenQuote}
-              className="rounded-xl border border-slate-300 hover:border-[#0A1C3E] text-slate-700 hover:text-[#0A1C3E] text-xs font-semibold py-2.5 px-3.5 transition-all flex items-center space-x-1 cursor-pointer"
+              className="rounded-full border border-slate-300 hover:border-[#0A1C3E] bg-white hover:bg-slate-50 text-[#0A1C3E] text-xs font-semibold py-2.5 px-4 transition-all duration-200 flex items-center space-x-1.5 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             >
               <span>Quote</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             </button>
           </div>
 
           {/* Mobile/Tablet Controls & Quick CTAs */}
-          <div className="lg:hidden flex items-center space-x-2 sm:space-x-3">
+          <div className="lg:hidden flex items-center space-x-2 sm:space-x-2.5 shrink-0">
             <button
               onClick={() => handleLinkClick('meeting')}
-              className="text-xs bg-[#0070E0] hover:bg-[#005bb5] text-white px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg font-medium flex items-center space-x-1 sm:space-x-1.5 transition-colors cursor-pointer shadow-xs"
+              className="text-xs bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-medium flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0"
             >
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span className="hidden sm:inline">Schedule Meeting</span>
               <span className="sm:hidden">Meeting</span>
             </button>
             <button
               onClick={onOpenQuote}
-              className="hidden sm:flex text-xs border border-slate-300 hover:border-[#0A1C3E] text-slate-700 hover:text-[#0A1C3E] px-3 py-2 rounded-lg font-medium items-center space-x-1 transition-colors cursor-pointer"
+              className="hidden sm:flex text-xs border border-slate-300 hover:border-[#0A1C3E] hover:bg-slate-50 text-[#0A1C3E] px-4 py-2 rounded-full font-medium items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Quote</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 sm:p-2.5 text-slate-700 hover:text-[#0A1C3E] rounded-lg border border-slate-200 bg-white cursor-pointer transition-colors"
+              className="p-2 sm:p-2.5 text-slate-700 hover:text-[#0A1C3E] rounded-full border border-slate-200 bg-white cursor-pointer transition-colors shrink-0"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -403,7 +537,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
 
             {/* 2. About (Dropdown accordion with Our Story and Certificates) */}
-            <div className="rounded-lg overflow-hidden">
+            <div>
               <button
                 type="button"
                 onClick={() => setMobileAboutExpanded(!mobileAboutExpanded)}
@@ -418,7 +552,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {mobileAboutExpanded && (
-                <div className="pl-4 pr-1 py-1 space-y-1 bg-slate-50/70 rounded-lg mt-1 border-l-2 border-[#0070E0]/30 ml-2 animate-in fade-in duration-150">
+                <div className="pl-4 pr-2 py-1 space-y-1 border-l-2 border-[#0070E0]/30 ml-3 mt-1 mb-1">
+                  {/* Our Story */}
                   <a
                     href={getHref('about')}
                     onClick={(e) => {
@@ -427,19 +562,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                         handleLinkClick('about');
                       }
                     }}
-                    className={`flex items-center justify-between w-full px-3 py-2.5 rounded-md text-xs sm:text-sm font-medium transition ${
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                       currentPage === 'about'
-                        ? 'text-[#0070E0] font-semibold bg-blue-50'
-                        : 'text-slate-600 hover:text-slate-900'
+                        ? 'bg-blue-50 text-[#0070E0] font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                    <div className="flex items-center space-x-2.5">
+                      <BookOpen className="w-4 h-4 text-slate-400 shrink-0" />
                       <span>Our Story</span>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </a>
 
+                  {/* Certificates */}
                   <a
                     href={getHref('quality')}
                     onClick={(e) => {
@@ -448,17 +584,57 @@ export const Navbar: React.FC<NavbarProps> = ({
                         handleLinkClick('quality');
                       }
                     }}
-                    className={`flex items-center justify-between w-full px-3 py-2.5 rounded-md text-xs sm:text-sm font-medium transition ${
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                       currentPage === 'quality'
-                        ? 'text-[#0070E0] font-semibold bg-blue-50'
-                        : 'text-slate-600 hover:text-slate-900'
+                        ? 'bg-blue-50 text-[#0070E0] font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                    <div className="flex items-center space-x-2.5">
+                      <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0" />
                       <span>Certificates</span>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </a>
+
+                  {/* Global Reach */}
+                  <a
+                    href={getHref('global-reach')}
+                    onClick={(e) => {
+                      if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                        e.preventDefault();
+                        handleLinkClick('global-reach');
+                      }
+                    }}
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+                      currentPage === 'global-reach'
+                        ? 'bg-blue-50 text-[#0070E0] font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <Globe className="w-4 h-4 text-slate-400 shrink-0" />
+                      <span>Global Reach</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </a>
+
+                  {/* Infrastructure */}
+                  <a
+                    href={getHref('about')}
+                    onClick={(e) => {
+                      if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                        e.preventDefault();
+                        handleLinkClick('about');
+                      }
+                    }}
+                    className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                      <span>Infrastructure</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </a>
                 </div>
               )}
@@ -527,7 +703,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   handleLinkClick('meeting');
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl bg-[#0070E0] text-white text-sm font-semibold hover:bg-[#005bb5] transition shadow-md"
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-full bg-[#0A1C3E] text-white text-sm font-semibold hover:bg-[#0070E0] transition shadow-xs cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Schedule Meeting (30 Min)</span>
@@ -537,7 +713,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenQuote();
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
+                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-full border border-slate-300 text-[#0A1C3E] text-sm font-semibold hover:border-[#0A1C3E] hover:bg-slate-50 transition cursor-pointer"
               >
                 <span>Request a Commercial Quote</span>
                 <ArrowUpRight className="w-4 h-4" />

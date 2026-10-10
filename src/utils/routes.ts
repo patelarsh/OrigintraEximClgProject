@@ -13,7 +13,8 @@ export const ROUTES = {
   privacy: '/privacy-policy',
   terms: '/terms-of-service',
   shipping: '/shipping-policy',
-  cookies: '/cookie-policy'
+  cookies: '/cookie-policy',
+  notFound: '/404'
 } as const;
 
 export type RouteTarget = 
@@ -26,10 +27,12 @@ export type RouteTarget =
   | 'contact'
   | 'meeting'
   | 'admin'
+  | 'not-found'
+  | '404'
   | string;
 
 export interface ParsedRoute {
-  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal';
+  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal' | 'not-found';
   productSlug?: string;
   blogSlug?: string;
   legalType?: 'privacy' | 'terms' | 'shipping' | 'cookies';
@@ -68,6 +71,7 @@ export function getHref(target: string): string {
   if (clean === 'legal-terms' || clean === 'terms') return ROUTES.terms;
   if (clean === 'legal-shipping' || clean === 'shipping') return ROUTES.shipping;
   if (clean === 'legal-cookies' || clean === 'cookies') return ROUTES.cookies;
+  if (clean === '404' || clean === 'not-found') return ROUTES.notFound;
 
   return `/${clean}`;
 }
@@ -163,12 +167,16 @@ export function parseCurrentRoute(): ParsedRoute {
     return { page: 'legal', legalType: 'cookies', path: '/cookie-policy' };
   }
 
+  if (pathname === '/404' || pathname === '/not-found') {
+    return { page: 'not-found', path: '/404' };
+  }
+
   // Fallback for legacy `#blog-...` directly in path
   if (pathname.startsWith('/#') || pathname.startsWith('/blog-')) {
     const slug = pathname.replace(/^\/(#|blog-)/, '');
     return { page: 'blog', blogSlug: slug, path: `/blog/${slug}` };
   }
 
-  // Default fallback to home
-  return { page: 'home', path: '/' };
+  // Any unmatched route returns 404
+  return { page: 'not-found', path: pathname };
 }
