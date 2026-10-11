@@ -148,6 +148,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                 </svg>
               </a>
+              <a
+                href={COMPANY_CONFIG.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 hover:text-[#25D366] transition-colors"
+                title="WhatsApp Trade Desk"
+                aria-label="WhatsApp Trade Desk"
+              >
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.031 2C6.496 2 2 6.496 2 12.031c0 1.767.46 3.49 1.332 5.006L2 22l5.105-1.339a9.98 9.98 0 004.926 1.282h.005c5.535 0 10.03-4.496 10.03-10.031A10.024 10.024 0 0012.031 2zm0 18.369c-1.503 0-2.977-.404-4.264-1.168l-.306-.182-3.17.832.846-3.09-.199-.317A8.344 8.344 0 013.662 12.03c0-4.614 3.755-8.369 8.369-8.369 2.235 0 4.337.871 5.918 2.452a8.324 8.324 0 012.451 5.918c0 4.615-3.755 8.37-8.369 8.37zm4.588-6.265c-.252-.126-1.488-.734-1.719-.818-.231-.084-.399-.126-.567.126-.168.252-.651.818-.798.986-.147.168-.294.189-.546.063-.252-.126-1.063-.392-2.025-1.25-.749-.668-1.255-1.493-1.402-1.745-.147-.252-.016-.388.11-.514.113-.113.252-.294.378-.441.126-.147.168-.252.252-.42.084-.168.042-.315-.021-.441-.063-.126-.567-1.365-.777-1.869-.205-.491-.413-.424-.567-.432l-.483-.008c-.168 0-.441.063-.672.315-.231.252-.882.861-.882 2.1 0 1.239.903 2.436 1.029 2.604.126.168 1.777 2.713 4.305 3.805.602.26 1.072.415 1.439.532.605.192 1.155.165 1.59.1.485-.072 1.488-.609 1.698-1.197.21-.588.21-1.092.147-1.197-.063-.105-.231-.168-.483-.294z" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -207,11 +219,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               onMouseEnter={handleAboutMouseEnter}
               onMouseLeave={handleAboutMouseLeave}
             >
-              <button
-                type="button"
-                onClick={() => setAboutDropdownOpen(!aboutDropdownOpen)}
-                aria-expanded={aboutDropdownOpen}
-                aria-haspopup="true"
+              <a
+                href={getHref('about')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                    e.preventDefault();
+                    setAboutDropdownOpen(false);
+                    handleLinkClick('about');
+                  }
+                }}
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer flex items-center space-x-1.5 ${
                   currentPage === 'about' || currentPage === 'quality' || aboutDropdownOpen
                     ? 'text-[#0070E0] font-semibold bg-blue-50/60'
@@ -220,7 +236,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span>About</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${aboutDropdownOpen ? 'rotate-180 text-[#0070E0]' : 'text-slate-400'}`} />
-              </button>
+              </a>
 
               {/* Dropdown Menu (Exact match to reference screenshot: rounded card, boxed icons, inverted dark hover state) */}
               {aboutDropdownOpen && (
@@ -255,7 +271,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[13.5px] font-bold text-[#0A1C3E] leading-tight">
-                          Our Story
+                          About Us (Our Story)
                         </div>
                         <p className="text-[11.5px] text-slate-500 font-normal mt-0.5 leading-tight truncate">
                           Origins, leadership ethos & sourcing
@@ -570,7 +586,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <div className="flex items-center space-x-2.5">
                       <BookOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span>Our Story</span>
+                      <span>About Us (Our Story)</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </a>

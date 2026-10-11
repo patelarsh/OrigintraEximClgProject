@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronUp } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { QuoteModal } from './components/QuoteModal';
@@ -30,6 +31,15 @@ export const App: React.FC = () => {
   const [prefilledProduct, setPrefilledProduct] = useState<string>('Red Chilli');
   const [legalModalOpen, setLegalModalOpen] = useState<boolean>(false);
   const [activeLegalType, setActiveLegalType] = useState<'privacy' | 'terms' | 'shipping' | 'cookies'>('privacy');
+  const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 250);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const applyRouteSeo = useCallback((route: ParsedRoute, product?: Product | null, post?: BlogPost | null) => {
     switch (route.page) {
@@ -405,18 +415,18 @@ export const App: React.FC = () => {
         policyType={activeLegalType}
       />
 
-      {/* Professional Floating WhatsApp Action Button (hidden on admin page) */}
+      {/* Professional Floating WhatsApp Action Button (Left Side - hidden on admin page) */}
       {currentPage !== 'admin' && (
-        <div className="fixed bottom-6 right-6 z-40">
+        <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40">
           <a
             href={COMPANY_CONFIG.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#20ba59] to-[#25D366] text-white shadow-[0_6px_24px_rgba(37,211,102,0.4)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+            className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 aspect-square shrink-0 rounded-full bg-gradient-to-tr from-[#20ba59] to-[#25D366] text-white shadow-[0_4px_20px_rgba(37,211,102,0.4)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
             aria-label="Direct WhatsApp Trade Desk"
           >
             {/* Authentic WhatsApp Icon */}
-            <svg className="w-7 h-7 fill-white" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 fill-white" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12.031 2C6.496 2 2 6.496 2 12.031c0 1.767.46 3.49 1.332 5.006L2 22l5.105-1.339a9.98 9.98 0 004.926 1.282h.005c5.535 0 10.03-4.496 10.03-10.031A10.024 10.024 0 0012.031 2zm0 18.369c-1.503 0-2.977-.404-4.264-1.168l-.306-.182-3.17.832.846-3.09-.199-.317A8.344 8.344 0 013.662 12.03c0-4.614 3.755-8.369 8.369-8.369 2.235 0 4.337.871 5.918 2.452a8.324 8.324 0 012.451 5.918c0 4.615-3.755 8.37-8.369 8.37zm4.588-6.265c-.252-.126-1.488-.734-1.719-.818-.231-.084-.399-.126-.567.126-.168.252-.651.818-.798.986-.147.168-.294.189-.546.063-.252-.126-1.063-.392-2.025-1.25-.749-.668-1.255-1.493-1.402-1.745-.147-.252-.016-.388.11-.514.113-.113.252-.294.378-.441.126-.147.168-.252.252-.42.084-.168.042-.315-.021-.441-.063-.126-.567-1.365-.777-1.869-.205-.491-.413-.424-.567-.432l-.483-.008c-.168 0-.441.063-.672.315-.231.252-.882.861-.882 2.1 0 1.239.903 2.436 1.029 2.604.126.168 1.777 2.713 4.305 3.805.602.26 1.072.415 1.439.532.605.192 1.155.165 1.59.1.485-.072 1.488-.609 1.698-1.197.21-.588.21-1.092.147-1.197-.063-.105-.231-.168-.483-.294z" />
             </svg>
 
@@ -426,13 +436,36 @@ export const App: React.FC = () => {
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400 border-2 border-white"></span>
             </span>
 
-            {/* Professional Floating Tooltip */}
-            <div className="absolute right-16 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-[#0A1C3E] text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none translate-x-2 group-hover:translate-x-0 border border-slate-700/60 flex items-center gap-2">
+            {/* Professional Floating Tooltip (Opens to the right, desktop only) */}
+            <div className="hidden sm:flex absolute left-16 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-[#0A1C3E] text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none -translate-x-2 group-hover:translate-x-0 border border-slate-700/60 items-center gap-2">
+              <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 bg-[#0A1C3E] rotate-45 border-l border-b border-slate-700/60"></div>
               <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
               <span>WhatsApp Trade Desk</span>
-              <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-[#0A1C3E] rotate-45 border-r border-t border-slate-700/60"></div>
             </div>
           </a>
+        </div>
+      )}
+
+      {/* Floating Scroll to Top Action Button (Right Side - hidden on admin page) */}
+      {currentPage !== 'admin' && (
+        <div className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-40 transition-all duration-300 ${
+          showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="group relative flex flex-col items-center justify-center w-12 h-12 sm:w-14 sm:h-14 aspect-square shrink-0 rounded-full bg-[#0A1C3E] hover:bg-[#0070E0] text-white shadow-[0_4px_20px_rgba(10,28,62,0.35)] hover:shadow-[0_8px_30px_rgba(0,112,224,0.5)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer border border-blue-900/60"
+            aria-label="Scroll to top of page"
+            title="Back to Top"
+          >
+            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-y-0.5 transition-transform" />
+            <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-slate-200 group-hover:text-white leading-none mt-0.5">Top</span>
+
+            {/* Tooltip on hover (desktop only) */}
+            <div className="hidden sm:flex absolute right-16 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0A1C3E] text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none translate-x-2 group-hover:translate-x-0 border border-slate-700/60 items-center gap-1.5">
+              <span>Back to Top</span>
+              <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-[#0A1C3E] rotate-45 border-r border-t border-slate-700/60"></div>
+            </div>
+          </button>
         </div>
       )}
 

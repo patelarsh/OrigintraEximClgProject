@@ -1,5 +1,21 @@
 import React from 'react';
-import { ArrowUpRight, ArrowRight, ShieldCheck, CheckCircle2, Compass, Layers, Truck, Globe, Mail, Phone } from 'lucide-react';
+import {
+  ArrowUpRight,
+  ArrowRight,
+  ShieldCheck,
+  Compass,
+  Layers,
+  Truck,
+  Globe,
+  Globe2,
+  Mail,
+  Phone,
+  Target,
+  MessageSquareText,
+  Ship,
+  Handshake,
+  Building2
+} from 'lucide-react';
 import { COMPANY_CONFIG } from '../data/company';
 import { TEAM_EXPANSION_NOTICE, TEAM_MEMBERS as DEFAULT_TEAM_MEMBERS } from '../data/team';
 import { TeamMember } from '../types';
@@ -22,7 +38,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
     <div className="bg-white text-[#0F172A]">
       
       {/* Page Hero */}
-      <section className="relative overflow-hidden bg-[#0A1C3E] text-white py-12 sm:py-20 md:py-28">
+      <section className="relative z-20 overflow-hidden bg-[#0A1C3E] text-white py-12 sm:py-20 md:py-28 shadow-xs">
         <div className="container-x mx-auto max-w-[1440px] relative">
           <div className="max-w-3xl space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-sky-300">
@@ -39,11 +55,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
       </section>
 
       {/* Sourcing Ethos & Philosophy */}
-      <section className="py-12 sm:py-20 md:py-28 bg-white border-b border-slate-200">
+      <section className="relative z-10 pt-0 pb-16 sm:pb-24 md:pb-28 bg-white border-b border-slate-200">
         <div className="container-x mx-auto max-w-[1440px]">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
             
-            <div className="lg:col-span-6 space-y-4 sm:space-y-6">
+            {/* Left Column: Sourcing Narrative */}
+            <div className="order-2 lg:order-1 lg:col-span-6 space-y-4 sm:space-y-6 pt-6 sm:pt-8 lg:pt-16 md:pt-20">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
                 Our Philosophy
               </span>
@@ -78,136 +95,22 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
               </div>
             </div>
 
-            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/5 border border-slate-200">
+            {/* Right Column: Full HD Blue Container Hanging DIRECTLY from the Blue Hero Section above */}
+            <div className="order-1 lg:order-2 lg:col-span-6 flex flex-col items-center relative pt-0">
+              
+              {/* Full HD Blue Hanging Container - Real steel cables extend seamlessly to touch the blue hero block */}
+              <div className="w-full flex items-center justify-center relative -mt-10 sm:-mt-14 md:-mt-18 lg:-mt-20">
                 <img
-                  src="/assets/about/spice-harvest-sourcing.jpg"
-                  alt="Spice harvesting and agricultural mandi sourcing in India"
-                  className="w-full h-full object-cover"
+                  src="/assets/about/blue-hanging-container.png"
+                  alt="Full HD Blue Export Shipping Container hanging from above hero block - Origintra Exim"
+                  className="w-full max-w-[560px] sm:max-w-[620px] lg:max-w-[680px] xl:max-w-[720px] h-auto object-contain transition-transform duration-500 hover:scale-[1.01] filter drop-shadow-2xl"
+                  loading="lazy"
                 />
               </div>
-              <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/5 border border-slate-200 mt-8">
-                <img
-                  src="/assets/about/spice-processing-plant.jpg"
-                  alt="Modern spice processing plant and optical sorting line"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+
             </div>
 
           </div>
-        </div>
-      </section>
-
-      {/* Sourcing Footprint */}
-      <section className="py-12 sm:py-20 md:py-28 bg-slate-50 border-b border-slate-200">
-        <div className="container-x mx-auto max-w-[1440px]">
-          
-          <div className="max-w-3xl mb-10 sm:mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-              Agricultural Footprint
-            </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
-              Sourcing From India's Prime Cultivation Zones<span className="text-[#0070E0]">.</span>
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 mt-2 sm:mt-3">
-              We operate across key regional spice ecosystems to ensure batch consistency and genuine single-origin integrity.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center font-bold text-sm">
-                01
-              </div>
-              <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
-                Andhra Pradesh & Telangana
-              </h3>
-              <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">
-                Commodities: Red Chilli (Teja, Sanam) & Turmeric
-              </p>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Direct connections to major chilli terminal mandis in Guntur and Warangal, providing controlled heat options from mild color extract to high Scoville fire.
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center font-bold text-sm">
-                02
-              </div>
-              <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
-                Gujarat & Rajasthan
-              </h3>
-              <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">
-                Commodities: Cumin Seeds & Coriander Seeds
-              </p>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Access to the prominent Unjha seed spice corridor and Kota coriander trading networks, delivering Sortex-cleaned seed spices with low foreign matter.
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center font-bold text-sm">
-                03
-              </div>
-              <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
-                Tamil Nadu & Southern Belts
-              </h3>
-              <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">
-                Commodities: Salem Turmeric & Pure Moringa Leaf Powder
-              </p>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Rich agricultural soils dedicated to high-curcumin finger turmeric and low-temperature dehydrated moringa leaf powder.
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Gateway Port Infrastructure */}
-      <section className="py-12 sm:py-20 md:py-28 bg-white border-b border-slate-200">
-        <div className="container-x mx-auto max-w-[1440px]">
-          
-          <div className="max-w-3xl mb-10 sm:mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-              Logistics & Gateway Ports
-            </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
-              Seaworthy Container Stuffing & Fast Port Clearances<span className="text-[#0070E0]">.</span>
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 mt-2 sm:mt-3">
-              We dispatch export consignments through India's premier international container ports with verified surveyor inspection and moisture-barrier protection.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {COMPANY_CONFIG.operationalPorts.map((port, idx) => (
-              <div
-                key={idx}
-                className="p-6 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200 space-y-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-[#0070E0] uppercase tracking-wider">
-                    Port Code: {port.code}
-                  </span>
-                  <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-500">
-                    {port.location}
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
-                  {port.name}
-                </h3>
-                <p className="text-xs font-semibold text-slate-700">
-                  {port.type}
-                </p>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {port.transitFocus}
-                </p>
-              </div>
-            ))}
-          </div>
-
         </div>
       </section>
 
@@ -287,76 +190,511 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
             ))}
           </div>
 
-          {/* Operational Culture & Ground Execution Pillars */}
-          <div className="pt-12 border-t border-slate-200">
-            <div className="max-w-2xl mb-8">
-              <h3 className="text-xl font-display font-semibold text-[#0F172A]">
-                Our Operational Commitments
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                How our procurement, inspection, and port operations teams work daily on international consignments.
-              </p>
-            </div>
+        </div>
+      </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {TEAM_EXPANSION_NOTICE.culturePoints.map((point, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-blue-100 text-[#0070E0] flex items-center justify-center font-bold text-sm">
-                    ✓
+      {/* =========================================================================
+          SECTION: Purpose & Direction (Our Mission & Our Vision)
+      ========================================================================= */}
+      <section className="py-16 sm:py-24 bg-white border-b border-slate-200/80">
+        <div className="container-x mx-auto max-w-[1440px]">
+          
+          <div className="max-w-3xl mb-12 sm:mb-16 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+              Guiding Directives
+            </span>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
+              Purpose & Direction<span className="text-[#0070E0]">.</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed pt-1">
+              Our institutional foundation built for long-term consistency in international commerce.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            
+            {/* OUR MISSION */}
+            <div className="relative p-8 sm:p-10 lg:p-12 rounded-3xl bg-[#0A1C3E] text-white border border-white/10 shadow-sm flex flex-col justify-between overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 w-44 h-44 rounded-full bg-[#0070E0]/15 blur-2xl pointer-events-none" />
+              
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-sky-300">
+                    <Target className="w-6 h-6" />
                   </div>
-                  <h4 className="text-base font-display font-semibold text-[#0F172A]">
-                    {point.title}
-                  </h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {point.description}
+                  <span className="text-xs uppercase font-mono tracking-wider text-sky-300/80">
+                    DIRECTIVE // 01
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-2xl sm:text-3xl font-display font-semibold text-white">
+                    Our Mission
+                  </h3>
+                  <p className="text-lg sm:text-xl text-slate-100 font-normal leading-relaxed pt-1">
+                    “To connect Indian products with global markets through quality-focused sourcing, transparent communication, and dependable trade coordination.”
                   </p>
                 </div>
-              ))}
+              </div>
+
+              <div className="pt-8 mt-6 border-t border-white/10 text-xs sm:text-sm text-slate-300 relative z-10">
+                Grounded in farmgate sourcing discipline, certified laboratory testing, and responsible trade execution.
+              </div>
             </div>
 
-            <div className="mt-8 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-slate-700 font-medium">
-                {TEAM_EXPANSION_NOTICE.joinCallout}
-              </p>
-              <button
-                onClick={() => onNavigate('contact')}
-                className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-5 py-2.5 text-xs font-semibold shrink-0 cursor-pointer"
-              >
-                <span>Connect with Commercial Desk</span>
-              </button>
+            {/* OUR VISION */}
+            <div className="relative p-8 sm:p-10 lg:p-12 rounded-3xl bg-slate-50 text-[#0F172A] border border-slate-200/90 shadow-2xs flex flex-col justify-between overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 w-44 h-44 rounded-full bg-blue-100/50 blur-2xl pointer-events-none" />
+              
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-[#0070E0]">
+                    <Compass className="w-6 h-6" />
+                  </div>
+                  <span className="text-xs uppercase font-mono tracking-wider text-slate-400">
+                    DIRECTIVE // 02
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-2xl sm:text-3xl font-display font-semibold text-[#0F172A]">
+                    Our Vision
+                  </h3>
+                  <p className="text-lg sm:text-xl text-slate-800 font-normal leading-relaxed pt-1">
+                    “To build Origintra Exim into a trusted international trading partner known for professionalism, consistency, and long-term business relationships.”
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-8 mt-6 border-t border-slate-200 text-xs sm:text-sm text-slate-600 relative z-10">
+                Earning buyer trust through repeatable batch consistency, honest communication, and enduring relationships.
+              </div>
             </div>
+
           </div>
 
         </div>
       </section>
 
-      {/* CTA Bottom Banner */}
-      <section className="py-12 sm:py-20 bg-[#0A1C3E] text-white">
-        <div className="container-x mx-auto max-w-[1440px] text-center space-y-4 sm:space-y-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-white tracking-tight">
-            Start a Reliable Indian Sourcing Partnership
-          </h2>
-          <p className="text-base text-slate-300 max-w-xl mx-auto">
-            Discuss your target specifications and delivery schedules with our trade team.
-          </p>
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+      {/* =========================================================================
+          SECTION: Why Choose Origintra Exim? (5 Pillars + Corporate Trade Desk)
+      ========================================================================= */}
+      <section className="py-16 sm:py-24 bg-slate-50/70 border-b border-slate-200/80">
+        <div className="container-x mx-auto max-w-[1440px]">
+          
+          <div className="max-w-3xl mb-12 sm:mb-16 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+              Value Proposition
+            </span>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
+              Why Choose Origintra Exim?<span className="text-[#0070E0]">.</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed pt-1">
+              Five institutional pillars that ensure your Indian agricultural procurement is secure, compliant, and dependable.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            
+            {/* Pillar 01 */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                  <Globe2 className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-mono font-bold text-slate-400">01</span>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-[#0F172A]">India-Based Sourcing</h3>
+                <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">Access to Indian spices and agricultural products.</p>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Direct relationships with trusted farming belts and established mandis across India, ensuring authentic single-origin integrity and supply stability.
+              </p>
+            </div>
+
+            {/* Pillar 02 */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                  <Target className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-mono font-bold text-slate-400">02</span>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-[#0F172A]">Buyer-Focused Approach</h3>
+                <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">Enquiries handled according to product and order requirements.</p>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Every consignment is structured around your specific grade, moisture threshold, mesh size, microbiological parameters, and commercial timelines.
+              </p>
+            </div>
+
+            {/* Pillar 03 */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                  <MessageSquareText className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-mono font-bold text-slate-400">03</span>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-[#0F172A]">Clear Communication</h3>
+                <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">Transparent discussions about specifications, pricing, packaging, and shipping.</p>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                No ambiguous clauses. We maintain open, clear dialogue on market availability, lot testing reports, pricing breakdowns, and container milestones.
+              </p>
+            </div>
+
+            {/* Pillar 04 */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                  <Ship className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-mono font-bold text-slate-400">04</span>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-[#0F172A]">Professional Coordination</h3>
+                <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">Support with trade-related requirements and export arrangements.</p>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Full coordination for phytosanitary clearance, surveyor inspection (SGS/Bureau Veritas), certificate of origin, and port container stuffing.
+              </p>
+            </div>
+
+            {/* Pillar 05 */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                  <Handshake className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-mono font-bold text-slate-400">05</span>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-display font-bold text-[#0F172A]">Long-Term Partnerships</h3>
+                <p className="text-xs sm:text-sm font-semibold text-[#0070E0]">A commitment to building mutually beneficial business relationships.</p>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                We believe sustainable export success is measured in recurring consignments, year-over-year trust, and shared commercial growth.
+              </p>
+            </div>
+
+            {/* Pillar 06: Corporate Trade Desk */}
+            <div className="bg-[#0A1C3E] text-white rounded-2xl p-7 sm:p-8 border border-white/10 shadow-sm space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="w-11 h-11 rounded-xl bg-white/10 text-sky-300 flex items-center justify-center">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-display font-bold text-white">
+                  Corporate Trade Desk
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Have an active purchase order or tender requirements? Our commercial desk evaluates product specifications and provides transparent FOB / CIF pricing.
+                </p>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  onClick={onOpenQuote}
+                  className="w-full btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white py-3 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+                >
+                  <span>Request Commercial Quotation</span>
+                  <ArrowUpRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION: Statutory Export Certificates & Accreditations (FSSAI, APEDA, Spice Board, IEC, GST, MSME)
+      ========================================================================= */}
+      <section className="relative overflow-hidden py-16 sm:py-24 bg-[#0A1C3E] text-white">
+        {/* Dotted Global Network Map Background (Faint Watermark with Routes & Nodes) */}
+        <div 
+          className="absolute inset-0 pointer-events-none select-none flex items-center justify-center opacity-[0.06]"
+          aria-hidden="true"
+        >
+          <img 
+            src="/assets/dotted-world-map.svg" 
+            alt="" 
+            className="w-full h-full object-cover object-center scale-105"
+            loading="lazy"
+          />
+        </div>
+        {/* Soft edge fade overlay for seamless background integration */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1C3E]/60 via-transparent to-[#0A1C3E]/60 pointer-events-none" />
+
+        <div className="container-x mx-auto max-w-[1440px] relative z-10">
+          
+          {/* Executive Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 pb-8 border-b border-blue-900/60">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
+                Statutory Export Accreditations & Licensing
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-white tracking-tight mt-2">
+                Government Verified & Certified for Global Trade<span className="text-[#38BDF8]">.</span>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+                Origintra Exim is a licensed Indian merchant exporter. Commercial spice consignments are governed by statutory food safety standards, lab clearances, and official trade certifications.
+              </p>
+            </div>
+
             <button
-              onClick={onOpenQuote}
-              className="btn-pill btn-pill-dark bg-[#0070E0] hover:bg-[#005bb5] text-white px-8 py-3 text-sm font-semibold flex items-center space-x-2 cursor-pointer"
+              onClick={() => onNavigate('quality')}
+              className="px-5 py-2.5 rounded-lg bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold shrink-0 cursor-pointer flex items-center space-x-2 transition-colors shadow-sm"
             >
-              <span>Request a Quote</span>
-              <ArrowUpRight className="w-4 h-4 ml-1" />
-            </button>
-            <button
-              onClick={() => onNavigate('contact')}
-              className="btn-pill btn-pill-outline border-white/30 text-white hover:bg-white hover:text-[#0A1C3E] px-8 py-3 text-sm font-semibold cursor-pointer"
-            >
-              <span>Contact Trade Desk</span>
+              <span>View Full Quality & Compliance</span>
+              <ArrowUpRight className="w-4 h-4 ml-0.5" />
             </button>
           </div>
+
+          {/* 6 Accreditations - Official Government Certificate Logos */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+            
+            {/* 1. FSSAI */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="FSSAI - Food Safety and Standards Authority of India"
+            >
+              <img 
+                src="/assets/certificates/fssai.png" 
+                alt="FSSAI - Food Safety and Standards Authority of India" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+            {/* 2. APEDA */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="APEDA - Agricultural and Processed Food Products Export Development Authority"
+            >
+              <img 
+                src="/assets/certificates/apeda.png" 
+                alt="APEDA - Agricultural and Processed Food Products Export Development Authority" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+            {/* 3. Spice Board */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="Spices Board India - Ministry of Commerce and Industry"
+            >
+              <img 
+                src="/assets/certificates/spices-board.png" 
+                alt="Spices Board India" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+            {/* 4. IEC */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="IEC - Import Export Code (DGFT, Ministry of Commerce)"
+            >
+              <img 
+                src="/assets/certificates/iec.png" 
+                alt="IEC DGFT License" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+            {/* 5. GST */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="GST - Goods and Services Tax"
+            >
+              <img 
+                src="/assets/certificates/gst.png" 
+                alt="GST" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+            {/* 6. MSME */}
+            <div 
+              onClick={() => onNavigate('quality')}
+              className="bg-white rounded-2xl p-6 sm:p-7 flex items-center justify-center hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group shadow-md h-32 sm:h-38 md:h-44 border border-white/90"
+              title="MSME - Ministry of Micro, Small and Medium Enterprises"
+            >
+              <img 
+                src="/assets/certificates/msme.svg" 
+                alt="MSME" 
+                className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
+                loading="lazy"
+              />
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION: Let's Build a Global Business Relationship
+      ========================================================================= */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="container-x mx-auto max-w-[1440px]">
+          
+          <div className="bg-[#0A1C3E] rounded-3xl text-white p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-xl">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+              
+              {/* Left Column: Narrative & Action CTAs */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                <div className="space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                    Global Trade Inquiries
+                  </span>
+                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold text-white tracking-tight leading-tight">
+                    Let's Build a Global Business Relationship<span className="text-[#0070E0]">.</span>
+                  </h2>
+                </div>
+
+                <div className="space-y-4 text-base sm:text-lg text-slate-200 font-normal leading-relaxed">
+                  <p>
+                    Looking for an Indian spice supplier or export partner? Share your product requirements, destination country, required quantity, and packaging preferences. Our team will review your enquiry and discuss the next steps.
+                  </p>
+                  <p className="text-white font-semibold text-lg sm:text-xl">
+                    Contact Origintra Exim today to discuss your sourcing requirements.
+                  </p>
+                </div>
+
+                {/* Primary CTAs */}
+                <div className="pt-2 flex flex-wrap items-center gap-4">
+                  <button
+                    onClick={onOpenQuote}
+                    className="btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white px-8 py-3.5 text-sm font-semibold flex items-center space-x-2 transition-all duration-200 shadow-md shadow-[#0070E0]/20 cursor-pointer"
+                  >
+                    <span>Submit Sourcing Enquiry</span>
+                    <ArrowUpRight className="w-4 h-4 ml-1" />
+                  </button>
+                  <button
+                    onClick={() => onNavigate('contact')}
+                    className="btn-pill border border-white/30 hover:border-white text-white hover:bg-white/10 px-8 py-3.5 text-sm font-semibold flex items-center space-x-2 transition-all duration-200 cursor-pointer"
+                  >
+                    <span>Contact Trade Desk</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+
+              </div>
+
+              {/* Right Column: Commercial Desk Checklist */}
+              <div className="lg:col-span-5 bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-700/80 space-y-5">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-mono uppercase font-semibold text-sky-400 tracking-wider">
+                    Commercial Desk Checklist
+                  </span>
+                  <h3 className="text-lg font-display font-bold text-white">
+                    What to Include in Your Enquiry
+                  </h3>
+                </div>
+
+                <div className="space-y-4 pt-1">
+                  
+                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
+                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      1
+                    </span>
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-semibold text-white">Product Requirements</h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Spice type, whole or ground form, purity %, moisture limits, and target grade.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
+                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      2
+                    </span>
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-semibold text-white">Destination Country</h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Port of discharge and preferred shipping terms (FOB, CFR, or CIF).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
+                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      3
+                    </span>
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-semibold text-white">Required Quantity</h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Sample order, partial container, or full 20ft / 40ft FCL volume.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3.5">
+                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      4
+                    </span>
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-semibold text-white">Packaging Preferences</h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Bulk PP bags, vacuum bags, jute sacks, or custom brand packaging.
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-800/80">
+                  Reviewed by commercial trade desk with specification feasibility and formal proforma quote within 24 hours.
+                </div>
+              </div>
+
+            </div>
+
+            {/* Direct Communication Badges */}
+            <div className="mt-10 sm:mt-12 pt-6 border-t border-slate-800 flex flex-wrap items-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-300">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-[#0070E0]" />
+                <span>Email:</span>
+                <a href={`mailto:${COMPANY_CONFIG.primaryEmail}`} className="text-white hover:underline font-medium">
+                  {COMPANY_CONFIG.primaryEmail}
+                </a>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4 text-[#0070E0]" />
+                <span>Trade Desk:</span>
+                <a href={`tel:${COMPANY_CONFIG.phone}`} className="text-white hover:underline font-medium">
+                  {COMPANY_CONFIG.phoneDisplay}
+                </a>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Globe2 className="w-4 h-4 text-[#0070E0]" />
+                <span>Head Office:</span>
+                <span className="text-white font-medium">
+                  Sabarkantha / Ahmedabad Hubs, Gujarat, India
+                </span>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </section>
 

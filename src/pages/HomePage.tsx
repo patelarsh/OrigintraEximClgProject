@@ -842,8 +842,23 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 6. STATUTORY EXPORT CERTIFICATES & ACCREDITATIONS (FSSAI, APEDA, Spice Board, IEC, GST, MSME) */}
-      <section className="py-20 sm:py-28 bg-[#0A1C3E] text-white">
-        <div className="container-x mx-auto max-w-[1440px]">
+      <section className="relative overflow-hidden py-20 sm:py-28 bg-[#0A1C3E] text-white">
+        {/* Dotted Global Network Map Background (Faint Watermark with Routes & Nodes) */}
+        <div 
+          className="absolute inset-0 pointer-events-none select-none flex items-center justify-center opacity-[0.06]"
+          aria-hidden="true"
+        >
+          <img 
+            src="/assets/dotted-world-map.svg" 
+            alt="" 
+            className="w-full h-full object-cover object-center scale-105"
+            loading="lazy"
+          />
+        </div>
+        {/* Soft edge fade overlay for seamless background integration */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1C3E]/60 via-transparent to-[#0A1C3E]/60 pointer-events-none" />
+
+        <div className="container-x mx-auto max-w-[1440px] relative z-10">
           
           {/* Executive Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 pb-8 border-b border-blue-900/60">
