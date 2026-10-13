@@ -18,12 +18,13 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { PRODUCTS } from './data/products';
 import { BLOG_POSTS } from './data/blog';
 import { Product, BlogPost } from './types';
-import { COMPANY_CONFIG } from './data/company';
 import { AdminStorage } from './services/adminStorage';
+import { useCompanyConfig } from './hooks/useCompanyConfig';
 import { ROUTES, getHref, parseCurrentRoute, ParsedRoute } from './utils/routes';
 import { updatePageSeo, getProductSeo, getBlogPostSeo } from './utils/seo';
 
 export const App: React.FC = () => {
+  const companyConfig = useCompanyConfig();
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [blogArticleSlug, setBlogArticleSlug] = useState<string | null>(null);
@@ -229,7 +230,7 @@ export const App: React.FC = () => {
     }
   }, [applyRouteSeo]);
 
-  // Synchronize on mount and handle HTML5 popstate & hash changes
+  // Synchronize on mount and handle HTML5 popstate, hash changes, and live DB updates
   useEffect(() => {
     syncRouteState();
 
@@ -239,9 +240,13 @@ export const App: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('hashchange', handlePopState);
+    window.addEventListener('origintra_products_updated', handlePopState);
+    window.addEventListener('origintra_blog_updated', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handlePopState);
+      window.removeEventListener('origintra_products_updated', handlePopState);
+      window.removeEventListener('origintra_blog_updated', handlePopState);
     };
   }, [syncRouteState]);
 
@@ -419,7 +424,7 @@ export const App: React.FC = () => {
       {currentPage !== 'admin' && (
         <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40">
           <a
-            href={COMPANY_CONFIG.whatsappUrl}
+            href={companyConfig.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 aspect-square shrink-0 rounded-full bg-gradient-to-tr from-[#20ba59] to-[#25D366] text-white shadow-[0_4px_20px_rgba(37,211,102,0.4)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"

@@ -15,7 +15,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { Product } from '../types';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 
 interface ProductDetailPageProps {
   product: Product;
@@ -30,6 +30,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   onOpenQuoteWithProduct,
   onNavigate
 }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const [specsExpanded, setSpecsExpanded] = useState<boolean>(true);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
 

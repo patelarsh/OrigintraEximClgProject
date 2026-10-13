@@ -16,7 +16,7 @@ import {
   Handshake,
   Building2
 } from 'lucide-react';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { TEAM_EXPANSION_NOTICE, TEAM_MEMBERS as DEFAULT_TEAM_MEMBERS } from '../data/team';
 import { TeamMember } from '../types';
 import { AdminStorage } from '../services/adminStorage';
@@ -27,6 +27,7 @@ interface AboutPageProps {
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>(() => AdminStorage.getTeamMembers());
 
   React.useEffect(() => {

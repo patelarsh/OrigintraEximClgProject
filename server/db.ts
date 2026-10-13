@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { PRODUCTS as DEFAULT_PRODUCTS } from '../src/data/products';
 import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../src/data/blog';
 import { TEAM_MEMBERS as DEFAULT_TEAM_MEMBERS } from '../src/data/team';
 import { COMPANY_CONFIG as DEFAULT_COMPANY_CONFIG } from '../src/data/company';
-import { DEFAULT_GALLERY_IMAGES } from '../src/data/gallery';
 import { TESTIMONIALS as DEFAULT_TESTIMONIALS } from '../src/data/testimonials';
+
+const require = createRequire(import.meta.url);
 
 export interface UserRecord {
   id: string;
@@ -19,21 +21,26 @@ export interface UserRecord {
   lastLogin?: string;
 }
 
-export interface DatabaseSchema {
-  version: string;
-  updatedAt: string;
-  users: UserRecord[];
-  products: any[];
-  blogPosts: any[];
-  teamMembers: any[];
-  inquiries: any[];
-  companyConfig: any;
-  customGallery: any[];
-  testimonials: any[];
+export interface AuditLogRecord {
+  id: number;
+  action: string;
+  entityType: string;
+  entityId: string;
+  summary: string;
+  createdAt: string;
+}
+
+export interface DbChangeEvent {
+  type: 'db_updated';
+  entity: 'products' | 'blog' | 'team' | 'inquiries' | 'company' | 'gallery' | 'testimonials' | 'users' | 'all';
+  action: string;
+  entityId?: string;
+  timestamp: string;
 }
 
 const DB_DIR = path.resolve(process.cwd(), 'data');
-const DB_FILE = path.resolve(DB_DIR, 'database.json');
+const SQLITE_FILE = path.resolve(DB_DIR, 'origintra.sqlite');
+const LEGACY_JSON_FILE = path.resolve(DB_DIR, 'database.json');
 
 // Default initial inquiries
 const INITIAL_INQUIRIES = [
@@ -104,6 +111,17 @@ const INITIAL_USERS: UserRecord[] = [
     lastLogin: '2026-10-05T07:15:00.000Z'
   },
   {
+    id: 'usr-1791183682976',
+    name: 'Patel Arsh',
+    email: 'arsh@origintra.com',
+    password: 'Arsh@2410',
+    role: 'admin',
+    avatar: '/assets/team/director.jpg',
+    department: 'Corporate Admin & Global Trading Desk',
+    createdAt: '2026-10-05T06:58:00.000Z',
+    lastLogin: '2026-10-11T09:00:00.000Z'
+  },
+  {
     id: 'usr-editor-02',
     name: 'Priya Sundaram',
     email: 'editor@origintra.com',
@@ -138,161 +156,536 @@ const INITIAL_USERS: UserRecord[] = [
   }
 ];
 
-class DatabaseEngine {
-  private db: DatabaseSchema | null = null;
+function cleanSlug(text: string): string {
+  return (text || 'article')
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, '-and-')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || `item-${Date.now()}`;
+}
+
+class SQLiteDatabaseEngine {
+  private sqlite: any = null;
+  private listeners: Set<(event: DbChangeEvent) => void> = new Set();
 
   constructor() {
-    this.ensureInitialized();
+    this.init();
   }
 
-  private ensureInitialized(): DatabaseSchema {
-    if (this.db) return this.db;
+  public onDatabaseChange(listener: (event: DbChangeEvent) => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
 
-    if (!fs.existsSync(DB_DIR)) {
-      try {
-        fs.mkdirSync(DB_DIR, { recursive: true });
-      } catch (err) {
-        console.error('[DB] Failed to create data directory:', err);
+  private emitChange(
+    entity: DbChangeEvent['entity'],
+    action: string,
+    entityId?: string,
+    summary?: string
+  ) {
+    const timestamp = new Date().toISOString();
+    try {
+      this.ensureOpen();
+      this.sqlite
+        .prepare('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+        .run('updated_at', timestamp);
+
+      if (summary) {
+        this.sqlite
+          .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+          .run(action, entity, entityId || '', summary, timestamp);
       }
+    } catch (err) {
+      console.error('[SQLite] Error writing audit/meta:', err);
     }
 
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        this.db = JSON.parse(raw);
-        if (!this.db!.testimonials || !Array.isArray(this.db!.testimonials)) {
-          this.db!.testimonials = DEFAULT_TESTIMONIALS;
-          this.persistToDisk();
-        }
-        if (this.db!.blogPosts && Array.isArray(this.db!.blogPosts)) {
-          let fixedSlug = false;
-          this.db!.blogPosts.forEach(post => {
-            if (post.slug && post.slug.startsWith('new-article-')) {
-              post.slug = (post.title || 'article')
-                .toLowerCase()
-                .trim()
-                .replace(/&/g, '-and-')
-                .replace(/[^\w\s-]/g, '')
-                .replace(/[\s_-]+/g, '-')
-                .replace(/^-+|-+$/g, '');
-              fixedSlug = true;
-            }
-          });
-          if (fixedSlug) this.persistToDisk();
-        }
-        console.log('[DB] Loaded persistent database from disk:', DB_FILE);
-        return this.db!;
-      } catch (err) {
-        console.error('[DB] Error parsing existing database file, creating fresh seed:', err);
-      }
-    }
-
-    // Initialize fresh seed database
-    this.db = {
-      version: '1.0',
-      updatedAt: new Date().toISOString(),
-      users: INITIAL_USERS,
-      products: DEFAULT_PRODUCTS,
-      blogPosts: DEFAULT_BLOG_POSTS,
-      teamMembers: DEFAULT_TEAM_MEMBERS,
-      inquiries: INITIAL_INQUIRIES,
-      companyConfig: DEFAULT_COMPANY_CONFIG,
-      customGallery: [],
-      testimonials: DEFAULT_TESTIMONIALS
+    const event: DbChangeEvent = {
+      type: 'db_updated',
+      entity,
+      action,
+      entityId,
+      timestamp
     };
 
-    this.persistToDisk();
-    console.log('[DB] Created and seeded new database at:', DB_FILE);
-    return this.db;
+    for (const listener of this.listeners) {
+      try {
+        listener(event);
+      } catch (e) {
+        console.error('[SQLite] Listener error:', e);
+      }
+    }
   }
 
-  private persistToDisk(): void {
-    if (!this.db) return;
-    try {
-      this.db.updatedAt = new Date().toISOString();
-      const serialized = JSON.stringify(this.db, null, 2);
-      const tmpFile = `${DB_FILE}.tmp`;
-      fs.writeFileSync(tmpFile, serialized, 'utf-8');
-      fs.renameSync(tmpFile, DB_FILE);
-    } catch (err) {
-      console.error('[DB] Error persisting database to disk:', err);
+  private ensureOpen() {
+    if (this.sqlite) return this.sqlite;
+
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
     }
+
+    const { DatabaseSync } = require('node:sqlite');
+    this.sqlite = new DatabaseSync(SQLITE_FILE);
+
+    // Enable WAL mode for high concurrency and crash resilience
+    this.sqlite.exec(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA synchronous = NORMAL;
+      PRAGMA foreign_keys = ON;
+      PRAGMA busy_timeout = 5000;
+    `);
+
+    this.createSchema();
+    this.seedOrMigrateIfNeeded();
+
+    return this.sqlite;
+  }
+
+  private init() {
+    try {
+      this.ensureOpen();
+      console.log('[SQLite DB] Connected to relational SQLite database:', SQLITE_FILE);
+    } catch (err) {
+      console.error('[SQLite DB] Initialization error:', err);
+    }
+  }
+
+  private createSchema() {
+    this.sqlite.exec(`
+      CREATE TABLE IF NOT EXISTS meta (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL,
+        avatar TEXT,
+        department TEXT,
+        created_at TEXT NOT NULL,
+        last_login TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS products (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        hsn_code TEXT,
+        short_description TEXT,
+        image TEXT,
+        origin TEXT,
+        sort_order INTEGER DEFAULT 0,
+        payload_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+      CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+
+      CREATE TABLE IF NOT EXISTS blog_posts (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL,
+        title TEXT NOT NULL,
+        category TEXT,
+        author TEXT,
+        date TEXT,
+        featured INTEGER DEFAULT 0,
+        image TEXT,
+        sort_order INTEGER DEFAULT 0,
+        payload_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_blog_slug ON blog_posts(slug);
+
+      CREATE TABLE IF NOT EXISTS team_members (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        department TEXT,
+        email TEXT,
+        phone TEXT,
+        photo TEXT,
+        sort_order INTEGER DEFAULT 0,
+        payload_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS inquiries (
+        id TEXT PRIMARY KEY,
+        full_name TEXT NOT NULL,
+        company_name TEXT,
+        business_email TEXT NOT NULL,
+        country TEXT,
+        phone_whatsapp TEXT,
+        product TEXT,
+        product_form TEXT,
+        quantity_required TEXT,
+        packaging_requirement TEXT,
+        destination_port TEXT,
+        message TEXT,
+        status TEXT NOT NULL DEFAULT 'new',
+        source TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
+      CREATE INDEX IF NOT EXISTS idx_inquiries_created ON inquiries(created_at);
+
+      CREATE TABLE IF NOT EXISTS company_config (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        name TEXT,
+        legal_name TEXT,
+        tagline TEXT,
+        primary_email TEXT,
+        export_email TEXT,
+        phone TEXT,
+        phone_display TEXT,
+        whatsapp_number TEXT,
+        whatsapp_display TEXT,
+        whatsapp_url TEXT,
+        payload_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS custom_gallery (
+        id TEXT PRIMARY KEY,
+        url TEXT NOT NULL,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL,
+        description TEXT,
+        tag TEXT,
+        is_uploaded INTEGER DEFAULT 1,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS testimonials (
+        id TEXT PRIMARY KEY,
+        buyer_name TEXT NOT NULL,
+        company TEXT,
+        country TEXT NOT NULL,
+        flag TEXT,
+        product_supplied TEXT,
+        container_type TEXT,
+        quote TEXT NOT NULL,
+        rating INTEGER NOT NULL DEFAULT 5,
+        verified INTEGER DEFAULT 1,
+        date TEXT,
+        created_at TEXT NOT NULL,
+        payload_json TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        entity_id TEXT,
+        summary TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
+    `);
+  }
+
+  private seedOrMigrateIfNeeded() {
+    const row = this.sqlite.prepare('SELECT value FROM meta WHERE key = ?').get('seeded');
+    if (row && row.value === 'true') {
+      return;
+    }
+
+    let seedSource = 'defaults';
+    let usersToSeed: UserRecord[] = INITIAL_USERS;
+    let productsToSeed: any[] = DEFAULT_PRODUCTS;
+    let blogPostsToSeed: any[] = DEFAULT_BLOG_POSTS;
+    let teamMembersToSeed: any[] = DEFAULT_TEAM_MEMBERS;
+    let inquiriesToSeed: any[] = INITIAL_INQUIRIES;
+    let companyConfigToSeed: any = DEFAULT_COMPANY_CONFIG;
+    let galleryToSeed: any[] = [];
+    let testimonialsToSeed: any[] = DEFAULT_TESTIMONIALS;
+
+    if (fs.existsSync(LEGACY_JSON_FILE)) {
+      try {
+        const raw = fs.readFileSync(LEGACY_JSON_FILE, 'utf-8');
+        const parsed = JSON.parse(raw);
+        seedSource = 'database.json migration';
+        if (Array.isArray(parsed.users) && parsed.users.length) usersToSeed = parsed.users;
+        if (Array.isArray(parsed.products) && parsed.products.length) productsToSeed = parsed.products;
+        if (Array.isArray(parsed.blogPosts) && parsed.blogPosts.length) blogPostsToSeed = parsed.blogPosts;
+        if (Array.isArray(parsed.teamMembers) && parsed.teamMembers.length) teamMembersToSeed = parsed.teamMembers;
+        if (Array.isArray(parsed.inquiries) && parsed.inquiries.length) inquiriesToSeed = parsed.inquiries;
+        if (parsed.companyConfig && typeof parsed.companyConfig === 'object') companyConfigToSeed = parsed.companyConfig;
+        if (Array.isArray(parsed.customGallery)) galleryToSeed = parsed.customGallery;
+        if (Array.isArray(parsed.testimonials) && parsed.testimonials.length) testimonialsToSeed = parsed.testimonials;
+        console.log('[SQLite DB] Migrating existing data from legacy database.json into SQLite relational tables...');
+      } catch (err) {
+        console.warn('[SQLite DB] Failed to read legacy database.json, seeding from defaults:', err);
+      }
+    }
+
+    const now = new Date().toISOString();
+    this.sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      // 1. Seed Users
+      const insertUser = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO users (id, name, email, password, role, avatar, department, created_at, last_login)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const u of usersToSeed) {
+        insertUser.run(
+          u.id || `usr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          u.name || 'User',
+          (u.email || '').toLowerCase(),
+          u.password || 'origintra123',
+          u.role || 'editor',
+          u.avatar || '/assets/team/director.jpg',
+          u.department || 'Trade Operations',
+          u.createdAt || now,
+          u.lastLogin || null
+        );
+      }
+
+      // 2. Seed Products
+      const insertProduct = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO products (id, slug, name, category, hsn_code, short_description, image, origin, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      productsToSeed.forEach((p, idx) => {
+        insertProduct.run(
+          p.id,
+          p.slug || cleanSlug(p.name),
+          p.name,
+          p.category || 'Whole Spices',
+          p.hsnCode || '',
+          p.shortDescription || '',
+          p.image || '',
+          p.origin || 'India',
+          idx,
+          JSON.stringify(p),
+          now
+        );
+      });
+
+      // 3. Seed Blog Posts
+      const insertBlog = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO blog_posts (id, slug, title, category, author, date, featured, image, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      blogPostsToSeed.forEach((post, idx) => {
+        if (!post.slug || post.slug.startsWith('new-article-')) {
+          post.slug = cleanSlug(post.title);
+        }
+        insertBlog.run(
+          post.id,
+          post.slug,
+          post.title || 'Untitled Article',
+          post.category || 'Market Intelligence',
+          post.author || 'Origintra Desk',
+          post.date || now.slice(0, 10),
+          post.featured ? 1 : 0,
+          post.image || '',
+          idx,
+          JSON.stringify(post),
+          now
+        );
+      });
+
+      // 4. Seed Team Members
+      const insertTeam = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO team_members (id, name, role, department, email, phone, photo, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      teamMembersToSeed.forEach((m, idx) => {
+        insertTeam.run(
+          m.id,
+          m.name,
+          m.role || '',
+          m.department || '',
+          m.email || '',
+          m.phone || '',
+          m.photo || '',
+          idx,
+          JSON.stringify(m),
+          now
+        );
+      });
+
+      // 5. Seed Inquiries
+      const insertInquiry = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO inquiries (
+          id, full_name, company_name, business_email, country, phone_whatsapp,
+          product, product_form, quantity_required, packaging_requirement,
+          destination_port, message, status, source, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const inq of inquiriesToSeed) {
+        insertInquiry.run(
+          inq.id || `inq-${Date.now()}`,
+          inq.fullName || '',
+          inq.companyName || '',
+          inq.businessEmail || '',
+          inq.country || '',
+          inq.phoneWhatsApp || '',
+          inq.product || '',
+          inq.productForm || '',
+          inq.quantityRequired || '',
+          inq.packagingRequirement || '',
+          inq.destinationPort || '',
+          inq.message || '',
+          inq.status || 'new',
+          inq.source || 'quote_modal',
+          inq.createdAt || now,
+          now
+        );
+      }
+
+      // 6. Seed Company Config
+      this.sqlite.prepare(`
+        INSERT OR REPLACE INTO company_config (
+          id, name, legal_name, tagline, primary_email, export_email,
+          phone, phone_display, whatsapp_number, whatsapp_display, whatsapp_url,
+          payload_json, updated_at
+        ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        companyConfigToSeed.name || DEFAULT_COMPANY_CONFIG.name || '',
+        companyConfigToSeed.legalName || DEFAULT_COMPANY_CONFIG.legalName || '',
+        companyConfigToSeed.tagline || DEFAULT_COMPANY_CONFIG.tagline || '',
+        companyConfigToSeed.primaryEmail || DEFAULT_COMPANY_CONFIG.primaryEmail || '',
+        companyConfigToSeed.supportEmail || companyConfigToSeed.exportEmail || DEFAULT_COMPANY_CONFIG.supportEmail || '',
+        companyConfigToSeed.phone || DEFAULT_COMPANY_CONFIG.phone || '',
+        companyConfigToSeed.phoneDisplay || DEFAULT_COMPANY_CONFIG.phoneDisplay || '',
+        companyConfigToSeed.whatsapp || companyConfigToSeed.whatsappNumber || DEFAULT_COMPANY_CONFIG.whatsapp || '',
+        companyConfigToSeed.whatsappDisplay || DEFAULT_COMPANY_CONFIG.whatsappDisplay || '',
+        companyConfigToSeed.whatsappUrl || DEFAULT_COMPANY_CONFIG.whatsappUrl || '',
+        JSON.stringify(companyConfigToSeed),
+        now
+      );
+
+      // 7. Seed Custom Gallery
+      const insertGallery = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO custom_gallery (id, url, title, category, description, tag, is_uploaded, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const img of galleryToSeed) {
+        insertGallery.run(
+          img.id || `upload-${Date.now()}`,
+          img.url || '',
+          img.title || 'Uploaded Image',
+          img.category || 'uploads',
+          img.description || '',
+          img.tag || 'Upload',
+          img.isUploaded === false ? 0 : 1,
+          img.createdAt || now
+        );
+      }
+
+      // 8. Seed Testimonials
+      const insertTestimonial = this.sqlite.prepare(`
+        INSERT OR REPLACE INTO testimonials (
+          id, buyer_name, company, country, flag, product_supplied,
+          container_type, quote, rating, verified, date, created_at, payload_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const t of testimonialsToSeed) {
+        insertTestimonial.run(
+          t.id || `t-${Date.now()}`,
+          t.author || t.buyerName || '',
+          t.company || '',
+          t.country || '',
+          t.flag || '🌐',
+          t.commodity || t.productSupplied || '',
+          t.volumeOrType || t.containerType || '',
+          t.testimonial || t.quote || '',
+          Number(t.rating) || 5,
+          t.verified === false ? 0 : 1,
+          t.date || '',
+          t.createdAt || now,
+          JSON.stringify(t)
+        );
+      }
+
+      // 9. Mark Meta
+      this.sqlite.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('seeded', 'true');
+      this.sqlite.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('version', '2.0-sqlite');
+      this.sqlite.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('updated_at', now);
+
+      // 10. Audit Log
+      this.sqlite
+        .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run('INIT_DB', 'all', 'origintra.sqlite', `Initialized SQLite relational database (${seedSource})`, now);
+
+      this.sqlite.exec('COMMIT');
+      console.log(`[SQLite DB] Successfully seeded relational tables (${seedSource})`);
+    } catch (err) {
+      this.sqlite.exec('ROLLBACK');
+      console.error('[SQLite DB] Seed transaction failed:', err);
+      throw err;
+    }
+  }
+
+  // === DATABASE DIAGNOSTICS & STATUS ===
+  public getDatabaseStatus() {
+    this.ensureOpen();
+    const count = (table: string): number => {
+      const row = this.sqlite.prepare(`SELECT COUNT(*) as cnt FROM ${table}`).get();
+      return row ? Number(row.cnt) : 0;
+    };
+
+    const updatedAtRow = this.sqlite.prepare('SELECT value FROM meta WHERE key = ?').get('updated_at');
+    const recentLogs = this.sqlite
+      .prepare('SELECT id, action, entity_type as entityType, entity_id as entityId, summary, created_at as createdAt FROM audit_logs ORDER BY id DESC LIMIT 20')
+      .all();
+
+    let fileSizeBytes = 0;
+    try {
+      if (fs.existsSync(SQLITE_FILE)) {
+        fileSizeBytes = fs.statSync(SQLITE_FILE).size;
+      }
+    } catch {
+      // ignore
+    }
+
+    return {
+      connected: true,
+      engine: 'SQLite 3 Relational Engine (WAL Mode)',
+      databaseFile: 'data/origintra.sqlite',
+      fileSizeKB: Math.round((fileSizeBytes / 1024) * 10) / 10,
+      updatedAt: updatedAtRow ? updatedAtRow.value : new Date().toISOString(),
+      tables: {
+        users: count('users'),
+        products: count('products'),
+        blog_posts: count('blog_posts'),
+        team_members: count('team_members'),
+        inquiries: count('inquiries'),
+        custom_gallery: count('custom_gallery'),
+        testimonials: count('testimonials'),
+        audit_logs: count('audit_logs')
+      },
+      recentAuditLogs: recentLogs
+    };
   }
 
   // === BOOTSTRAP / ALL DATA ===
   public getAllData() {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
+    const updatedAtRow = this.sqlite.prepare('SELECT value FROM meta WHERE key = ?').get('updated_at');
+
     return {
-      version: data.version,
-      updatedAt: data.updatedAt,
-      users: data.users.map(({ password, ...u }) => u),
-      products: data.products,
-      blogPosts: data.blogPosts,
-      teamMembers: data.teamMembers,
-      inquiries: data.inquiries,
-      companyConfig: data.companyConfig,
-      customGallery: data.customGallery,
-      testimonials: data.testimonials || DEFAULT_TESTIMONIALS
+      version: '2.0-sqlite',
+      engine: 'SQLite 3 (WAL)',
+      updatedAt: updatedAtRow ? updatedAtRow.value : new Date().toISOString(),
+      users: this.getUsers(),
+      products: this.getProducts(),
+      blogPosts: this.getBlogPosts(),
+      teamMembers: this.getTeamMembers(),
+      inquiries: this.getInquiries(),
+      companyConfig: this.getCompanyConfig(),
+      customGallery: this.getCustomGallery(),
+      testimonials: this.getTestimonials()
     };
-  }
-
-  // === AUTHENTICATION & USERS ===
-  public authenticate(identifier: string, password: string): { token: string; user: Omit<UserRecord, 'password'> } | null {
-    const data = this.ensureInitialized();
-    const cleanId = (identifier || '').trim().toLowerCase();
-    const cleanPass = (password || '').trim();
-
-    // 1. Find user by:
-    // a) Exact email match
-    let user = data.users.find(u => u.email.toLowerCase() === cleanId);
-
-    // b) Username prefix before '@' (e.g. 'arsh', 'sadik', 'editor', 'sales', 'admin')
-    if (!user && cleanId) {
-      user = data.users.find(u => {
-        const prefix = u.email.split('@')[0].toLowerCase();
-        return prefix === cleanId;
-      });
-    }
-
-    // c) By name match or partial name match (e.g. 'patel arsh', 'arsh', 'sadik')
-    if (!user && cleanId) {
-      user = data.users.find(u => {
-        const nameLower = u.name.toLowerCase();
-        return nameLower === cleanId || nameLower.includes(cleanId);
-      });
-    }
-
-    // d) If identifier is generic admin keyword or empty
-    const isAdminKeyword = !cleanId || ['admin', 'administrator', 'root', 'superadmin', 'admin@origintra.com', 'origintra'].includes(cleanId);
-    if (!user && isAdminKeyword) {
-      // Find Arsh first, else Rajesh, else any admin user
-      user = data.users.find(u => u.role === 'admin' && (u.email.toLowerCase().includes('arsh') || u.name.toLowerCase().includes('arsh')))
-          || data.users.find(u => u.role === 'admin')
-          || data.users[0];
-    }
-
-    if (!user) {
-      return null;
-    }
-
-    // 2. Validate Password:
-    // Known master administrator passwords
-    const MASTER_ADMIN_PASSWORDS = ['arsh@2410', 'admin', 'admin123', 'admin@123', '123456', '12345', 'origintra'];
-    const isMasterAdmin = user.role === 'admin' && MASTER_ADMIN_PASSWORDS.includes(cleanPass.toLowerCase());
-    const isExactPassword = user.password === cleanPass;
-    const isCaseInsensitivePassword = (user.password || '').toLowerCase() === cleanPass.toLowerCase();
-    const isRolePassword = cleanPass === `${user.role}123`;
-    const isAuthorPassword = user.role === 'author' && cleanPass === '12345';
-
-    if (isExactPassword || isCaseInsensitivePassword || isMasterAdmin || isRolePassword || isAuthorPassword) {
-      user.lastLogin = new Date().toISOString();
-      this.persistToDisk();
-      const token = `origintra-sess-${user.id}-${Date.now()}`;
-      const { password: _, ...safeUser } = user;
-      return { token, user: safeUser };
-    }
-
-    return null;
   }
 
   // === FILE / IMAGE UPLOAD HELPER ===
@@ -319,14 +712,65 @@ class DatabaseEngine {
       fs.writeFileSync(filepath, Buffer.from(match[2], 'base64'));
       return `/uploads/${filename}`;
     } catch (e) {
-      console.error('[DB] Failed to save base64 image to file:', e);
+      console.error('[SQLite DB] Failed to save base64 image to file:', e);
       return dataUrl;
     }
   }
 
+  // === AUTHENTICATION & USERS ===
+  private getAllUsersWithPasswords(): UserRecord[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare(`
+      SELECT id, name, email, password, role, avatar, department, created_at as createdAt, last_login as lastLogin
+      FROM users
+      ORDER BY created_at ASC
+    `).all();
+    return rows.map((r: any) => ({ ...r }));
+  }
+
+  public authenticate(identifier: string, password: string): { token: string; user: Omit<UserRecord, 'password'> } | null {
+    const users = this.getAllUsersWithPasswords();
+    const cleanId = (identifier || '').trim().toLowerCase();
+    const cleanPass = (password || '').trim();
+
+    let user = users.find(u => u.email.toLowerCase() === cleanId);
+
+    if (!user && cleanId) {
+      user = users.find(u => u.email.split('@')[0].toLowerCase() === cleanId);
+    }
+
+    if (!user && cleanId) {
+      user = users.find(u => {
+        const nameLower = u.name.toLowerCase();
+        return nameLower === cleanId || nameLower.includes(cleanId);
+      });
+    }
+
+    const isAdminKeyword = !cleanId || ['admin', 'administrator', 'root', 'superadmin', 'admin@origintra.com', 'origintra'].includes(cleanId);
+    if (!user && isAdminKeyword) {
+      user = users.find(u => u.role === 'admin' && (u.email.toLowerCase().includes('arsh') || u.name.toLowerCase().includes('arsh')))
+          || users.find(u => u.role === 'admin')
+          || users[0];
+    }
+
+    if (!user) return null;
+
+    const isExactPassword = user.password === cleanPass;
+
+    if (isExactPassword) {
+      const now = new Date().toISOString();
+      this.sqlite.prepare('UPDATE users SET last_login = ? WHERE id = ?').run(now, user.id);
+      user.lastLogin = now;
+      const token = `origintra-sess-${user.id}-${Date.now()}`;
+      const { password: _, ...safeUser } = user;
+      return { token, user: safeUser };
+    }
+
+    return null;
+  }
+
   public getUsers(): Omit<UserRecord, 'password'>[] {
-    const data = this.ensureInitialized();
-    return data.users.map(({ password, ...u }) => u);
+    return this.getAllUsersWithPasswords().map(({ password, ...u }) => u);
   }
 
   public createUser(userData: {
@@ -337,10 +781,10 @@ class DatabaseEngine {
     department?: string;
     avatar?: string;
   }): Omit<UserRecord, 'password'> {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
     const cleanEmail = userData.email.trim().toLowerCase();
-
-    if (data.users.some(u => u.email.toLowerCase() === cleanEmail)) {
+    const existing = this.sqlite.prepare('SELECT id FROM users WHERE lower(email) = ?').get(cleanEmail);
+    if (existing) {
       throw new Error(`A user with email "${cleanEmail}" already exists.`);
     }
 
@@ -359,232 +803,537 @@ class DatabaseEngine {
       createdAt: new Date().toISOString()
     };
 
-    data.users.push(newUser);
-    this.persistToDisk();
+    this.sqlite.prepare(`
+      INSERT INTO users (id, name, email, password, role, avatar, department, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      newUser.id,
+      newUser.name,
+      newUser.email,
+      newUser.password,
+      newUser.role,
+      newUser.avatar,
+      newUser.department,
+      newUser.createdAt
+    );
 
+    this.emitChange('users', 'CREATE_USER', newUser.id, `Created user ${newUser.name} (${newUser.role})`);
     const { password: _, ...safeUser } = newUser;
     return safeUser;
   }
 
   public updateUser(id: string, updates: Partial<UserRecord>): Omit<UserRecord, 'password'> | null {
-    const data = this.ensureInitialized();
-    const user = data.users.find(u => u.id === id);
-    if (!user) return null;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare(`
+      SELECT id, name, email, password, role, avatar, department, created_at as createdAt, last_login as lastLogin
+      FROM users WHERE id = ?
+    `).get(id) as UserRecord | undefined;
 
-    if (updates.name !== undefined) user.name = updates.name.trim();
-    if (updates.email !== undefined) user.email = updates.email.trim().toLowerCase();
-    if (updates.role !== undefined) user.role = updates.role;
-    if (updates.department !== undefined) user.department = updates.department;
-    if (updates.avatar !== undefined) user.avatar = this.saveBase64ToFile(updates.avatar, 'avatar');
-    if (updates.password && updates.password.trim()) user.password = updates.password.trim();
+    if (!existing) return null;
 
-    this.persistToDisk();
-    const { password: _, ...safeUser } = user;
+    const updated: UserRecord = {
+      ...existing,
+      name: updates.name !== undefined ? updates.name.trim() : existing.name,
+      email: updates.email !== undefined ? updates.email.trim().toLowerCase() : existing.email,
+      role: updates.role !== undefined ? updates.role : existing.role,
+      department: updates.department !== undefined ? updates.department : existing.department,
+      avatar: updates.avatar !== undefined ? this.saveBase64ToFile(updates.avatar, 'avatar') : existing.avatar,
+      password: updates.password && updates.password.trim() ? updates.password.trim() : existing.password
+    };
+
+    this.sqlite.prepare(`
+      UPDATE users
+      SET name = ?, email = ?, password = ?, role = ?, avatar = ?, department = ?
+      WHERE id = ?
+    `).run(
+      updated.name,
+      updated.email,
+      updated.password,
+      updated.role,
+      updated.avatar,
+      updated.department,
+      id
+    );
+
+    this.emitChange('users', 'UPDATE_USER', id, `Updated user ${updated.name}`);
+    const { password: _, ...safeUser } = updated;
     return safeUser;
   }
 
   public deleteUser(id: string): boolean {
-    const data = this.ensureInitialized();
-    const userToDelete = data.users.find(u => u.id === id);
+    this.ensureOpen();
+    const userToDelete = this.sqlite.prepare('SELECT id, name, role FROM users WHERE id = ?').get(id) as any;
     if (!userToDelete) return false;
 
-    // Safety: prevent deleting the last admin
     if (userToDelete.role === 'admin') {
-      const adminCount = data.users.filter(u => u.role === 'admin').length;
-      if (adminCount <= 1) {
+      const adminCountRow = this.sqlite.prepare("SELECT COUNT(*) as cnt FROM users WHERE role = 'admin'").get() as any;
+      if (Number(adminCountRow?.cnt || 0) <= 1) {
         throw new Error('Cannot delete the only remaining Administrator account.');
       }
     }
 
-    data.users = data.users.filter(u => u.id !== id);
-    this.persistToDisk();
+    this.sqlite.prepare('DELETE FROM users WHERE id = ?').run(id);
+    this.emitChange('users', 'DELETE_USER', id, `Deleted user ${userToDelete.name}`);
     return true;
   }
 
   // === PRODUCTS ===
-  public getProducts() {
-    return this.ensureInitialized().products;
+  public getProducts(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare('SELECT payload_json FROM products ORDER BY sort_order ASC, updated_at DESC').all();
+    return rows.map((r: any) => JSON.parse(r.payload_json));
   }
 
   public saveProduct(product: any) {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
     if (product.image) {
       product.image = this.saveBase64ToFile(product.image, 'product');
     }
-    const idx = data.products.findIndex(p => p.id === product.id);
-    if (idx >= 0) {
-      data.products[idx] = product;
-    } else {
-      data.products.unshift(product);
+    if (!product.id) {
+      product.id = `prod-${Date.now()}`;
     }
-    this.persistToDisk();
+    if (!product.slug) {
+      product.slug = cleanSlug(product.name);
+    }
+
+    const existing = this.sqlite.prepare('SELECT sort_order FROM products WHERE id = ?').get(product.id) as any;
+    const sortOrder = existing ? existing.sort_order : -1;
+    const now = new Date().toISOString();
+
+    this.sqlite.prepare(`
+      INSERT INTO products (id, slug, name, category, hsn_code, short_description, image, origin, sort_order, payload_json, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        slug = excluded.slug,
+        name = excluded.name,
+        category = excluded.category,
+        hsn_code = excluded.hsn_code,
+        short_description = excluded.short_description,
+        image = excluded.image,
+        origin = excluded.origin,
+        payload_json = excluded.payload_json,
+        updated_at = excluded.updated_at
+    `).run(
+      product.id,
+      product.slug,
+      product.name || 'Unnamed Product',
+      product.category || 'Whole Spices',
+      product.hsnCode || '',
+      product.shortDescription || '',
+      product.image || '',
+      product.origin || 'India',
+      sortOrder,
+      JSON.stringify(product),
+      now
+    );
+
+    this.emitChange('products', existing ? 'UPDATE_PRODUCT' : 'CREATE_PRODUCT', product.id, `Saved product "${product.name}"`);
     return product;
   }
 
-  public deleteProduct(id: string): boolean {
-    const data = this.ensureInitialized();
-    const initialLen = data.products.length;
-    data.products = data.products.filter(p => p.id !== id);
-    if (data.products.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+  public deleteProduct(idOrSlug: string): boolean {
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, name FROM products WHERE id = ? OR slug = ?').get(idOrSlug, idOrSlug) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM products WHERE id = ?').run(existing.id);
+    this.emitChange('products', 'DELETE_PRODUCT', existing.id, `Deleted product "${existing.name}"`);
+    return true;
   }
 
   public resetProducts() {
-    const data = this.ensureInitialized();
-    data.products = DEFAULT_PRODUCTS;
-    this.persistToDisk();
-    return data.products;
+    this.ensureOpen();
+    const now = new Date().toISOString();
+    this.sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      this.sqlite.exec('DELETE FROM products');
+      const insertProduct = this.sqlite.prepare(`
+        INSERT INTO products (id, slug, name, category, hsn_code, short_description, image, origin, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      DEFAULT_PRODUCTS.forEach((p, idx) => {
+        insertProduct.run(
+          p.id,
+          p.slug || cleanSlug(p.name),
+          p.name,
+          p.category || 'Whole Spices',
+          p.hsnCode || '',
+          p.shortDescription || '',
+          p.image || '',
+          p.origin || 'India',
+          idx,
+          JSON.stringify(p),
+          now
+        );
+      });
+      this.sqlite.exec('COMMIT');
+    } catch (e) {
+      this.sqlite.exec('ROLLBACK');
+      throw e;
+    }
+
+    this.emitChange('products', 'RESET_PRODUCTS', 'all', 'Reset products catalog to factory defaults');
+    return this.getProducts();
   }
 
   // === BLOG POSTS ===
-  public getBlogPosts() {
-    return this.ensureInitialized().blogPosts;
+  public getBlogPosts(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare('SELECT payload_json FROM blog_posts ORDER BY sort_order ASC, updated_at DESC').all();
+    return rows.map((r: any) => JSON.parse(r.payload_json));
   }
 
   public saveBlogPost(post: any) {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
     if (post.image) {
       post.image = this.saveBase64ToFile(post.image, 'blog');
     }
-    // Ensure clean, SEO-friendly slug based on article name
+    if (!post.id) {
+      post.id = `blog-${Date.now()}`;
+    }
     if (!post.slug || post.slug.startsWith('new-article-')) {
-      post.slug = (post.title || 'article')
-        .toLowerCase()
-        .trim()
-        .replace(/&/g, '-and-')
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '') || `article-${Date.now()}`;
+      post.slug = cleanSlug(post.title);
     }
-    const idx = data.blogPosts.findIndex(b => b.id === post.id);
-    if (idx >= 0) {
-      data.blogPosts[idx] = post;
-    } else {
-      data.blogPosts.unshift(post);
-    }
-    this.persistToDisk();
+
+    const existing = this.sqlite.prepare('SELECT sort_order FROM blog_posts WHERE id = ?').get(post.id) as any;
+    const sortOrder = existing ? existing.sort_order : -1;
+    const now = new Date().toISOString();
+
+    this.sqlite.prepare(`
+      INSERT INTO blog_posts (id, slug, title, category, author, date, featured, image, sort_order, payload_json, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        slug = excluded.slug,
+        title = excluded.title,
+        category = excluded.category,
+        author = excluded.author,
+        date = excluded.date,
+        featured = excluded.featured,
+        image = excluded.image,
+        payload_json = excluded.payload_json,
+        updated_at = excluded.updated_at
+    `).run(
+      post.id,
+      post.slug,
+      post.title || 'Untitled Article',
+      post.category || 'Market Intelligence',
+      post.author || 'Origintra Desk',
+      post.date || now.slice(0, 10),
+      post.featured ? 1 : 0,
+      post.image || '',
+      sortOrder,
+      JSON.stringify(post),
+      now
+    );
+
+    this.emitChange('blog', existing ? 'UPDATE_BLOG' : 'CREATE_BLOG', post.id, `Saved blog post "${post.title}"`);
     return post;
   }
 
-  public deleteBlogPost(id: string): boolean {
-    const data = this.ensureInitialized();
-    const initialLen = data.blogPosts.length;
-    data.blogPosts = data.blogPosts.filter(b => b.id !== id);
-    if (data.blogPosts.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+  public deleteBlogPost(idOrSlug: string): boolean {
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, title FROM blog_posts WHERE id = ? OR slug = ?').get(idOrSlug, idOrSlug) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM blog_posts WHERE id = ?').run(existing.id);
+    this.emitChange('blog', 'DELETE_BLOG', existing.id, `Deleted blog post "${existing.title}"`);
+    return true;
   }
 
   public resetBlogPosts() {
-    const data = this.ensureInitialized();
-    data.blogPosts = DEFAULT_BLOG_POSTS;
-    this.persistToDisk();
-    return data.blogPosts;
+    this.ensureOpen();
+    const now = new Date().toISOString();
+    this.sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      this.sqlite.exec('DELETE FROM blog_posts');
+      const insertBlog = this.sqlite.prepare(`
+        INSERT INTO blog_posts (id, slug, title, category, author, date, featured, image, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      DEFAULT_BLOG_POSTS.forEach((post, idx) => {
+        insertBlog.run(
+          post.id,
+          post.slug || cleanSlug(post.title),
+          post.title,
+          post.category || 'Market Intelligence',
+          post.author || 'Origintra Desk',
+          post.date || now.slice(0, 10),
+          post.featured ? 1 : 0,
+          post.image || '',
+          idx,
+          JSON.stringify(post),
+          now
+        );
+      });
+      this.sqlite.exec('COMMIT');
+    } catch (e) {
+      this.sqlite.exec('ROLLBACK');
+      throw e;
+    }
+
+    this.emitChange('blog', 'RESET_BLOG', 'all', 'Reset blog articles to factory defaults');
+    return this.getBlogPosts();
   }
 
   // === TEAM MEMBERS ===
-  public getTeamMembers() {
-    return this.ensureInitialized().teamMembers;
+  public getTeamMembers(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare('SELECT payload_json FROM team_members ORDER BY sort_order ASC, updated_at ASC').all();
+    return rows.map((r: any) => JSON.parse(r.payload_json));
   }
 
   public saveTeamMember(member: any) {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
     if (member.photo) {
       member.photo = this.saveBase64ToFile(member.photo, 'team');
     }
-    const idx = data.teamMembers.findIndex(m => m.id === member.id);
-    if (idx >= 0) {
-      data.teamMembers[idx] = member;
-    } else {
-      data.teamMembers.push(member);
+    if (!member.id) {
+      member.id = `team-${Date.now()}`;
     }
-    this.persistToDisk();
+
+    const existing = this.sqlite.prepare('SELECT sort_order FROM team_members WHERE id = ?').get(member.id) as any;
+    let sortOrder = existing ? existing.sort_order : 999;
+    if (!existing) {
+      const maxRow = this.sqlite.prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 as nextOrder FROM team_members').get() as any;
+      sortOrder = Number(maxRow?.nextOrder || 1);
+    }
+    const now = new Date().toISOString();
+
+    this.sqlite.prepare(`
+      INSERT INTO team_members (id, name, role, department, email, phone, photo, sort_order, payload_json, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        role = excluded.role,
+        department = excluded.department,
+        email = excluded.email,
+        phone = excluded.phone,
+        photo = excluded.photo,
+        payload_json = excluded.payload_json,
+        updated_at = excluded.updated_at
+    `).run(
+      member.id,
+      member.name || 'Team Member',
+      member.role || '',
+      member.department || '',
+      member.email || '',
+      member.phone || '',
+      member.photo || '',
+      sortOrder,
+      JSON.stringify(member),
+      now
+    );
+
+    this.emitChange('team', existing ? 'UPDATE_TEAM' : 'CREATE_TEAM', member.id, `Saved team member "${member.name}"`);
     return member;
   }
 
   public deleteTeamMember(id: string): boolean {
-    const data = this.ensureInitialized();
-    const initialLen = data.teamMembers.length;
-    data.teamMembers = data.teamMembers.filter(m => m.id !== id);
-    if (data.teamMembers.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, name FROM team_members WHERE id = ?').get(id) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM team_members WHERE id = ?').run(id);
+    this.emitChange('team', 'DELETE_TEAM', id, `Deleted team member "${existing.name}"`);
+    return true;
   }
 
   public resetTeamMembers() {
-    const data = this.ensureInitialized();
-    data.teamMembers = DEFAULT_TEAM_MEMBERS;
-    this.persistToDisk();
-    return data.teamMembers;
+    this.ensureOpen();
+    const now = new Date().toISOString();
+    this.sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      this.sqlite.exec('DELETE FROM team_members');
+      const insertTeam = this.sqlite.prepare(`
+        INSERT INTO team_members (id, name, role, department, email, phone, photo, sort_order, payload_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      DEFAULT_TEAM_MEMBERS.forEach((m, idx) => {
+        insertTeam.run(
+          m.id,
+          m.name,
+          m.role || '',
+          m.department || '',
+          m.email || '',
+          m.phone || '',
+          m.photo || '',
+          idx,
+          JSON.stringify(m),
+          now
+        );
+      });
+      this.sqlite.exec('COMMIT');
+    } catch (e) {
+      this.sqlite.exec('ROLLBACK');
+      throw e;
+    }
+
+    this.emitChange('team', 'RESET_TEAM', 'all', 'Reset leadership team to factory defaults');
+    return this.getTeamMembers();
   }
 
   // === INQUIRIES ===
-  public getInquiries() {
-    return this.ensureInitialized().inquiries;
+  public getInquiries(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare(`
+      SELECT
+        id,
+        full_name as fullName,
+        company_name as companyName,
+        business_email as businessEmail,
+        country,
+        phone_whatsapp as phoneWhatsApp,
+        product,
+        product_form as productForm,
+        quantity_required as quantityRequired,
+        packaging_requirement as packagingRequirement,
+        destination_port as destinationPort,
+        message,
+        status,
+        source,
+        created_at as createdAt
+      FROM inquiries
+      ORDER BY created_at DESC
+    `).all();
+    return rows.map((r: any) => ({ ...r }));
   }
 
   public addInquiry(inquiry: any) {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
+    const now = new Date().toISOString();
     const newInq = {
       ...inquiry,
       id: inquiry.id || `inq-${Date.now()}`,
-      createdAt: inquiry.createdAt || new Date().toISOString(),
-      status: inquiry.status || 'new'
+      createdAt: inquiry.createdAt || now,
+      status: inquiry.status || 'new',
+      source: inquiry.source || 'quote_modal'
     };
-    data.inquiries.unshift(newInq);
-    this.persistToDisk();
+
+    this.sqlite.prepare(`
+      INSERT INTO inquiries (
+        id, full_name, company_name, business_email, country, phone_whatsapp,
+        product, product_form, quantity_required, packaging_requirement,
+        destination_port, message, status, source, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      newInq.id,
+      newInq.fullName || '',
+      newInq.companyName || '',
+      newInq.businessEmail || '',
+      newInq.country || '',
+      newInq.phoneWhatsApp || '',
+      newInq.product || '',
+      newInq.productForm || '',
+      newInq.quantityRequired || '',
+      newInq.packagingRequirement || '',
+      newInq.destinationPort || '',
+      newInq.message || '',
+      newInq.status,
+      newInq.source,
+      newInq.createdAt,
+      now
+    );
+
+    this.emitChange('inquiries', 'CREATE_INQUIRY', newInq.id, `New trade inquiry from ${newInq.fullName} (${newInq.country})`);
     return newInq;
   }
 
   public updateInquiryStatus(id: string, status: string): boolean {
-    const data = this.ensureInitialized();
-    const inq = data.inquiries.find(i => i.id === id);
-    if (inq) {
-      inq.status = status;
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, full_name FROM inquiries WHERE id = ?').get(id) as any;
+    if (!existing) return false;
+
+    const now = new Date().toISOString();
+    this.sqlite.prepare('UPDATE inquiries SET status = ?, updated_at = ? WHERE id = ?').run(status, now, id);
+    this.emitChange('inquiries', 'UPDATE_INQUIRY_STATUS', id, `Updated inquiry ${id} status to "${status}"`);
+    return true;
   }
 
   public deleteInquiry(id: string): boolean {
-    const data = this.ensureInitialized();
-    const initialLen = data.inquiries.length;
-    data.inquiries = data.inquiries.filter(i => i.id !== id);
-    if (data.inquiries.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, full_name FROM inquiries WHERE id = ?').get(id) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM inquiries WHERE id = ?').run(id);
+    this.emitChange('inquiries', 'DELETE_INQUIRY', id, `Deleted inquiry from ${existing.full_name}`);
+    return true;
   }
 
   // === COMPANY CONFIG ===
-  public getCompanyConfig() {
-    return this.ensureInitialized().companyConfig;
+  public getCompanyConfig(): any {
+    this.ensureOpen();
+    const row = this.sqlite.prepare('SELECT payload_json FROM company_config WHERE id = 1').get() as any;
+    if (row && row.payload_json) {
+      try {
+        return JSON.parse(row.payload_json);
+      } catch {
+        // fallback
+      }
+    }
+    return DEFAULT_COMPANY_CONFIG;
   }
 
   public saveCompanyConfig(config: any) {
-    const data = this.ensureInitialized();
-    data.companyConfig = config;
-    this.persistToDisk();
-    return config;
+    this.ensureOpen();
+    const now = new Date().toISOString();
+    const merged = { ...DEFAULT_COMPANY_CONFIG, ...config };
+
+    this.sqlite.prepare(`
+      INSERT INTO company_config (
+        id, name, legal_name, tagline, primary_email, export_email,
+        phone, phone_display, whatsapp_number, whatsapp_display, whatsapp_url,
+        payload_json, updated_at
+      ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        legal_name = excluded.legal_name,
+        tagline = excluded.tagline,
+        primary_email = excluded.primary_email,
+        export_email = excluded.export_email,
+        phone = excluded.phone,
+        phone_display = excluded.phone_display,
+        whatsapp_number = excluded.whatsapp_number,
+        whatsapp_display = excluded.whatsapp_display,
+        whatsapp_url = excluded.whatsapp_url,
+        payload_json = excluded.payload_json,
+        updated_at = excluded.updated_at
+    `).run(
+      merged.name || '',
+      merged.legalName || '',
+      merged.tagline || '',
+      merged.primaryEmail || '',
+      merged.supportEmail || merged.exportEmail || '',
+      merged.phone || '',
+      merged.phoneDisplay || '',
+      merged.whatsapp || merged.whatsappNumber || '',
+      merged.whatsappDisplay || '',
+      merged.whatsappUrl || '',
+      JSON.stringify(merged),
+      now
+    );
+
+    this.emitChange('company', 'UPDATE_COMPANY_CONFIG', '1', `Updated corporate profile & contact settings`);
+    return merged;
   }
 
   // === CUSTOM GALLERY ===
-  public getCustomGallery() {
-    return this.ensureInitialized().customGallery;
+  public getCustomGallery(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare(`
+      SELECT id, url, title, category, description, tag, is_uploaded as isUploaded, created_at as createdAt
+      FROM custom_gallery
+      ORDER BY created_at DESC
+    `).all();
+    return rows.map((r: any) => ({
+      ...r,
+      isUploaded: Boolean(r.isUploaded)
+    }));
   }
 
   public addCustomGallery(image: any) {
-    const data = this.ensureInitialized();
+    this.ensureOpen();
     const cleanUrl = this.saveBase64ToFile(image.url, 'gallery');
+    const now = new Date().toISOString();
     const newImg = {
       id: image.id || `upload-${Date.now()}`,
       url: cleanUrl,
@@ -593,74 +1342,147 @@ class DatabaseEngine {
       description: image.description || 'User uploaded image asset',
       tag: image.tag || 'Upload',
       isUploaded: true,
-      createdAt: new Date().toISOString()
+      createdAt: now
     };
-    data.customGallery.unshift(newImg);
-    this.persistToDisk();
+
+    this.sqlite.prepare(`
+      INSERT OR REPLACE INTO custom_gallery (id, url, title, category, description, tag, is_uploaded, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+    `).run(
+      newImg.id,
+      newImg.url,
+      newImg.title,
+      newImg.category,
+      newImg.description,
+      newImg.tag,
+      newImg.createdAt
+    );
+
+    this.emitChange('gallery', 'ADD_GALLERY_IMAGE', newImg.id, `Uploaded gallery image "${newImg.title}"`);
     return newImg;
   }
 
   public deleteCustomGallery(id: string): boolean {
-    const data = this.ensureInitialized();
-    const initialLen = data.customGallery.length;
-    data.customGallery = data.customGallery.filter(img => img.id !== id);
-    if (data.customGallery.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, title FROM custom_gallery WHERE id = ?').get(id) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM custom_gallery WHERE id = ?').run(id);
+    this.emitChange('gallery', 'DELETE_GALLERY_IMAGE', id, `Deleted gallery image "${existing.title}"`);
+    return true;
   }
 
   public resetCustomGallery() {
-    const data = this.ensureInitialized();
-    data.customGallery = [];
-    this.persistToDisk();
-    return data.customGallery;
+    this.ensureOpen();
+    this.sqlite.exec('DELETE FROM custom_gallery');
+    this.emitChange('gallery', 'RESET_GALLERY', 'all', 'Cleared custom gallery uploads');
+    return [];
   }
 
   // === TESTIMONIALS ===
-  public getTestimonials() {
-    const data = this.ensureInitialized();
-    return data.testimonials || DEFAULT_TESTIMONIALS;
+  public getTestimonials(): any[] {
+    this.ensureOpen();
+    const rows = this.sqlite.prepare('SELECT payload_json FROM testimonials ORDER BY created_at DESC').all();
+    if (!rows.length) return DEFAULT_TESTIMONIALS;
+    return rows.map((r: any) => JSON.parse(r.payload_json));
   }
 
   public saveTestimonial(testimonial: any) {
-    const data = this.ensureInitialized();
-    if (!data.testimonials) data.testimonials = [];
+    this.ensureOpen();
+    const now = new Date().toISOString();
     const newT = {
       ...testimonial,
       id: testimonial.id || `t-${Date.now()}`,
       rating: Number(testimonial.rating) || 5,
-      createdAt: testimonial.createdAt || new Date().toISOString()
+      verified: testimonial.verified === undefined ? true : Boolean(testimonial.verified),
+      createdAt: testimonial.createdAt || now
     };
-    const idx = data.testimonials.findIndex((t: any) => t.id === newT.id);
-    if (idx >= 0) {
-      data.testimonials[idx] = newT;
-    } else {
-      data.testimonials.unshift(newT);
-    }
-    this.persistToDisk();
+
+    this.sqlite.prepare(`
+      INSERT INTO testimonials (
+        id, buyer_name, company, country, flag, product_supplied,
+        container_type, quote, rating, verified, date, created_at, payload_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        buyer_name = excluded.buyer_name,
+        company = excluded.company,
+        country = excluded.country,
+        flag = excluded.flag,
+        product_supplied = excluded.product_supplied,
+        container_type = excluded.container_type,
+        quote = excluded.quote,
+        rating = excluded.rating,
+        verified = excluded.verified,
+        date = excluded.date,
+        payload_json = excluded.payload_json
+    `).run(
+      newT.id,
+      newT.author || newT.buyerName || '',
+      newT.company || '',
+      newT.country || '',
+      newT.flag || '🌐',
+      newT.commodity || newT.productSupplied || '',
+      newT.volumeOrType || newT.containerType || '',
+      newT.testimonial || newT.quote || '',
+      newT.rating,
+      newT.verified ? 1 : 0,
+      newT.date || '',
+      newT.createdAt,
+      JSON.stringify(newT)
+    );
+
+    this.emitChange('testimonials', 'SAVE_TESTIMONIAL', newT.id, `Saved buyer testimonial from ${newT.author || newT.buyerName || 'Buyer'}`);
     return newT;
   }
 
   public deleteTestimonial(id: string): boolean {
-    const data = this.ensureInitialized();
-    if (!data.testimonials) return false;
-    const initialLen = data.testimonials.length;
-    data.testimonials = data.testimonials.filter((t: any) => t.id !== id);
-    if (data.testimonials.length !== initialLen) {
-      this.persistToDisk();
-      return true;
-    }
-    return false;
+    this.ensureOpen();
+    const existing = this.sqlite.prepare('SELECT id, buyer_name FROM testimonials WHERE id = ?').get(id) as any;
+    if (!existing) return false;
+
+    this.sqlite.prepare('DELETE FROM testimonials WHERE id = ?').run(id);
+    this.emitChange('testimonials', 'DELETE_TESTIMONIAL', id, `Deleted testimonial from ${existing.buyer_name}`);
+    return true;
   }
 
   public resetTestimonials() {
-    const data = this.ensureInitialized();
-    data.testimonials = DEFAULT_TESTIMONIALS;
-    this.persistToDisk();
-    return data.testimonials;
+    this.ensureOpen();
+    const now = new Date().toISOString();
+    this.sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      this.sqlite.exec('DELETE FROM testimonials');
+      const insertTestimonial = this.sqlite.prepare(`
+        INSERT INTO testimonials (
+          id, buyer_name, company, country, flag, product_supplied,
+          container_type, quote, rating, verified, date, created_at, payload_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const t of DEFAULT_TESTIMONIALS as any[]) {
+        insertTestimonial.run(
+          t.id,
+          t.author || t.buyerName || '',
+          t.company || '',
+          t.country || '',
+          t.flag || '🌐',
+          t.commodity || t.productSupplied || '',
+          t.volumeOrType || t.containerType || '',
+          t.testimonial || t.quote || '',
+          Number(t.rating) || 5,
+          t.verified === false ? 0 : 1,
+          t.date || '',
+          t.createdAt || now,
+          JSON.stringify(t)
+        );
+      }
+      this.sqlite.exec('COMMIT');
+    } catch (e) {
+      this.sqlite.exec('ROLLBACK');
+      throw e;
+    }
+
+    this.emitChange('testimonials', 'RESET_TESTIMONIALS', 'all', 'Reset buyer testimonials to factory defaults');
+    return this.getTestimonials();
   }
 }
 
-export const db = new DatabaseEngine();
+export const db = new SQLiteDatabaseEngine();

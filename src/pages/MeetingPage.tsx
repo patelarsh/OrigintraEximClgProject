@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 
 interface MeetingPageProps {
   onNavigate: (page: string) => void;
@@ -7,6 +7,7 @@ interface MeetingPageProps {
 }
 
 export const MeetingPage: React.FC<MeetingPageProps> = () => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const rawCalendlyUrl = COMPANY_CONFIG.calendlyUrl || 'https://calendly.com/origintraexim/30min';
   const baseCalendly = rawCalendlyUrl.replace(/\/+$/, '');

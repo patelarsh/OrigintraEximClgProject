@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   Award
 } from 'lucide-react';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { getHref } from '../utils/routes';
 
 interface NavbarProps {
@@ -33,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   onOpenQuote
 }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [mobileAboutExpanded, setMobileAboutExpanded] = useState(false);

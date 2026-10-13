@@ -7,7 +7,34 @@ import { DEFAULT_GALLERY_IMAGES, GalleryImage } from '../data/gallery';
 import { TESTIMONIALS as DEFAULT_TESTIMONIALS } from '../data/testimonials';
 import { slugify } from '../utils/slugify';
 
-// LocalStorage Keys
+export interface DatabaseStatusInfo {
+  connected: boolean;
+  engine: string;
+  databaseFile: string;
+  fileSizeKB: number;
+  updatedAt: string;
+  liveConnectedClients: number;
+  tables: {
+    users: number;
+    products: number;
+    blog_posts: number;
+    team_members: number;
+    inquiries: number;
+    custom_gallery: number;
+    testimonials: number;
+    audit_logs: number;
+  };
+  recentAuditLogs: {
+    id: number;
+    action: string;
+    entityType: string;
+    entityId: string;
+    summary: string;
+    createdAt: string;
+  }[];
+}
+
+// LocalStorage Keys (used as fast local cache synced with SQLite database)
 const STORAGE_KEYS = {
   PRODUCTS: 'origintra_admin_products_v1',
   BLOG_POSTS: 'origintra_admin_blog_posts_v1',
@@ -16,11 +43,11 @@ const STORAGE_KEYS = {
   COMPANY: 'origintra_admin_company_v1',
   CUSTOM_GALLERY: 'origintra_admin_custom_gallery_v1',
   TESTIMONIALS: 'origintra_admin_testimonials_v1',
+  DB_STATUS: 'origintra_admin_db_status_v1',
   AUTH: 'origintra_admin_auth_v1',
   AUTH_USER: 'origintra_admin_auth_user_v1',
   AUTH_TOKEN: 'origintra_admin_auth_token_v1',
   USERS: 'origintra_admin_users_v1',
-  PASSWORD: 'origintra_admin_password_v1'
 };
 
 const DEFAULT_USERS: User[] = [
@@ -86,7 +113,6 @@ const DEFAULT_USERS: User[] = [
   }
 ];
 
-// Initial seed inquiries
 const INITIAL_INQUIRIES: Inquiry[] = [
   {
     id: 'inq-17911001',
@@ -141,7 +167,22 @@ const INITIAL_INQUIRIES: Inquiry[] = [
   }
 ];
 
-// Helper to fire non-blocking API call
+// BroadcastChannel for zero-latency cross-tab synchronization
+const broadcastChannel =
+  typeof window !== 'undefined' && 'BroadcastChannel' in window
+    ? new BroadcastChannel('origintra_live_db_sync')
+    : null;
+
+function notifyCrossTab(eventName: string) {
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage({ type: 'DOM_EVENT', eventName, timestamp: Date.now() });
+    } catch {
+      // ignore
+    }
+  }
+}
+
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   try {
     const res = await fetch(endpoint, {
@@ -157,32 +198,43 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     }
     return await res.json();
   } catch (e) {
-    console.warn(`[AdminStorage API Call to ${endpoint} failed, falling back to local storage]:`, e);
+    console.warn(`[AdminStorage SQLite API Call to ${endpoint} failed]:`, e);
     return null;
   }
 }
 
 let isBootstrapping = false;
+let sseConnection: EventSource | null = null;
 
 export const AdminStorage = {
-  // === BOOTSTRAP / SYNC WITH DATABASE ===
+  // === BOOTSTRAP & REAL-TIME SYNC WITH SQLITE DATABASE ===
   async syncWithDatabase(): Promise<boolean> {
     if (isBootstrapping) return false;
     isBootstrapping = true;
     try {
       const resp = await apiCall('/api/bootstrap');
       if (resp && resp.success && resp.data) {
-        const { users, products, blogPosts, teamMembers, inquiries, companyConfig, customGallery } = resp.data;
+        const {
+          users,
+          products,
+          blogPosts,
+          teamMembers,
+          inquiries,
+          companyConfig,
+          customGallery,
+          testimonials,
+          dbStatus
+        } = resp.data;
 
-        if (users && users.length) {
+        if (Array.isArray(users)) {
           localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
           window.dispatchEvent(new Event('origintra_users_updated'));
         }
-        if (products && products.length) {
+        if (Array.isArray(products)) {
           localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
           window.dispatchEvent(new Event('origintra_products_updated'));
         }
-        if (blogPosts && blogPosts.length) {
+        if (Array.isArray(blogPosts)) {
           blogPosts.forEach((p: BlogPost) => {
             if (p.slug && p.slug.startsWith('new-article-')) {
               p.slug = slugify(p.title) || p.slug;
@@ -191,11 +243,11 @@ export const AdminStorage = {
           localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(blogPosts));
           window.dispatchEvent(new Event('origintra_blog_updated'));
         }
-        if (teamMembers && teamMembers.length) {
+        if (Array.isArray(teamMembers)) {
           localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
           window.dispatchEvent(new Event('origintra_team_updated'));
         }
-        if (inquiries && inquiries.length) {
+        if (Array.isArray(inquiries)) {
           localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(inquiries));
           window.dispatchEvent(new Event('origintra_inquiries_updated'));
         }
@@ -203,13 +255,17 @@ export const AdminStorage = {
           localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(companyConfig));
           window.dispatchEvent(new Event('origintra_company_updated'));
         }
-        if (customGallery) {
+        if (Array.isArray(customGallery)) {
           localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(customGallery));
           window.dispatchEvent(new Event('origintra_gallery_updated'));
         }
-        if (resp.data.testimonials && resp.data.testimonials.length) {
-          localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(resp.data.testimonials));
+        if (Array.isArray(testimonials)) {
+          localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(testimonials));
           window.dispatchEvent(new Event('origintra_testimonials_updated'));
+        }
+        if (dbStatus) {
+          localStorage.setItem(STORAGE_KEYS.DB_STATUS, JSON.stringify(dbStatus));
+          window.dispatchEvent(new Event('origintra_db_status_updated'));
         }
         return true;
       }
@@ -219,6 +275,59 @@ export const AdminStorage = {
       isBootstrapping = false;
     }
     return false;
+  },
+
+  async fetchDatabaseStatus(): Promise<DatabaseStatusInfo | null> {
+    const resp = await apiCall('/api/db-status');
+    if (resp && resp.success && resp.data) {
+      localStorage.setItem(STORAGE_KEYS.DB_STATUS, JSON.stringify(resp.data));
+      window.dispatchEvent(new Event('origintra_db_status_updated'));
+      return resp.data;
+    }
+    return this.getDatabaseStatus();
+  },
+
+  getDatabaseStatus(): DatabaseStatusInfo | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.DB_STATUS);
+      if (raw) return JSON.parse(raw);
+    } catch {
+      // ignore
+    }
+    return null;
+  },
+
+  connectLiveStream(): void {
+    if (typeof window === 'undefined' || sseConnection) return;
+
+    try {
+      sseConnection = new EventSource('/api/events');
+
+      sseConnection.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload && payload.type === 'db_updated') {
+            // Pull latest committed SQLite state and update all reactive components across the site
+            this.syncWithDatabase();
+          }
+        } catch {
+          // ignore malformed messages
+        }
+      };
+
+      sseConnection.onerror = () => {
+        if (sseConnection) {
+          sseConnection.close();
+          sseConnection = null;
+        }
+        // Automatically reconnect after 4s if server restarts
+        setTimeout(() => {
+          this.connectLiveStream();
+        }, 4000);
+      };
+    } catch (e) {
+      console.warn('[AdminStorage] EventSource connection failed:', e);
+    }
   },
 
   // === AUTHENTICATION & SESSIONS ===
@@ -238,7 +347,6 @@ export const AdminStorage = {
       if (userStr) {
         return JSON.parse(userStr);
       }
-      // If legacy auth is true, return default admin
       if (localStorage.getItem(STORAGE_KEYS.AUTH) === 'true') {
         return DEFAULT_USERS[0];
       }
@@ -271,7 +379,6 @@ export const AdminStorage = {
     const cleanPass = (password || '').trim();
 
     try {
-      // 1. Try server API login
       const resp = await apiCall('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email: cleanId, password: cleanPass })
@@ -289,11 +396,9 @@ export const AdminStorage = {
       console.warn('Backend login request error, checking local fallback:', err);
     }
 
-    // 2. Local Fallback for offline or fast dev access
     const users = this.getUsers();
     const lowerId = cleanId.toLowerCase();
 
-    // Find user by exact email, username prefix, or name
     let matched = users.find(u => u.email.toLowerCase() === lowerId);
     if (!matched && lowerId) {
       matched = users.find(u => u.email.split('@')[0].toLowerCase() === lowerId);
@@ -301,7 +406,6 @@ export const AdminStorage = {
     if (!matched && lowerId) {
       matched = users.find(u => u.name.toLowerCase() === lowerId || u.name.toLowerCase().includes(lowerId));
     }
-    // Admin keyword or blank fallback
     const isAdminKeyword = !lowerId || ['admin', 'administrator', 'root', 'superadmin', 'admin@origintra.com', 'origintra'].includes(lowerId);
     if (!matched && isAdminKeyword) {
       matched = users.find(u => u.role === 'admin' && (u.email.toLowerCase().includes('arsh') || u.name.toLowerCase().includes('arsh')))
@@ -310,15 +414,9 @@ export const AdminStorage = {
     }
 
     if (matched) {
-      const MASTER_PASSWORDS = ['arsh@2410', 'admin', 'admin123', 'admin@123', '123456', '12345', 'origintra'];
-      const isMasterAdmin = matched.role === 'admin' && MASTER_PASSWORDS.includes(cleanPass.toLowerCase());
       const isExactPass = matched.password === cleanPass;
-      const isCaseInsensitivePass = (matched.password || '').toLowerCase() === cleanPass.toLowerCase();
-      const isRolePass = cleanPass === `${matched.role}123`;
-      const isAuthorPass = matched.role === 'author' && cleanPass === '12345';
-      const isStoredPass = cleanPass === (localStorage.getItem(STORAGE_KEYS.PASSWORD) || 'admin');
 
-      if (isExactPass || isCaseInsensitivePass || isMasterAdmin || isRolePass || isAuthorPass || isStoredPass) {
+      if (isExactPass) {
         localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${matched.id}-${Date.now()}`);
         localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matched));
@@ -327,7 +425,7 @@ export const AdminStorage = {
       }
     }
 
-    return { success: false, error: 'Invalid email/username or password. Master admin password: Arsh@2410 or admin.' };
+    return { success: false, error: 'Invalid email/username or password.' };
   },
 
   logout(): void {
@@ -345,7 +443,6 @@ export const AdminStorage = {
   },
 
   changePassword(newPassword: string): void {
-    localStorage.setItem(STORAGE_KEYS.PASSWORD, newPassword);
     const currentUser = this.getCurrentUser();
     if (currentUser) {
       this.updateUser(currentUser.id, { password: newPassword });
@@ -380,7 +477,12 @@ export const AdminStorage = {
       throw new Error(`A user with email "${cleanEmail}" already exists.`);
     }
 
-    const newUser: User = {
+    const resp = await apiCall('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+
+    const newUser: User = resp?.data || {
       id: `usr-${Date.now()}`,
       name: userData.name.trim(),
       email: cleanEmail,
@@ -393,12 +495,7 @@ export const AdminStorage = {
     const updated = [...users, newUser];
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updated));
     window.dispatchEvent(new Event('origintra_users_updated'));
-
-    // Server write
-    apiCall('/api/users', {
-      method: 'POST',
-      body: JSON.stringify(userData)
-    });
+    notifyCrossTab('origintra_users_updated');
 
     return newUser;
   },
@@ -408,11 +505,15 @@ export const AdminStorage = {
     const idx = users.findIndex(u => u.id === id);
     if (idx === -1) return null;
 
-    const updatedUser: User = { ...users[idx], ...updates };
+    const resp = await apiCall(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    });
+
+    const updatedUser: User = resp?.data || { ...users[idx], ...updates };
     users[idx] = updatedUser;
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
 
-    // If updating current active user, sync session
     const current = this.getCurrentUser();
     if (current && current.id === id) {
       localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updatedUser));
@@ -420,12 +521,7 @@ export const AdminStorage = {
     }
 
     window.dispatchEvent(new Event('origintra_users_updated'));
-
-    // Server write
-    apiCall(`/api/users/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates)
-    });
+    notifyCrossTab('origintra_users_updated');
 
     return updatedUser;
   },
@@ -439,12 +535,12 @@ export const AdminStorage = {
       throw new Error('Cannot delete the sole remaining Administrator account.');
     }
 
+    await apiCall(`/api/users/${id}`, { method: 'DELETE' });
+
     const filtered = users.filter(u => u.id !== id);
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(filtered));
     window.dispatchEvent(new Event('origintra_users_updated'));
-
-    // Server write
-    apiCall(`/api/users/${id}`, { method: 'DELETE' });
+    notifyCrossTab('origintra_users_updated');
     return true;
   },
 
@@ -475,11 +571,18 @@ export const AdminStorage = {
 
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
     window.dispatchEvent(new Event('origintra_products_updated'));
+    notifyCrossTab('origintra_products_updated');
 
-    // Server write
     apiCall('/api/products', {
       method: 'POST',
       body: JSON.stringify(product)
+    }).then((resp) => {
+      if (resp?.data) {
+        const fresh = this.getProducts().map(p => (p.id === resp.data.id ? resp.data : p));
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(fresh));
+        window.dispatchEvent(new Event('origintra_products_updated'));
+      }
+      this.fetchDatabaseStatus();
     });
 
     return product;
@@ -491,8 +594,11 @@ export const AdminStorage = {
     if (filtered.length !== products.length) {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_products_updated'));
+      notifyCrossTab('origintra_products_updated');
 
-      apiCall(`/api/products/${productId}`, { method: 'DELETE' });
+      apiCall(`/api/products/${productId}`, { method: 'DELETE' }).then(() => {
+        this.fetchDatabaseStatus();
+      });
       return true;
     }
     return false;
@@ -501,7 +607,10 @@ export const AdminStorage = {
   resetProductsToDefault(): void {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
     window.dispatchEvent(new Event('origintra_products_updated'));
-    apiCall('/api/products/reset', { method: 'POST' });
+    notifyCrossTab('origintra_products_updated');
+    apiCall('/api/products/reset', { method: 'POST' }).then(() => {
+      this.fetchDatabaseStatus();
+    });
   },
 
   // === BLOG POSTS ===
@@ -529,7 +638,6 @@ export const AdminStorage = {
   },
 
   saveBlogPost(post: BlogPost): BlogPost {
-    // Ensure slug is clean and based on article title
     if (!post.slug || post.slug.startsWith('new-article-')) {
       post.slug = slugify(post.title) || `article-${Date.now()}`;
     } else {
@@ -549,11 +657,18 @@ export const AdminStorage = {
 
     localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(updated));
     window.dispatchEvent(new Event('origintra_blog_updated'));
+    notifyCrossTab('origintra_blog_updated');
 
-    // Server write
     apiCall('/api/blog', {
       method: 'POST',
       body: JSON.stringify(post)
+    }).then((resp) => {
+      if (resp?.data) {
+        const fresh = this.getBlogPosts().map(p => (p.id === resp.data.id ? resp.data : p));
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(fresh));
+        window.dispatchEvent(new Event('origintra_blog_updated'));
+      }
+      this.fetchDatabaseStatus();
     });
 
     return post;
@@ -565,8 +680,11 @@ export const AdminStorage = {
     if (filtered.length !== posts.length) {
       localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_blog_updated'));
+      notifyCrossTab('origintra_blog_updated');
 
-      apiCall(`/api/blog/${postId}`, { method: 'DELETE' });
+      apiCall(`/api/blog/${postId}`, { method: 'DELETE' }).then(() => {
+        this.fetchDatabaseStatus();
+      });
       return true;
     }
     return false;
@@ -575,7 +693,10 @@ export const AdminStorage = {
   resetBlogPostsToDefault(): void {
     localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(DEFAULT_BLOG_POSTS));
     window.dispatchEvent(new Event('origintra_blog_updated'));
-    apiCall('/api/blog/reset', { method: 'POST' });
+    notifyCrossTab('origintra_blog_updated');
+    apiCall('/api/blog/reset', { method: 'POST' }).then(() => {
+      this.fetchDatabaseStatus();
+    });
   },
 
   // === TEAM MEMBERS ===
@@ -605,10 +726,18 @@ export const AdminStorage = {
 
     localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(updated));
     window.dispatchEvent(new Event('origintra_team_updated'));
+    notifyCrossTab('origintra_team_updated');
 
     apiCall('/api/team', {
       method: 'POST',
       body: JSON.stringify(member)
+    }).then((resp) => {
+      if (resp?.data) {
+        const fresh = this.getTeamMembers().map(m => (m.id === resp.data.id ? resp.data : m));
+        localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(fresh));
+        window.dispatchEvent(new Event('origintra_team_updated'));
+      }
+      this.fetchDatabaseStatus();
     });
 
     return member;
@@ -620,8 +749,11 @@ export const AdminStorage = {
     if (filtered.length !== team.length) {
       localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_team_updated'));
+      notifyCrossTab('origintra_team_updated');
 
-      apiCall(`/api/team/${memberId}`, { method: 'DELETE' });
+      apiCall(`/api/team/${memberId}`, { method: 'DELETE' }).then(() => {
+        this.fetchDatabaseStatus();
+      });
       return true;
     }
     return false;
@@ -630,7 +762,10 @@ export const AdminStorage = {
   resetTeamMembersToDefault(): void {
     localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(DEFAULT_TEAM_MEMBERS));
     window.dispatchEvent(new Event('origintra_team_updated'));
-    apiCall('/api/team/reset', { method: 'POST' });
+    notifyCrossTab('origintra_team_updated');
+    apiCall('/api/team/reset', { method: 'POST' }).then(() => {
+      this.fetchDatabaseStatus();
+    });
   },
 
   // === INQUIRIES & LEADS ===
@@ -658,10 +793,13 @@ export const AdminStorage = {
     const updated = [newInq, ...inquiries];
     localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(updated));
     window.dispatchEvent(new Event('origintra_inquiries_updated'));
+    notifyCrossTab('origintra_inquiries_updated');
 
     apiCall('/api/inquiries', {
       method: 'POST',
       body: JSON.stringify(newInq)
+    }).then(() => {
+      this.fetchDatabaseStatus();
     });
 
     return newInq;
@@ -674,10 +812,13 @@ export const AdminStorage = {
       inquiries[index].status = status;
       localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(inquiries));
       window.dispatchEvent(new Event('origintra_inquiries_updated'));
+      notifyCrossTab('origintra_inquiries_updated');
 
       apiCall(`/api/inquiries/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status })
+      }).then(() => {
+        this.fetchDatabaseStatus();
       });
       return true;
     }
@@ -690,8 +831,11 @@ export const AdminStorage = {
     if (filtered.length !== inquiries.length) {
       localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_inquiries_updated'));
+      notifyCrossTab('origintra_inquiries_updated');
 
-      apiCall(`/api/inquiries/${id}`, { method: 'DELETE' });
+      apiCall(`/api/inquiries/${id}`, { method: 'DELETE' }).then(() => {
+        this.fetchDatabaseStatus();
+      });
       return true;
     }
     return false;
@@ -733,7 +877,7 @@ export const AdminStorage = {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.COMPANY);
       if (data) {
-        return JSON.parse(data);
+        return { ...DEFAULT_COMPANY_CONFIG, ...JSON.parse(data) };
       }
     } catch (e) {
       console.error('Error reading company config:', e);
@@ -742,15 +886,19 @@ export const AdminStorage = {
   },
 
   saveCompanyConfig(config: CompanyConfig): CompanyConfig {
-    localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(config));
+    const merged = { ...DEFAULT_COMPANY_CONFIG, ...config };
+    localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(merged));
     window.dispatchEvent(new Event('origintra_company_updated'));
+    notifyCrossTab('origintra_company_updated');
 
     apiCall('/api/company', {
       method: 'POST',
-      body: JSON.stringify(config)
+      body: JSON.stringify(merged)
+    }).then(() => {
+      this.fetchDatabaseStatus();
     });
 
-    return config;
+    return merged;
   },
 
   // === MEDIA GALLERY ===
@@ -770,7 +918,6 @@ export const AdminStorage = {
     let finalUrl = image.url;
     let finalId = tempId;
 
-    // 1. Upload to server to persist directly on disk as a static file
     try {
       const resp = await apiCall('/api/upload', {
         method: 'POST',
@@ -802,7 +949,6 @@ export const AdminStorage = {
       createdAt: new Date().toISOString()
     };
 
-    // 2. Update local state with robust quota overflow protection
     try {
       const customData = localStorage.getItem(STORAGE_KEYS.CUSTOM_GALLERY);
       let customImages: GalleryImage[] = customData ? JSON.parse(customData) : [];
@@ -813,18 +959,11 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(customImages));
     } catch (quotaErr) {
       console.warn('LocalStorage quota warning, trimming heavy base64 items:', quotaErr);
-      try {
-        const customData = localStorage.getItem(STORAGE_KEYS.CUSTOM_GALLERY);
-        let customImages: GalleryImage[] = customData ? JSON.parse(customData) : [];
-        customImages = customImages.filter(img => !img.url.startsWith('data:image/')).slice(0, 15);
-        customImages.unshift(newImage);
-        localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(customImages));
-      } catch {
-        // Non-fatal, server DB already has the file
-      }
     }
 
     window.dispatchEvent(new Event('origintra_gallery_updated'));
+    notifyCrossTab('origintra_gallery_updated');
+    this.fetchDatabaseStatus();
     return newImage;
   },
 
@@ -837,8 +976,11 @@ export const AdminStorage = {
       if (filtered.length !== customImages.length) {
         localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(filtered));
         window.dispatchEvent(new Event('origintra_gallery_updated'));
+        notifyCrossTab('origintra_gallery_updated');
 
-        apiCall(`/api/gallery/${imageId}`, { method: 'DELETE' });
+        apiCall(`/api/gallery/${imageId}`, { method: 'DELETE' }).then(() => {
+          this.fetchDatabaseStatus();
+        });
         return true;
       }
     } catch (e) {
@@ -850,7 +992,10 @@ export const AdminStorage = {
   resetCustomGallery(): void {
     localStorage.removeItem(STORAGE_KEYS.CUSTOM_GALLERY);
     window.dispatchEvent(new Event('origintra_gallery_updated'));
-    apiCall('/api/gallery/reset', { method: 'POST' });
+    notifyCrossTab('origintra_gallery_updated');
+    apiCall('/api/gallery/reset', { method: 'POST' }).then(() => {
+      this.fetchDatabaseStatus();
+    });
   },
 
   // === BUYER TESTIMONIALS & TRADE REFERENCES ===
@@ -886,11 +1031,13 @@ export const AdminStorage = {
 
     localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(testimonials));
     window.dispatchEvent(new Event('origintra_testimonials_updated'));
+    notifyCrossTab('origintra_testimonials_updated');
 
-    apiCall('/api/testimonials', {
+    await apiCall('/api/testimonials', {
       method: 'POST',
       body: JSON.stringify(updated)
     });
+    this.fetchDatabaseStatus();
 
     return updated;
   },
@@ -901,8 +1048,10 @@ export const AdminStorage = {
     if (filtered.length !== testimonials.length) {
       localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_testimonials_updated'));
+      notifyCrossTab('origintra_testimonials_updated');
 
-      apiCall(`/api/testimonials/${id}`, { method: 'DELETE' });
+      await apiCall(`/api/testimonials/${id}`, { method: 'DELETE' });
+      this.fetchDatabaseStatus();
       return true;
     }
     return false;
@@ -911,12 +1060,36 @@ export const AdminStorage = {
   async resetTestimonials(): Promise<Testimonial[]> {
     localStorage.removeItem(STORAGE_KEYS.TESTIMONIALS);
     window.dispatchEvent(new Event('origintra_testimonials_updated'));
-    apiCall('/api/testimonials/reset', { method: 'POST' });
+    notifyCrossTab('origintra_testimonials_updated');
+    await apiCall('/api/testimonials/reset', { method: 'POST' });
+    this.fetchDatabaseStatus();
     return DEFAULT_TESTIMONIALS;
   }
 };
 
-// Automatically initiate sync with server database on module load in browser
+// Automatically sync with SQLite database & subscribe to real-time SSE + BroadcastChannel + Storage events
 if (typeof window !== 'undefined') {
   AdminStorage.syncWithDatabase().catch(() => {});
+  AdminStorage.connectLiveStream();
+
+  if (broadcastChannel) {
+    broadcastChannel.onmessage = (e) => {
+      if (e.data && e.data.type === 'DOM_EVENT' && e.data.eventName) {
+        window.dispatchEvent(new Event(e.data.eventName));
+      }
+    };
+  }
+
+  window.addEventListener('storage', (e) => {
+    if (!e.key) return;
+    if (e.key === STORAGE_KEYS.PRODUCTS) window.dispatchEvent(new Event('origintra_products_updated'));
+    if (e.key === STORAGE_KEYS.BLOG_POSTS) window.dispatchEvent(new Event('origintra_blog_updated'));
+    if (e.key === STORAGE_KEYS.TEAM_MEMBERS) window.dispatchEvent(new Event('origintra_team_updated'));
+    if (e.key === STORAGE_KEYS.INQUIRIES) window.dispatchEvent(new Event('origintra_inquiries_updated'));
+    if (e.key === STORAGE_KEYS.COMPANY) window.dispatchEvent(new Event('origintra_company_updated'));
+    if (e.key === STORAGE_KEYS.CUSTOM_GALLERY) window.dispatchEvent(new Event('origintra_gallery_updated'));
+    if (e.key === STORAGE_KEYS.TESTIMONIALS) window.dispatchEvent(new Event('origintra_testimonials_updated'));
+    if (e.key === STORAGE_KEYS.USERS) window.dispatchEvent(new Event('origintra_users_updated'));
+    if (e.key === STORAGE_KEYS.DB_STATUS) window.dispatchEvent(new Event('origintra_db_status_updated'));
+  });
 }

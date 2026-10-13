@@ -70,8 +70,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => AdminStorage.isAuthenticated());
   const [currentUser, setCurrentUser] = useState<User | null>(() => AdminStorage.getCurrentUser());
   const [users, setUsers] = useState<User[]>(() => AdminStorage.getUsers());
-  const [loginEmail, setLoginEmail] = useState('arsh@origintra.com');
-  const [loginPassword, setLoginPassword] = useState('Arsh@2410');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -94,7 +94,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   // === NAVIGATION & TABS ===
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
-  // === DATA STATES (Synced with AdminStorage) ===
+  // === DATA STATES (Synced with AdminStorage SQLite DB) ===
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => AdminStorage.getBlogPosts());
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => AdminStorage.getTeamMembers());
@@ -102,6 +102,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => AdminStorage.getInquiries());
   const [companyConfig, setCompanyConfig] = useState(() => AdminStorage.getCompanyConfig());
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => AdminStorage.getGalleryImages());
+  const [dbStatus, setDbStatus] = useState(() => AdminStorage.getDatabaseStatus());
 
   // === GALLERY MODAL & PICKER STATES ===
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
@@ -153,6 +154,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
   // Sync listener when data changes
   useEffect(() => {
+    AdminStorage.fetchDatabaseStatus();
+
     const handleProductsUpdated = () => setProducts(AdminStorage.getProducts());
     const handleBlogUpdated = () => setBlogPosts(AdminStorage.getBlogPosts());
     const handleTeamUpdated = () => setTeamMembers(AdminStorage.getTeamMembers());
@@ -161,6 +164,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     const handleCompanyUpdated = () => setCompanyConfig(AdminStorage.getCompanyConfig());
     const handleGalleryUpdated = () => setGalleryImages(AdminStorage.getGalleryImages());
     const handleUsersUpdated = () => setUsers(AdminStorage.getUsers());
+    const handleDbStatusUpdated = () => setDbStatus(AdminStorage.getDatabaseStatus());
     const handleAuthUpdated = () => {
       setIsAuthenticated(AdminStorage.isAuthenticated());
       setCurrentUser(AdminStorage.getCurrentUser());
@@ -174,6 +178,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     window.addEventListener('origintra_company_updated', handleCompanyUpdated);
     window.addEventListener('origintra_gallery_updated', handleGalleryUpdated);
     window.addEventListener('origintra_users_updated', handleUsersUpdated);
+    window.addEventListener('origintra_db_status_updated', handleDbStatusUpdated);
     window.addEventListener('origintra_auth_updated', handleAuthUpdated);
 
     return () => {
@@ -185,6 +190,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       window.removeEventListener('origintra_company_updated', handleCompanyUpdated);
       window.removeEventListener('origintra_gallery_updated', handleGalleryUpdated);
       window.removeEventListener('origintra_users_updated', handleUsersUpdated);
+      window.removeEventListener('origintra_db_status_updated', handleDbStatusUpdated);
       window.removeEventListener('origintra_auth_updated', handleAuthUpdated);
     };
   }, []);
@@ -200,18 +206,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       showToast(`Welcome back, ${res.user.name} (${res.user.role.toUpperCase()})`);
     } else {
       setLoginError(res.error || 'Invalid credentials. Please verify your email and password.');
-    }
-  };
-
-  const handleQuickDemoLogin = async (email: string, pass: string) => {
-    setLoginEmail(email);
-    setLoginPassword(pass);
-    const res = await AdminStorage.loginWithCredentials(email, pass);
-    if (res.success && res.user) {
-      setIsAuthenticated(true);
-      setCurrentUser(res.user);
-      setLoginError('');
-      showToast(`Signed in as ${res.user.name} [${res.user.role.toUpperCase()}]`);
     }
   };
 
@@ -814,7 +808,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   required
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="Enter password (e.g. Arsh@2410 or admin)"
+                  placeholder="Enter your password"
                   className="w-full px-4 py-2.5 pr-10 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0070E0] text-xs"
                 />
                 <button
@@ -843,92 +837,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               <ArrowUpRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* Quick Demo Logins for Real Accounts */}
-          <div className="pt-2 border-t border-slate-100">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-2 text-center">
-              1-Click Instant Login (Database Accounts)
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('arsh@origintra.com', 'Arsh@2410')}
-                className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300/80 text-amber-950 font-semibold text-left transition cursor-pointer flex items-center gap-2 shadow-xs"
-              >
-                <Crown className="w-4 h-4 text-amber-600 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px] flex items-center gap-1">
-                    <span>Patel Arsh</span>
-                    <span className="text-[9px] px-1 bg-amber-200 text-amber-900 rounded">Admin</span>
-                  </div>
-                  <div className="text-[10px] text-amber-800 font-mono">Arsh@2410</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('admin', 'admin')}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-900 font-semibold text-left transition cursor-pointer flex items-center gap-2"
-              >
-                <ShieldCheck className="w-4 h-4 text-slate-700 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px]">Super Admin</div>
-                  <div className="text-[10px] text-slate-600 font-mono">admin / admin</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('sadik@origintra.com', '12345')}
-                className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-emerald-950 font-semibold text-left transition cursor-pointer flex items-center gap-2"
-              >
-                <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px] flex items-center gap-1">
-                    <span>Sadik</span>
-                    <span className="text-[9px] px-1 bg-emerald-200 text-emerald-900 rounded">Author</span>
-                  </div>
-                  <div className="text-[10px] text-emerald-700 font-mono">Pass: 12345</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('editor@origintra.com', 'editor123')}
-                className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200/60 text-blue-900 font-semibold text-left transition cursor-pointer flex items-center gap-2"
-              >
-                <PenTool className="w-4 h-4 text-blue-600 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px]">Priya Sundaram</div>
-                  <div className="text-[10px] text-blue-700">Editor Role</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('sales@origintra.com', 'sales123')}
-                className="p-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200/60 text-cyan-900 font-semibold text-left transition cursor-pointer flex items-center gap-2"
-              >
-                <Briefcase className="w-4 h-4 text-cyan-600 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px]">David Sterling</div>
-                  <div className="text-[10px] text-cyan-700">Sales Specialist</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('info@patelarsh.com', 'Arsh@2410')}
-                className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200/60 text-purple-900 font-semibold text-left transition cursor-pointer flex items-center gap-2"
-              >
-                <Crown className="w-4 h-4 text-purple-600 shrink-0" />
-                <div className="truncate">
-                  <div className="font-bold text-[11px]">Director Sharma</div>
-                  <div className="text-[10px] text-purple-700">Master Admin</div>
-                </div>
-              </button>
-            </div>
-          </div>
 
           <div className="pt-2 text-center">
             <button
@@ -1231,15 +1139,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* Quick System Stats in Sidebar */}
           <div className="pt-6 mt-6 border-t border-slate-100 px-3 space-y-2 text-[11px] text-slate-500">
             <div className="flex justify-between">
-              <span>Status</span>
+              <span>DB Engine</span>
+              <strong className="text-slate-800 font-semibold">SQLite 3 (WAL)</strong>
+            </div>
+            <div className="flex justify-between">
+              <span>Live Sync</span>
               <strong className="text-emerald-600 font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live & Synced
+                SSE Connected
               </strong>
             </div>
             <div className="flex justify-between">
               <span>WhatsApp</span>
-              <strong className="text-slate-700 font-mono">+91 70691 82990</strong>
+              <strong className="text-slate-700 font-mono">{companyConfig.phone}</strong>
             </div>
           </div>
         </aside>
@@ -1253,13 +1165,52 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
               
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#0F172A]">
-                  Executive Dashboard
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Manage Origintra Exim's export commodities portfolio, blog thought leadership, and incoming buyer RFQs.
-                </p>
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#0F172A]">
+                    Executive Dashboard
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    Manage Origintra Exim's export commodities portfolio, blog thought leadership, and incoming buyer RFQs.
+                  </p>
+                </div>
+
+                {/* Live SQLite Database Engine Status Banner */}
+                <div className="flex flex-wrap items-center gap-3 bg-white border border-emerald-200/80 rounded-2xl px-4 py-3 shadow-2xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <span>{dbStatus?.engine || 'SQLite 3 Relational DB (WAL Mode)'}</span>
+                        <span className="px-1.5 py-0.5 text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
+                          data/origintra.sqlite
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                        <span>Real-Time SSE Broadcast Active</span>
+                        {dbStatus?.fileSizeKB ? <span>• {dbStatus.fileSizeKB} KB on disk</span> : null}
+                        {typeof dbStatus?.liveConnectedClients === 'number' ? (
+                          <span>• {dbStatus.liveConnectedClients} live browser{dbStatus.liveConnectedClients === 1 ? '' : 's'} connected</span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await AdminStorage.syncWithDatabase();
+                      showToast('Synchronized with live SQLite database (data/origintra.sqlite)!');
+                    }}
+                    className="ml-auto px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                    title="Force refresh from SQLite database"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Sync DB</span>
+                  </button>
+                </div>
               </div>
 
               {/* KPI Cards */}

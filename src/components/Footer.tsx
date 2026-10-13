@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, Mail, Phone, MapPin, MessageSquare, ShieldCheck } from 'lucide-react';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { getHref } from '../utils/routes';
 
 interface FooterProps {
@@ -14,6 +14,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenQuote,
   onOpenLegal
 }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const handleNav = (page: string) => {
     onNavigate(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --port 5173",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "node --experimental-sqlite --no-warnings ./node_modules/vite/bin/vite.js --host --port 5173",
+    "build": "tsc && node --experimental-sqlite --no-warnings ./node_modules/vite/bin/vite.js build",
+    "preview": "node --experimental-sqlite --no-warnings ./node_modules/vite/bin/vite.js preview --host --port 4173",
+    "start": "node --experimental-sqlite --no-warnings ./node_modules/vite/bin/vite.js preview --host --port 5173"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",

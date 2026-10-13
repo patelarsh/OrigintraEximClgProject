@@ -14,7 +14,7 @@ import {
   Copy,
   Check
 } from 'lucide-react';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { AdminStorage } from '../services/adminStorage';
 
 interface ContactPageProps {
@@ -39,6 +39,7 @@ const COMMODITIES = [
 ];
 
 export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuote }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const [formData, setFormData] = useState({
     name: '',
     title: '',

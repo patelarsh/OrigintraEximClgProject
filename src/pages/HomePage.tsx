@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { PRODUCTS as DEFAULT_PRODUCTS } from '../data/products';
 import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../data/blog';
-import { COMPANY_CONFIG } from '../data/company';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { Product, BlogPost, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 
@@ -40,6 +40,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenQuoteWithProduct,
   onOpenGeneralQuote
 }) => {
+  const COMPANY_CONFIG = useCompanyConfig();
   const heroSlides = [
     {
       id: 'spices-assortment',
