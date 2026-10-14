@@ -148,7 +148,16 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   const [currentHeroSlide, setCurrentHeroSlide] = React.useState(0);
   const [fadeState, setFadeState] = React.useState<'in' | 'out'>('in');
+  const [loadedSlideIndices, setLoadedSlideIndices] = React.useState<number[]>([0]);
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(0);
+
+  React.useEffect(() => {
+    const nextIdx = (currentHeroSlide + 1) % heroSlides.length;
+    setLoadedSlideIndices(prev => {
+      if (prev.includes(currentHeroSlide) && prev.includes(nextIdx)) return prev;
+      return Array.from(new Set([...prev, currentHeroSlide, nextIdx]));
+    });
+  }, [currentHeroSlide, heroSlides.length]);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex((prev) => (prev === index ? null : index));
@@ -311,27 +320,29 @@ export const HomePage: React.FC<HomePageProps> = ({
                 idx === currentHeroSlide ? 'opacity-100 z-0' : 'opacity-0 -z-10'
               }`}
             >
-              <picture className="w-full h-full block">
-                {/* Mobile Modern WebP (70KB) */}
-                <source media="(max-width: 639px)" type="image/webp" srcSet={slide.mobileImage.replace(/\.jpg$/, '.webp')} />
-                {/* Mobile Fallback JPEG */}
-                <source media="(max-width: 639px)" type="image/jpeg" srcSet={slide.mobileImage} />
-                {/* Desktop Modern WebP (150KB) */}
-                <source media="(min-width: 640px)" type="image/webp" srcSet={slide.image.replace(/\.jpg$/, '.webp')} />
-                {/* Desktop Fallback JPEG */}
-                <img
-                  src={slide.image}
-                  alt={slide.alt}
-                  width="1376"
-                  height="768"
-                  loading={idx === 0 ? 'eager' : 'lazy'}
-                  decoding={idx === 0 ? 'sync' : 'async'}
-                  fetchPriority={idx === 0 ? 'high' : 'low'}
-                  className={`w-full h-full object-cover object-[center_40%] sm:object-center transition-transform duration-[7000ms] ease-out ${
-                    idx === currentHeroSlide ? 'scale-105' : 'scale-100'
-                  }`}
-                />
-              </picture>
+              {loadedSlideIndices.includes(idx) && (
+                <picture className="w-full h-full block">
+                  {/* Mobile Modern WebP (70KB) */}
+                  <source media="(max-width: 639px)" type="image/webp" srcSet={slide.mobileImage.replace(/\.jpg$/, '.webp')} />
+                  {/* Mobile Fallback JPEG */}
+                  <source media="(max-width: 639px)" type="image/jpeg" srcSet={slide.mobileImage} />
+                  {/* Desktop Modern WebP (150KB) */}
+                  <source media="(min-width: 640px)" type="image/webp" srcSet={slide.image.replace(/\.jpg$/, '.webp')} />
+                  {/* Desktop Fallback JPEG */}
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
+                    width="1376"
+                    height="768"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    decoding={idx === 0 ? 'sync' : 'async'}
+                    fetchPriority={idx === 0 ? 'high' : 'low'}
+                    className={`w-full h-full object-cover object-[center_40%] sm:object-center transition-transform duration-[7000ms] ease-out ${
+                      idx === currentHeroSlide ? 'scale-105' : 'scale-100'
+                    }`}
+                  />
+                </picture>
+              )}
             </div>
           ))}
 
@@ -580,8 +591,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <img
                     src={`/flags/${country.code}.png`}
                     alt={`${country.name} Flag`}
+                    width="48"
+                    height="48"
                     className="w-full h-full object-cover object-center"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <span className="mt-1 text-[8px] sm:text-[10px] md:text-[11px] font-bold tracking-wider text-slate-600 uppercase group-hover:text-[#0070E0] transition-colors whitespace-nowrap">
@@ -630,19 +644,25 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/3 border border-slate-200 group">
                   <img
-                    src="/assets/about/spice-harvest-sourcing.jpg"
+                    src="/assets/about/spice-harvest-sourcing-thumb.webp"
                     alt="Indian agricultural quality inspection and farm-gate spice sourcing by Origintra Exim"
+                    width="450"
+                    height="338"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-square border border-slate-200 group">
                   <img
-                    src="/assets/hero/banner-red-chilli.jpg"
+                    src="/assets/about/banner-red-chilli-thumb.webp"
                     alt="Clean red chilli whole pods, ground powder, and export bags from India"
+                    width="450"
+                    height="450"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -650,19 +670,25 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="space-y-4 pt-6 sm:pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-square border border-slate-200 group">
                   <img
-                    src="/assets/about/spice-processing-plant.jpg"
+                    src="/assets/about/spice-processing-plant-thumb.webp"
                     alt="Modern spice optical sorting, Sortex cleaning, and mechanical milling plant in India"
+                    width="450"
+                    height="450"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/3 border border-slate-200 group">
                   <img
-                    src="/assets/about/container-ship-port.jpg"
+                    src="/assets/about/container-ship-port-thumb.webp"
                     alt="Mundra Port deep-water container terminal and global ocean freight dispatch of Indian spices"
+                    width="450"
+                    height="338"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -709,10 +735,18 @@ export const HomePage: React.FC<HomePageProps> = ({
                   {/* Clean Commodity Visual Presentation */}
                   <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
                     <img
-                      src={product.image}
+                      src={product.image.replace(/\.jpg$/, '-thumb.webp')}
                       alt={product.name}
+                      width="400"
+                      height="500"
                       className="w-full h-full object-cover transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        if (e.currentTarget.src !== product.image) {
+                          e.currentTarget.src = product.image;
+                        }
+                      }}
                     />
                     
                     {/* Category Tag on top right */}
@@ -925,10 +959,13 @@ export const HomePage: React.FC<HomePageProps> = ({
               title="FSSAI - Food Safety and Standards Authority of India"
             >
               <img 
-                src="/assets/certificates/fssai.png" 
+                src="/assets/certificates/fssai.webp" 
                 alt="FSSAI" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -939,10 +976,13 @@ export const HomePage: React.FC<HomePageProps> = ({
               title="APEDA - Agricultural and Processed Food Products Export Development Authority"
             >
               <img 
-                src="/assets/certificates/apeda.png" 
+                src="/assets/certificates/apeda.webp" 
                 alt="APEDA" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -953,10 +993,13 @@ export const HomePage: React.FC<HomePageProps> = ({
               title="Spices Board India - Ministry of Commerce and Industry"
             >
               <img 
-                src="/assets/certificates/spices-board.png" 
+                src="/assets/certificates/spices-board.webp" 
                 alt="Spices Board India" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -967,10 +1010,13 @@ export const HomePage: React.FC<HomePageProps> = ({
               title="IEC - Import Export Code (DGFT, Ministry of Commerce)"
             >
               <img 
-                src="/assets/certificates/iec.png" 
+                src="/assets/certificates/iec_emblem.webp" 
                 alt="IEC DGFT License" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -981,10 +1027,13 @@ export const HomePage: React.FC<HomePageProps> = ({
               title="GST - Goods and Services Tax"
             >
               <img 
-                src="/assets/certificates/gst.png" 
+                src="/assets/certificates/gst.webp" 
                 alt="GST" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -997,8 +1046,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               <img 
                 src="/assets/certificates/msme.svg" 
                 alt="MSME" 
+                width="160"
+                height="80"
                 className="h-16 sm:h-20 md:h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 group-hover:scale-110" 
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -1089,6 +1141,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                         <img 
                           src={item.avatar} 
                           alt={item.author} 
+                          width="40"
+                          height="40"
+                          loading="lazy"
+                          decoding="async"
                           className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0 shadow-2xs" 
                         />
                       ) : (
@@ -1166,10 +1222,13 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div>
                   <div className="aspect-16/10 overflow-hidden bg-slate-100">
                     <img
-                      src={post.image}
+                      src={post.image.includes('unsplash.com') ? post.image.replace('w=1200', 'w=600&q=75') : post.image}
                       alt={post.title}
+                      width="400"
+                      height="250"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
                     />
                   </div>
 

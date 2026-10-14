@@ -65,22 +65,34 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Background Idle Prefetching: silently loads About, Products, Contact, and Blog chunks when main thread is idle
+  // Interaction-Aware Prefetching: silently loads About, Products, Contact, and Blog chunks on first real user interaction
   useEffect(() => {
+    let prefetched = false;
     const prefetchRoutes = () => {
-      import('./pages/AboutPage');
-      import('./pages/ProductsPage');
-      import('./pages/ContactPage');
-      import('./pages/BlogPage');
-      import('./components/QuoteModal');
+      if (prefetched) return;
+      prefetched = true;
+      ['pointerdown', 'touchstart', 'scroll'].forEach((ev) => {
+        window.removeEventListener(ev, prefetchRoutes);
+      });
+      // Idle prefetch after user interaction has settled
+      setTimeout(() => {
+        import('./pages/AboutPage');
+        import('./pages/ProductsPage');
+        import('./pages/ContactPage');
+        import('./pages/BlogPage');
+        import('./components/QuoteModal');
+      }, 500);
     };
-    if (typeof window !== 'undefined') {
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(prefetchRoutes, { timeout: 3000 });
-      } else {
-        setTimeout(prefetchRoutes, 1200);
-      }
-    }
+
+    ['pointerdown', 'touchstart', 'scroll'].forEach((ev) => {
+      window.addEventListener(ev, prefetchRoutes, { passive: true, once: true });
+    });
+
+    return () => {
+      ['pointerdown', 'touchstart', 'scroll'].forEach((ev) => {
+        window.removeEventListener(ev, prefetchRoutes);
+      });
+    };
   }, []);
 
   const applyRouteSeo = useCallback((route: ParsedRoute, product?: Product | null, post?: BlogPost | null) => {

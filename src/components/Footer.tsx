@@ -50,8 +50,11 @@ export const Footer: React.FC<FooterProps> = ({
                 <img
                   src="/assets/logo/logo-full-white.png"
                   alt="Origintra Exim — Connecting Markets. Moving Possibilities."
+                  width="144"
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
                   className="h-12 w-auto max-h-12 object-contain"
-                  style={{ aspectRatio: 'auto' }}
                 />
               </a>
             </div>

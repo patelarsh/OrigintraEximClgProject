@@ -187,8 +187,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <img
               src="/assets/logo/logo-full-color.png"
               alt="Origintra Exim — Connecting Markets. Moving Possibilities."
+              width="144"
+              height="48"
+              fetchPriority="high"
               className="h-11 sm:h-12 w-auto max-h-12 object-contain transition-transform duration-200 group-hover:opacity-90"
-              style={{ aspectRatio: 'auto' }}
             />
           </a>
 
