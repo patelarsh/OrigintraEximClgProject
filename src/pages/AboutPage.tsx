@@ -43,13 +43,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
         <div className="container-x mx-auto max-w-[1440px] relative">
           <div className="max-w-3xl space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-sky-300">
-              About Origintra Exim
+              About Origintra Exim • Premier Indian Spices Exporter
             </span>
             <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white">
               Built for Global Trade. Driven by Trust<span className="text-[#0070E0]">.</span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed pt-2">
-              Connecting trusted Indian agricultural sourcing with international commercial markets, supplying quality spices and agro commodities to buyers across the globe.
+              A premier Indian spices exporter and agricultural merchant trading house, connecting trusted farmgate sourcing across India's prime agricultural belts with international commercial markets in over 24 countries worldwide.
             </p>
           </div>
         </div>

@@ -55,7 +55,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-admin-01',
     name: 'Rajesh Sharma',
     email: 'info@patelarsh.com',
-    password: 'Arsh@2410',
+    password: '',
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Managing Director & Global Trade Head',
@@ -65,7 +65,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-1791183682976',
     name: 'Patel Arsh',
     email: 'arsh@origintra.com',
-    password: 'Arsh@2410',
+    password: '',
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Corporate Admin & Global Trading Desk',
@@ -75,7 +75,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-editor-02',
     name: 'Priya Sundaram',
     email: 'editor@origintra.com',
-    password: 'editor123',
+    password: '',
     role: 'editor',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     department: 'Content Director & Quality Assurance',
@@ -85,7 +85,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-author-03',
     name: 'Vikram Malhotra',
     email: 'author@origintra.com',
-    password: 'author123',
+    password: '',
     role: 'author',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     department: 'Agri Commodity Market Intelligence',
@@ -95,7 +95,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-1791183469258',
     name: 'Sadik',
     email: 'sadik@origintra.com',
-    password: '12345',
+    password: '',
     role: 'author',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     department: 'Commodity Research Analyst',
@@ -105,7 +105,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-sales-04',
     name: 'David Sterling',
     email: 'sales@origintra.com',
-    password: 'sales123',
+    password: '',
     role: 'sales',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     department: 'Buyer Relations & Container Dispatch Desk',
@@ -183,14 +183,38 @@ function notifyCrossTab(eventName: string) {
   }
 }
 
+function getStoredAuthToken(): string | null {
+  try {
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    if (token) return token;
+    if (localStorage.getItem(STORAGE_KEYS.AUTH) === 'true') {
+      const userStr = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        return `origintra-sess-${u.id || 'admin'}-${Date.now()}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   try {
+    const token = getStoredAuthToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...((options.headers as Record<string, string>) || {})
+    };
+
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const res = await fetch(endpoint, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      }
+      headers
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
@@ -297,8 +321,57 @@ export const AdminStorage = {
     return null;
   },
 
+  async downloadDatabaseBackup(format: 'sqlite' | 'json' = 'sqlite'): Promise<boolean> {
+    try {
+      const token = getStoredAuthToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/backup?format=${format}`, { headers });
+      if (!res.ok) throw new Error('Backup request failed');
+
+      if (format === 'json') {
+        const json = await res.json();
+        const blob = new Blob([JSON.stringify(json.backup || json, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `origintra_db_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return true;
+      } else {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `origintra_${new Date().toISOString().slice(0, 10)}.sqlite`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return true;
+      }
+    } catch (err) {
+      console.error('[AdminStorage Backup Download Error]:', err);
+      return false;
+    }
+  },
+
+  async triggerServerBackup(): Promise<boolean> {
+    const resp = await apiCall('/api/backup', { method: 'POST' });
+    if (resp && resp.success) {
+      await this.fetchDatabaseStatus();
+      return true;
+    }
+    return false;
+  },
+
   connectLiveStream(): void {
     if (typeof window === 'undefined' || sseConnection) return;
+    if (typeof document !== 'undefined' && document.hidden) return; // Don't hold sockets when tab is in background
 
     try {
       sseConnection = new EventSource('/api/events');
@@ -316,17 +389,28 @@ export const AdminStorage = {
       };
 
       sseConnection.onerror = () => {
-        if (sseConnection) {
-          sseConnection.close();
-          sseConnection = null;
-        }
-        // Automatically reconnect after 4s if server restarts
+        this.disconnectLiveStream();
+        // Reconnect with randomized jitter (3s to 8s) to prevent thundering herd during traffic spikes
+        const jitter = 3000 + Math.random() * 5000;
         setTimeout(() => {
-          this.connectLiveStream();
-        }, 4000);
+          if (typeof document !== 'undefined' && !document.hidden) {
+            this.connectLiveStream();
+          }
+        }, jitter);
       };
     } catch (e) {
       console.warn('[AdminStorage] EventSource connection failed:', e);
+    }
+  },
+
+  disconnectLiveStream(): void {
+    if (sseConnection) {
+      try {
+        sseConnection.close();
+      } catch {
+        // ignore
+      }
+      sseConnection = null;
     }
   },
 
@@ -379,56 +463,42 @@ export const AdminStorage = {
     const cleanPass = (password || '').trim();
 
     try {
-      const resp = await apiCall('/api/auth/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanId, password: cleanPass })
       });
+      const data = await res.json().catch(() => ({}));
 
-      if (resp && resp.success && resp.user) {
-        const user: User = resp.user;
+      if (res.ok && data.success && data.user) {
+        const user: User = data.user;
         localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, resp.token || `origintra-token-${Date.now()}`);
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token || `origintra-sess-${user.id}-${Date.now()}`);
         localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
         window.dispatchEvent(new Event('origintra_auth_updated'));
         return { success: true, user };
       }
+
+      return {
+        success: false,
+        error: data.error || (res.status === 429 ? 'Too many login attempts. Please wait 60 seconds.' : 'Incorrect email/username or password.')
+      };
     } catch (err: any) {
-      console.warn('Backend login request error, checking local fallback:', err);
+      return { success: false, error: 'Connection error. Could not reach authentication server.' };
     }
-
-    const users = this.getUsers();
-    const lowerId = cleanId.toLowerCase();
-
-    let matched = users.find(u => u.email.toLowerCase() === lowerId);
-    if (!matched && lowerId) {
-      matched = users.find(u => u.email.split('@')[0].toLowerCase() === lowerId);
-    }
-    if (!matched && lowerId) {
-      matched = users.find(u => u.name.toLowerCase() === lowerId || u.name.toLowerCase().includes(lowerId));
-    }
-    const isAdminKeyword = !lowerId || ['admin', 'administrator', 'root', 'superadmin', 'admin@origintra.com', 'origintra'].includes(lowerId);
-    if (!matched && isAdminKeyword) {
-      matched = users.find(u => u.role === 'admin' && (u.email.toLowerCase().includes('arsh') || u.name.toLowerCase().includes('arsh')))
-        || users.find(u => u.role === 'admin')
-        || DEFAULT_USERS[0];
-    }
-
-    if (matched) {
-      const isExactPass = matched.password === cleanPass;
-
-      if (isExactPass) {
-        localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${matched.id}-${Date.now()}`);
-        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matched));
-        window.dispatchEvent(new Event('origintra_auth_updated'));
-        return { success: true, user: matched };
-      }
-    }
-
-    return { success: false, error: 'Invalid email/username or password.' };
   },
 
   logout(): void {
+    const token = getStoredAuthToken();
+    if (token) {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      }).catch(() => {});
+    }
     localStorage.removeItem(STORAGE_KEYS.AUTH);
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.AUTH_USER);
@@ -1067,10 +1137,18 @@ export const AdminStorage = {
   }
 };
 
-// Automatically sync with SQLite database & subscribe to real-time SSE + BroadcastChannel + Storage events
+// Non-blocking initialization: allows instant 0ms first render from cache, then syncs with SQLite in background
 if (typeof window !== 'undefined') {
-  AdminStorage.syncWithDatabase().catch(() => {});
-  AdminStorage.connectLiveStream();
+  const initBackgroundSync = () => {
+    AdminStorage.syncWithDatabase().catch(() => {});
+    AdminStorage.connectLiveStream();
+  };
+
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(initBackgroundSync, { timeout: 2000 });
+  } else {
+    setTimeout(initBackgroundSync, 50);
+  }
 
   if (broadcastChannel) {
     broadcastChannel.onmessage = (e) => {
@@ -1092,4 +1170,16 @@ if (typeof window !== 'undefined') {
     if (e.key === STORAGE_KEYS.USERS) window.dispatchEvent(new Event('origintra_users_updated'));
     if (e.key === STORAGE_KEYS.DB_STATUS) window.dispatchEvent(new Event('origintra_db_status_updated'));
   });
+
+  // High-Concurrency: Disconnect SSE when tab is hidden to save sockets; reconnect on active view
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        AdminStorage.disconnectLiveStream();
+      } else {
+        AdminStorage.syncWithDatabase().catch(() => {});
+        AdminStorage.connectLiveStream();
+      }
+    });
+  }
 }

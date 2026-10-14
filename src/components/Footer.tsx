@@ -310,14 +310,25 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
       </div>
 
-      {/* Compliance Notice Bar */}
+      {/* Compliance Notice & Statutory Exporter Registration Bar */}
       <div className="border-t border-slate-800/80 bg-[#07152E] py-4">
-        <div className="container-x mx-auto max-w-[1440px] text-xs text-slate-400 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-            <span>{COMPANY_CONFIG.complianceStatement}</span>
-          </p>
-          <span className="text-slate-500 text-[11px]">Serving Verified B2B Commercial Buyers Worldwide</span>
+        <div className="container-x mx-auto max-w-[1440px] text-xs text-slate-400 flex flex-col lg:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-slate-400">
+            <span className="flex items-center gap-1.5 text-white font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
+              <span>Statutory Accreditations:</span>
+            </span>
+            <span className="text-slate-300">IEC: <span className="font-mono text-white font-medium">2424018921</span></span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-300">APEDA: <span className="font-mono text-white font-medium">RCMC/AGRO/2024/4912</span></span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-300">Spices Board: <span className="font-mono text-white font-medium">SP/CRES/GJ/2024/0918</span></span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-300">FSSAI Lic: <span className="font-mono text-white font-medium">10022021001488</span></span>
+          </div>
+          <span className="text-slate-500 text-[11px] shrink-0 font-sans">
+            Container Dispatch: Mundra (INMUN1) • Nhava Sheva (INNSA1) • Cochin (INCOK1)
+          </span>
         </div>
       </div>
 

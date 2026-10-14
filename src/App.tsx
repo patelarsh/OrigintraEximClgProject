@@ -1,27 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { ChevronUp } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { QuoteModal } from './components/QuoteModal';
-import { LegalModal } from './components/LegalModal';
 import { HomePage } from './pages/HomePage';
-import { AboutPage } from './pages/AboutPage';
-import { ProductsPage } from './pages/ProductsPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { GlobalReachPage } from './pages/GlobalReachPage';
-import { QualityPage } from './pages/QualityPage';
-import { BlogPage } from './pages/BlogPage';
-import { ContactPage } from './pages/ContactPage';
-import { MeetingPage } from './pages/MeetingPage';
-import { AdminPage } from './pages/AdminPage';
-import { NotFoundPage } from './pages/NotFoundPage';
 import { PRODUCTS } from './data/products';
 import { BLOG_POSTS } from './data/blog';
 import { Product, BlogPost } from './types';
 import { AdminStorage } from './services/adminStorage';
 import { useCompanyConfig } from './hooks/useCompanyConfig';
 import { ROUTES, getHref, parseCurrentRoute, ParsedRoute } from './utils/routes';
-import { updatePageSeo, getProductSeo, getBlogPostSeo } from './utils/seo';
+import { 
+  updatePageSeo, 
+  getProductSeo, 
+  getBlogPostSeo, 
+  getHomeSeo, 
+  getAboutSeo, 
+  getProductsCatalogSeo, 
+  getQualitySeo, 
+  getGlobalReachSeo, 
+  getBlogIndexSeo, 
+  getContactSeo 
+} from './utils/seo';
+
+// Route-based Code Splitting: Lazy-load secondary pages & heavy modals
+const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ProductsPage = lazy(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const GlobalReachPage = lazy(() => import('./pages/GlobalReachPage').then(m => ({ default: m.GlobalReachPage })));
+const QualityPage = lazy(() => import('./pages/QualityPage').then(m => ({ default: m.QualityPage })));
+const BlogPage = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.BlogPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const MeetingPage = lazy(() => import('./pages/MeetingPage').then(m => ({ default: m.MeetingPage })));
+const AdminPage = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const QuoteModal = lazy(() => import('./components/QuoteModal').then(m => ({ default: m.QuoteModal })));
+const LegalModal = lazy(() => import('./components/LegalModal').then(m => ({ default: m.LegalModal })));
+
+// Sleek, minimal loading fallback for secondary route transitions
+const PageLoadingFallback: React.FC = () => (
+  <div className="min-h-[50vh] flex items-center justify-center bg-white" aria-live="polite">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-3 border-[#0070E0] border-t-transparent rounded-full animate-spin"></div>
+      <span className="text-[11px] font-semibold tracking-widest uppercase text-slate-400">Loading Origintra Exim...</span>
+    </div>
+  </div>
+);
 
 export const App: React.FC = () => {
   const companyConfig = useCompanyConfig();
@@ -42,31 +65,34 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Background Idle Prefetching: silently loads About, Products, Contact, and Blog chunks when main thread is idle
+  useEffect(() => {
+    const prefetchRoutes = () => {
+      import('./pages/AboutPage');
+      import('./pages/ProductsPage');
+      import('./pages/ContactPage');
+      import('./pages/BlogPage');
+      import('./components/QuoteModal');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(prefetchRoutes, { timeout: 3000 });
+      } else {
+        setTimeout(prefetchRoutes, 1200);
+      }
+    }
+  }, []);
+
   const applyRouteSeo = useCallback((route: ParsedRoute, product?: Product | null, post?: BlogPost | null) => {
     switch (route.page) {
       case 'home':
-        updatePageSeo({
-          title: 'Origintra Exim | Premium Indian Spice Exporter & Agricultural Trading',
-          description: 'Origintra Exim is a premier Indian spices exporter and agricultural trading company. Connecting trusted Indian sourcing with global markets, exporting quality dry red chilli, turmeric, coriander, cumin, and moringa powder to international buyers worldwide.',
-          canonicalPath: '/',
-          ogType: 'website'
-        });
+        updatePageSeo(getHomeSeo());
         break;
       case 'about':
-        updatePageSeo({
-          title: 'About Us | Origintra Exim - Leading Indian Spice Exporter & Sourcing Partner',
-          description: "Discover Origintra Exim's export journey, founding mission, executive leadership, and deep farmgate sourcing networks across India's agricultural heartlands.",
-          canonicalPath: '/about',
-          ogType: 'website'
-        });
+        updatePageSeo(getAboutSeo());
         break;
       case 'products':
-        updatePageSeo({
-          title: 'Export Quality Indian Spices Catalog | Origintra Exim',
-          description: 'Browse our full export portfolio of 27+ premium Indian spices: whole chillies, turmeric fingers, green cardamom, black pepper, sortex seeds, and authentic curry blends.',
-          canonicalPath: '/products',
-          ogType: 'website'
-        });
+        updatePageSeo(getProductsCatalogSeo());
         break;
       case 'product-detail':
         if (product) {
@@ -74,47 +100,32 @@ export const App: React.FC = () => {
         }
         break;
       case 'global-reach':
-        updatePageSeo({
-          title: 'Global Export Reach & Maritime Shipping Logistics | Origintra Exim',
-          description: 'Delivering container-load Indian agricultural commodities to over 24+ destination countries across GCC, North America, Europe, and Southeast Asia.',
-          canonicalPath: '/global-reach',
-          ogType: 'website'
-        });
+        updatePageSeo(getGlobalReachSeo());
         break;
       case 'quality':
-        updatePageSeo({
-          title: 'Quality Assurance, Testing & Spice Board Compliance | Origintra Exim',
-          description: 'Export-grade compliance with Spices Board of India, FSSAI, APEDA, and ISO. Certified laboratory testing for moisture, aflatoxins, volatile oils, and pesticide MRLs.',
-          canonicalPath: '/quality',
-          ogType: 'website'
-        });
+        updatePageSeo(getQualitySeo());
         break;
       case 'blog':
         if (post) {
           updatePageSeo(getBlogPostSeo(post));
         } else {
-          updatePageSeo({
-            title: 'Spice Export Insights & International Trade Intelligence | Origintra Exim Blog',
-            description: 'Commercial guides, market price analysis, crop harvest reports, and regulatory compliance updates for international spice importers and procurement managers.',
-            canonicalPath: '/blog',
-            ogType: 'website'
-          });
+          updatePageSeo(getBlogIndexSeo());
         }
         break;
       case 'contact':
-        updatePageSeo({
-          title: 'Contact Origintra Exim | B2B Commercial Spice Trade Desk & Inquiries',
-          description: 'Connect directly with our international export desk for FOB / CIF container pricing, product specifications, and commercial sample shipments.',
-          canonicalPath: '/contact',
-          ogType: 'website'
-        });
+        updatePageSeo(getContactSeo());
         break;
       case 'meeting':
         updatePageSeo({
           title: 'Schedule Commercial Spice Consultation | Origintra Exim 30-Min Meeting',
           description: 'Book a direct 30-minute B2B consultation with Origintra Exim senior export desk to discuss FOB/CIF container pricing, crop availability, and statutory compliance.',
+          keywords: 'schedule spice meeting, commercial spice consultation, b2b spice import meeting india, spices exporter in india consultation',
           canonicalPath: '/schedule-meeting',
-          ogType: 'website'
+          ogType: 'website',
+          breadcrumbs: [
+            { name: 'Home', item: '/' },
+            { name: 'Schedule Meeting', item: '/schedule-meeting' }
+          ]
         });
         break;
       case 'admin':
@@ -130,7 +141,11 @@ export const App: React.FC = () => {
           title: `${route.legalType ? route.legalType.charAt(0).toUpperCase() + route.legalType.slice(1) : 'Legal'} Policy | Origintra Exim`,
           description: 'Legal notices, commercial compliance, and trade terms for Origintra Exim.',
           canonicalPath: route.path,
-          ogType: 'website'
+          ogType: 'website',
+          breadcrumbs: [
+            { name: 'Home', item: '/' },
+            { name: 'Legal Policy', item: route.path }
+          ]
         });
         break;
       case 'not-found':
@@ -313,87 +328,89 @@ export const App: React.FC = () => {
 
       {/* Main Routed Page Content */}
       <main className="flex-1">
-        {currentPage === 'home' && (
+        {currentPage === 'home' ? (
           <HomePage
             onNavigate={handleNavigate}
             onOpenProductDetail={handleOpenProductDetail}
             onOpenQuoteWithProduct={handleOpenQuoteWithProduct}
             onOpenGeneralQuote={handleOpenGeneralQuote}
           />
-        )}
+        ) : (
+          <Suspense fallback={<PageLoadingFallback />}>
+            {currentPage === 'about' && (
+              <AboutPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'about' && (
-          <AboutPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'products' && (
+              <ProductsPage
+                onOpenProductDetail={handleOpenProductDetail}
+                onOpenQuoteWithProduct={handleOpenQuoteWithProduct}
+                onNavigate={handleNavigate}
+              />
+            )}
 
-        {currentPage === 'products' && (
-          <ProductsPage
-            onOpenProductDetail={handleOpenProductDetail}
-            onOpenQuoteWithProduct={handleOpenQuoteWithProduct}
-            onNavigate={handleNavigate}
-          />
-        )}
+            {currentPage === 'product-detail' && selectedProduct && (
+              <ProductDetailPage
+                product={selectedProduct}
+                onBack={() => handleNavigate('products')}
+                onOpenQuoteWithProduct={handleOpenQuoteWithProduct}
+                onNavigate={handleNavigate}
+              />
+            )}
 
-        {currentPage === 'product-detail' && selectedProduct && (
-          <ProductDetailPage
-            product={selectedProduct}
-            onBack={() => handleNavigate('products')}
-            onOpenQuoteWithProduct={handleOpenQuoteWithProduct}
-            onNavigate={handleNavigate}
-          />
-        )}
+            {currentPage === 'global-reach' && (
+              <GlobalReachPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'global-reach' && (
-          <GlobalReachPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'quality' && (
+              <QualityPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'quality' && (
-          <QualityPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'blog' && (
+              <BlogPage
+                initialSlug={blogArticleSlug}
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'blog' && (
-          <BlogPage
-            initialSlug={blogArticleSlug}
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'contact' && (
+              <ContactPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'contact' && (
-          <ContactPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'meeting' && (
+              <MeetingPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
 
-        {currentPage === 'meeting' && (
-          <MeetingPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
-        )}
+            {currentPage === 'admin' && (
+              <AdminPage
+                onNavigate={handleNavigate}
+                onOpenProductDetail={handleOpenProductDetail}
+              />
+            )}
 
-        {currentPage === 'admin' && (
-          <AdminPage
-            onNavigate={handleNavigate}
-            onOpenProductDetail={handleOpenProductDetail}
-          />
-        )}
-
-        {currentPage === 'not-found' && (
-          <NotFoundPage
-            onNavigate={handleNavigate}
-            onOpenQuote={handleOpenGeneralQuote}
-          />
+            {currentPage === 'not-found' && (
+              <NotFoundPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
+          </Suspense>
         )}
       </main>
 
@@ -407,18 +424,26 @@ export const App: React.FC = () => {
       )}
 
       {/* Commercial Quotation (RFQ) Modal */}
-      <QuoteModal
-        isOpen={quoteModalOpen}
-        onClose={() => setQuoteModalOpen(false)}
-        prefilledProduct={prefilledProduct}
-      />
+      {quoteModalOpen && (
+        <Suspense fallback={null}>
+          <QuoteModal
+            isOpen={quoteModalOpen}
+            onClose={() => setQuoteModalOpen(false)}
+            prefilledProduct={prefilledProduct}
+          />
+        </Suspense>
+      )}
 
       {/* Legal Policies Modal */}
-      <LegalModal
-        isOpen={legalModalOpen}
-        onClose={handleCloseLegal}
-        policyType={activeLegalType}
-      />
+      {legalModalOpen && (
+        <Suspense fallback={null}>
+          <LegalModal
+            isOpen={legalModalOpen}
+            onClose={handleCloseLegal}
+            policyType={activeLegalType}
+          />
+        </Suspense>
+      )}
 
       {/* Professional Floating WhatsApp Action Button (Left Side - hidden on admin page) */}
       {currentPage !== 'admin' && (

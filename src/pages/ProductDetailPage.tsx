@@ -92,15 +92,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             {/* Product Hero Info */}
             <div className="lg:col-span-6 space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-                  {product.category}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+                    {product.category}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Indian Spice Exporter & Bulk Supply
+                  </span>
+                </div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
                   {product.name}
                 </h1>
                 {product.botanicalName && (
                   <p className="text-sm font-serif italic text-slate-500 mt-1">
-                    Botanical: {product.botanicalName}
+                    Botanical Name: {product.botanicalName}
                   </p>
                 )}
               </div>

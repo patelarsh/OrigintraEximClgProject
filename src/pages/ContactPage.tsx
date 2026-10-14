@@ -114,13 +114,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
         <div className="container-x mx-auto max-w-[1320px] py-14 sm:py-20">
           <div className="max-w-2xl space-y-3">
             <p className="text-xs font-semibold tracking-wider uppercase text-[#38BDF8]">
-              Commercial Merchandising & Trade Operations
+              Commercial Merchandising & Trade Desk • Spices Exporter in India
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-semibold tracking-tight text-white">
               Contact Our Export Desk
             </h1>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed pt-1">
-              Direct access to Origintra Exim procurement merchandisers, laboratory food technologists, and international shipping coordinators.
+              Direct access to Origintra Exim procurement merchandisers, laboratory food technologists, and international maritime shipping coordinators for FOB and CIF container orders.
             </p>
           </div>
         </div>

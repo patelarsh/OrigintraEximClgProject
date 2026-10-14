@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { PRODUCTS as DEFAULT_PRODUCTS } from '../src/data/products';
 import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../src/data/blog';
@@ -40,7 +41,39 @@ export interface DbChangeEvent {
 
 const DB_DIR = path.resolve(process.cwd(), 'data');
 const SQLITE_FILE = path.resolve(DB_DIR, 'origintra.sqlite');
+const BACKUPS_DIR = path.resolve(DB_DIR, 'backups');
 const LEGACY_JSON_FILE = path.resolve(DB_DIR, 'database.json');
+
+// === CRYPTOGRAPHIC SECURITY: SALTED SCRYPT PASSWORD HASHING ===
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt$${salt}$${hash}`;
+}
+
+export function verifyPassword(candidate: string, stored: string): boolean {
+  if (!stored || !candidate) return false;
+  if (stored.startsWith('scrypt$')) {
+    const parts = stored.split('$');
+    if (parts.length !== 3) return false;
+    const [, salt, hash] = parts;
+    try {
+      const computed = crypto.scryptSync(candidate, salt, 64);
+      const storedBuf = Buffer.from(hash, 'hex');
+      if (computed.length !== storedBuf.length) return false;
+      return crypto.timingSafeEqual(computed, storedBuf);
+    } catch {
+      return false;
+    }
+  }
+  // Constant-time check for legacy unhashed password
+  const candBuf = Buffer.from(candidate);
+  const storBuf = Buffer.from(stored);
+  if (candBuf.length === storBuf.length) {
+    return crypto.timingSafeEqual(candBuf, storBuf);
+  }
+  return false;
+}
 
 // Default initial inquiries
 const INITIAL_INQUIRIES = [
@@ -97,13 +130,13 @@ const INITIAL_INQUIRIES = [
   }
 ];
 
-// Default initial users
+// Default initial users with hardened credentials
 const INITIAL_USERS: UserRecord[] = [
   {
     id: 'usr-admin-01',
     name: 'Rajesh Sharma',
     email: 'admin@origintra.com',
-    password: 'admin',
+    password: 'Arsh@2410',
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Managing Director & Global Trade Head',
@@ -388,10 +421,33 @@ class SQLiteDatabaseEngine {
         summary TEXT NOT NULL,
         created_at TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL
+      );
     `);
   }
 
   private seedOrMigrateIfNeeded() {
+    // SECURITY: Ensure any plaintext passwords in existing users table are upgraded to salted scrypt hashes
+    try {
+      const unhashedUsers = this.sqlite
+        .prepare("SELECT id, password, role FROM users WHERE password NOT LIKE 'scrypt$%'")
+        .all() as any[];
+      for (const u of unhashedUsers) {
+        if (u.password) {
+          const pass = (u.password === 'admin' && u.role === 'admin') ? 'Arsh@2410' : u.password;
+          this.sqlite.prepare('UPDATE users SET password = ? WHERE id = ?').run(hashPassword(pass), u.id);
+        }
+      }
+    } catch {
+      // ignore if table empty
+    }
+
     const row = this.sqlite.prepare('SELECT value FROM meta WHERE key = ?').get('seeded');
     if (row && row.value === 'true') {
       return;
@@ -429,17 +485,19 @@ class SQLiteDatabaseEngine {
     const now = new Date().toISOString();
     this.sqlite.exec('BEGIN IMMEDIATE');
     try {
-      // 1. Seed Users
+      // 1. Seed Users (with cryptographic salted scrypt hashing)
       const insertUser = this.sqlite.prepare(`
         INSERT OR REPLACE INTO users (id, name, email, password, role, avatar, department, created_at, last_login)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const u of usersToSeed) {
+        const rawPass = u.password || 'origintra123';
+        const finalPass = rawPass.startsWith('scrypt$') ? rawPass : hashPassword(rawPass);
         insertUser.run(
           u.id || `usr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           u.name || 'User',
           (u.email || '').toLowerCase(),
-          u.password || 'origintra123',
+          finalPass,
           u.role || 'editor',
           u.avatar || '/assets/team/director.jpg',
           u.department || 'Trade Operations',
@@ -648,11 +706,27 @@ class SQLiteDatabaseEngine {
       // ignore
     }
 
+    let backupCount = 0;
+    try {
+      if (fs.existsSync(BACKUPS_DIR)) {
+        backupCount = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.sqlite')).length;
+      }
+    } catch {
+      // ignore
+    }
+
     return {
       connected: true,
       engine: 'SQLite 3 Relational Engine (WAL Mode)',
       databaseFile: 'data/origintra.sqlite',
       fileSizeKB: Math.round((fileSizeBytes / 1024) * 10) / 10,
+      backupCount,
+      security: {
+        sqlInjectionProtection: 'Parameterized Statements',
+        authMode: 'Crypto Bearer Token + Sessions',
+        rateLimiting: 'Active (Login & Inquiry Brute-Force Protected)',
+        walSafety: 'Write-Ahead Logging (Crash Resilient)'
+      },
       updatedAt: updatedAtRow ? updatedAtRow.value : new Date().toISOString(),
       tables: {
         users: count('users'),
@@ -662,9 +736,69 @@ class SQLiteDatabaseEngine {
         inquiries: count('inquiries'),
         custom_gallery: count('custom_gallery'),
         testimonials: count('testimonials'),
-        audit_logs: count('audit_logs')
+        audit_logs: count('audit_logs'),
+        sessions: count('sessions')
       },
       recentAuditLogs: recentLogs
+    };
+  }
+
+  // === AUTOMATED BACKUP SNAPSHOTS & DATA EXPORT ===
+  public createBackupSnapshot(reason = 'manual'): { success: boolean; filename: string; path: string; sizeKB: number } {
+    this.ensureOpen();
+    try {
+      if (!fs.existsSync(BACKUPS_DIR)) {
+        fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+      }
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `origintra_backup_${timestamp}_${reason}.sqlite`;
+      const targetPath = path.join(BACKUPS_DIR, filename);
+
+      if (fs.existsSync(SQLITE_FILE)) {
+        fs.copyFileSync(SQLITE_FILE, targetPath);
+      }
+
+      // Keep only 10 most recent backups to prevent disk bloat
+      const allBackups = fs.readdirSync(BACKUPS_DIR)
+        .filter(f => f.endsWith('.sqlite'))
+        .map(f => ({ name: f, time: fs.statSync(path.join(BACKUPS_DIR, f)).mtime.getTime() }))
+        .sort((a, b) => b.time - a.time);
+
+      if (allBackups.length > 10) {
+        for (const old of allBackups.slice(10)) {
+          try {
+            fs.unlinkSync(path.join(BACKUPS_DIR, old.name));
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      const stats = fs.statSync(targetPath);
+      const sizeKB = Math.round((stats.size / 1024) * 10) / 10;
+
+      this.sqlite
+        .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run('BACKUP_DB', 'database', filename, `Created SQLite backup snapshot (${reason}, ${sizeKB} KB)`, new Date().toISOString());
+
+      return { success: true, filename, path: targetPath, sizeKB };
+    } catch (err: any) {
+      console.error('[SQLite DB] Failed to create backup snapshot:', err);
+      return { success: false, filename: '', path: '', sizeKB: 0 };
+    }
+  }
+
+  public exportFullBackupJson(): any {
+    this.ensureOpen();
+    const data = this.getAllData();
+    return {
+      exportedAt: new Date().toISOString(),
+      engine: 'SQLite 3 (WAL)',
+      databaseFile: 'data/origintra.sqlite',
+      version: '2.0-sqlite',
+      checksum: crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16),
+      data
     };
   }
 
@@ -717,7 +851,7 @@ class SQLiteDatabaseEngine {
     }
   }
 
-  // === AUTHENTICATION & USERS ===
+  // === AUTHENTICATION & SESSIONS ===
   private getAllUsersWithPasswords(): UserRecord[] {
     this.ensureOpen();
     const rows = this.sqlite.prepare(`
@@ -726,6 +860,58 @@ class SQLiteDatabaseEngine {
       ORDER BY created_at ASC
     `).all();
     return rows.map((r: any) => ({ ...r }));
+  }
+
+  public verifySessionToken(token?: string): { id: string; name: string; email: string; role: string } | null {
+    if (!token || typeof token !== 'string') return null;
+    this.ensureOpen();
+
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    if (!cleanToken) return null;
+
+    // Check sessions table
+    const now = new Date().toISOString();
+    const session = this.sqlite.prepare(`
+      SELECT s.token, s.user_id, s.role, s.expires_at, u.name, u.email
+      FROM sessions s
+      JOIN users u ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > ?
+    `).get(cleanToken, now) as any;
+
+    if (session) {
+      return {
+        id: session.user_id,
+        name: session.name,
+        email: session.email,
+        role: session.role
+      };
+    }
+
+    // Backwards-compatible validation for existing active sessions (e.g., 'origintra-sess-<userId>-...')
+    const match = cleanToken.match(/^origintra-sess-([a-zA-Z0-9_-]+)/);
+    if (match) {
+      const userId = match[1];
+      const user = this.sqlite.prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(userId) as any;
+      if (user) {
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        try {
+          this.sqlite.prepare(`
+            INSERT OR REPLACE INTO sessions (token, user_id, role, created_at, expires_at)
+            VALUES (?, ?, ?, ?, ?)
+          `).run(cleanToken, user.id, user.role, now, expiresAt);
+        } catch {
+          // ignore
+        }
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        };
+      }
+    }
+
+    return null;
   }
 
   public authenticate(identifier: string, password: string): { token: string; user: Omit<UserRecord, 'password'> } | null {
@@ -755,18 +941,67 @@ class SQLiteDatabaseEngine {
 
     if (!user) return null;
 
-    const isExactPassword = user.password === cleanPass;
+    const isPasswordValid = verifyPassword(cleanPass, user.password);
 
-    if (isExactPassword) {
+    if (isPasswordValid) {
+      // If legacy password was plaintext, upgrade to salted scrypt hash immediately
+      if (!user.password.startsWith('scrypt$')) {
+        try {
+          const upgradedHash = hashPassword(cleanPass);
+          this.sqlite.prepare('UPDATE users SET password = ? WHERE id = ?').run(upgradedHash, user.id);
+          user.password = upgradedHash;
+        } catch {
+          // ignore
+        }
+      }
+
       const now = new Date().toISOString();
       this.sqlite.prepare('UPDATE users SET last_login = ? WHERE id = ?').run(now, user.id);
       user.lastLogin = now;
-      const token = `origintra-sess-${user.id}-${Date.now()}`;
+
+      const randomBytes = crypto.randomBytes(32).toString('hex');
+      const token = `origintra-sess-${user.id}-${Date.now()}-${randomBytes}`;
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+      this.sqlite.prepare(`
+        INSERT OR REPLACE INTO sessions (token, user_id, role, created_at, expires_at)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(token, user.id, user.role, now, expiresAt);
+
+      this.sqlite
+        .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run('USER_LOGIN', 'users', user.id, `User logged in: ${user.name} (${user.role})`, now);
+
       const { password: _, ...safeUser } = user;
       return { token, user: safeUser };
     }
 
+    // Audit log failed attempt
+    try {
+      this.sqlite
+        .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run('FAILED_LOGIN', 'users', user.id, `Failed password attempt for user ${user.email}`, new Date().toISOString());
+    } catch {
+      // ignore
+    }
+
     return null;
+  }
+
+  public logout(token?: string): boolean {
+    if (!token) return false;
+    this.ensureOpen();
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    if (!cleanToken) return false;
+
+    const session = this.sqlite.prepare('SELECT user_id FROM sessions WHERE token = ?').get(cleanToken) as any;
+    const res = this.sqlite.prepare('DELETE FROM sessions WHERE token = ?').run(cleanToken);
+    if (session) {
+      this.sqlite
+        .prepare('INSERT INTO audit_logs (action, entity_type, entity_id, summary, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run('USER_LOGOUT', 'users', session.user_id, 'User logged out and session revoked', new Date().toISOString());
+    }
+    return res.changes > 0;
   }
 
   public getUsers(): Omit<UserRecord, 'password'>[] {
@@ -792,11 +1027,12 @@ class SQLiteDatabaseEngine {
       ? this.saveBase64ToFile(userData.avatar, 'avatar')
       : (userData.role === 'admin' ? '/assets/team/director.jpg' : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80');
 
+    const rawPass = (userData.password && userData.password.trim()) || 'origintra123';
     const newUser: UserRecord = {
       id: `usr-${Date.now()}`,
       name: userData.name.trim(),
       email: cleanEmail,
-      password: (userData.password && userData.password.trim()) || 'origintra123',
+      password: hashPassword(rawPass),
       role: userData.role,
       department: userData.department || 'Trade Operations',
       avatar: cleanAvatar,
@@ -831,6 +1067,7 @@ class SQLiteDatabaseEngine {
 
     if (!existing) return null;
 
+    const newPass = updates.password && updates.password.trim() ? hashPassword(updates.password.trim()) : existing.password;
     const updated: UserRecord = {
       ...existing,
       name: updates.name !== undefined ? updates.name.trim() : existing.name,
@@ -838,7 +1075,7 @@ class SQLiteDatabaseEngine {
       role: updates.role !== undefined ? updates.role : existing.role,
       department: updates.department !== undefined ? updates.department : existing.department,
       avatar: updates.avatar !== undefined ? this.saveBase64ToFile(updates.avatar, 'avatar') : existing.avatar,
-      password: updates.password && updates.password.trim() ? updates.password.trim() : existing.password
+      password: newPass
     };
 
     this.sqlite.prepare(`
@@ -943,6 +1180,7 @@ class SQLiteDatabaseEngine {
 
   public resetProducts() {
     this.ensureOpen();
+    this.createBackupSnapshot('pre_reset_products');
     const now = new Date().toISOString();
     this.sqlite.exec('BEGIN IMMEDIATE');
     try {
@@ -1042,6 +1280,7 @@ class SQLiteDatabaseEngine {
 
   public resetBlogPosts() {
     this.ensureOpen();
+    this.createBackupSnapshot('pre_reset_blog');
     const now = new Date().toISOString();
     this.sqlite.exec('BEGIN IMMEDIATE');
     try {
@@ -1140,6 +1379,7 @@ class SQLiteDatabaseEngine {
 
   public resetTeamMembers() {
     this.ensureOpen();
+    this.createBackupSnapshot('pre_reset_team');
     const now = new Date().toISOString();
     this.sqlite.exec('BEGIN IMMEDIATE');
     try {
@@ -1200,13 +1440,33 @@ class SQLiteDatabaseEngine {
 
   public addInquiry(inquiry: any) {
     this.ensureOpen();
+    const sanitize = (val: any, maxLen = 3000): string => {
+      if (val === undefined || val === null) return '';
+      return String(val)
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/javascript:/gi, '')
+        .trim()
+        .slice(0, maxLen);
+    };
+
     const now = new Date().toISOString();
     const newInq = {
-      ...inquiry,
       id: inquiry.id || `inq-${Date.now()}`,
-      createdAt: inquiry.createdAt || now,
+      fullName: sanitize(inquiry.fullName || inquiry.name, 120),
+      companyName: sanitize(inquiry.companyName, 150),
+      businessEmail: sanitize(inquiry.businessEmail || inquiry.email, 150),
+      country: sanitize(inquiry.country, 100),
+      phoneWhatsApp: sanitize(inquiry.phoneWhatsApp || inquiry.phone, 60),
+      product: sanitize(inquiry.product, 200),
+      productForm: sanitize(inquiry.productForm, 100),
+      quantityRequired: sanitize(inquiry.quantityRequired, 100),
+      packagingRequirement: sanitize(inquiry.packagingRequirement, 150),
+      destinationPort: sanitize(inquiry.destinationPort, 120),
+      message: sanitize(inquiry.message, 3000),
       status: inquiry.status || 'new',
-      source: inquiry.source || 'quote_modal'
+      source: sanitize(inquiry.source || 'quote_modal', 50),
+      createdAt: inquiry.createdAt || now
     };
 
     this.sqlite.prepare(`
@@ -1217,17 +1477,17 @@ class SQLiteDatabaseEngine {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       newInq.id,
-      newInq.fullName || '',
-      newInq.companyName || '',
-      newInq.businessEmail || '',
-      newInq.country || '',
-      newInq.phoneWhatsApp || '',
-      newInq.product || '',
-      newInq.productForm || '',
-      newInq.quantityRequired || '',
-      newInq.packagingRequirement || '',
-      newInq.destinationPort || '',
-      newInq.message || '',
+      newInq.fullName,
+      newInq.companyName,
+      newInq.businessEmail,
+      newInq.country,
+      newInq.phoneWhatsApp,
+      newInq.product,
+      newInq.productForm,
+      newInq.quantityRequired,
+      newInq.packagingRequirement,
+      newInq.destinationPort,
+      newInq.message,
       newInq.status,
       newInq.source,
       newInq.createdAt,
@@ -1374,6 +1634,7 @@ class SQLiteDatabaseEngine {
 
   public resetCustomGallery() {
     this.ensureOpen();
+    this.createBackupSnapshot('pre_reset_gallery');
     this.sqlite.exec('DELETE FROM custom_gallery');
     this.emitChange('gallery', 'RESET_GALLERY', 'all', 'Cleared custom gallery uploads');
     return [];
@@ -1447,6 +1708,7 @@ class SQLiteDatabaseEngine {
 
   public resetTestimonials() {
     this.ensureOpen();
+    this.createBackupSnapshot('pre_reset_testimonials');
     const now = new Date().toISOString();
     this.sqlite.exec('BEGIN IMMEDIATE');
     try {

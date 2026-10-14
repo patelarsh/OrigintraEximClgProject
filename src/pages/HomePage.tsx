@@ -17,6 +17,9 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
   Star,
   CheckCircle2,
   Calendar
@@ -26,6 +29,7 @@ import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../data/blog';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { Product, BlogPost, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
+import { HOME_FAQS } from '../utils/seo';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -144,6 +148,11 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   const [currentHeroSlide, setCurrentHeroSlide] = React.useState(0);
   const [fadeState, setFadeState] = React.useState<'in' | 'out'>('in');
+  const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(0);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex((prev) => (prev === index ? null : index));
+  };
 
   const goToSlide = React.useCallback((newIdx: number) => {
     setFadeState('out');
@@ -307,6 +316,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <img
                   src={slide.image}
                   alt={slide.alt}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                  decoding={idx === 0 ? 'sync' : 'async'}
+                  fetchPriority={idx === 0 ? 'high' : 'low'}
                   className={`w-full h-full object-cover object-[center_40%] sm:object-center transition-transform duration-[7000ms] ease-out ${
                     idx === currentHeroSlide ? 'scale-105' : 'scale-100'
                   }`}
@@ -572,7 +584,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             
             <div className="lg:col-span-6 space-y-6">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-                About Origintra Exim
+                Premier Spices Exporter in India • Origintra Exim
               </span>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight leading-tight">
@@ -580,11 +592,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               </h2>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-                Origintra Exim is built around a simple principle — global trade works best when quality, transparency and reliability move together.
+                Origintra Exim is a premier spices exporter in India, built around a simple principle — global trade works best when quality, transparency, and reliability move together.
               </p>
 
               <p className="text-base text-slate-600 leading-relaxed">
-                We work with trusted sourcing networks to connect international buyers with carefully selected Indian spices and agricultural products, with a strong focus on consistency, documentation and dependable supply.
+                As an APEDA and Spices Board of India registered merchant exporter, we work directly with verified farmgate sourcing networks across Gujarat, Andhra Pradesh, Rajasthan, and Kerala to connect international food manufacturers, spice grinders, and wholesale importers with export-grade whole spices, sortex seeds, and ground powders.
               </p>
 
               <div className="pt-2">
@@ -603,7 +615,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/3 border border-slate-200 group">
                   <img
                     src="/assets/about/spice-harvest-sourcing.jpg"
-                    alt="Indian agricultural quality inspection and farm-gate spice sourcing"
+                    alt="Indian agricultural quality inspection and farm-gate spice sourcing by Origintra Exim"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -612,7 +624,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-square border border-slate-200 group">
                   <img
                     src="/assets/hero/banner-red-chilli.jpg"
-                    alt="Clean red chilli whole pods, ground powder, and export bags"
+                    alt="Clean red chilli whole pods, ground powder, and export bags from India"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -623,7 +635,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-square border border-slate-200 group">
                   <img
                     src="/assets/about/spice-processing-plant.jpg"
-                    alt="Modern spice optical sorting and mechanical milling plant"
+                    alt="Modern spice optical sorting, Sortex cleaning, and mechanical milling plant in India"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -632,7 +644,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="rounded-2xl overflow-hidden shadow-sm aspect-4/3 border border-slate-200 group">
                   <img
                     src="/assets/about/container-ship-port.jpg"
-                    alt="Mundra Port deep-water container terminal and global ocean freight dispatch"
+                    alt="Mundra Port deep-water container terminal and global ocean freight dispatch of Indian spices"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -651,13 +663,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-14">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-                Featured Commodities
+                Indian Spices Exporter Catalog • 27 Export Commodities
               </span>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-1.5 sm:mt-2">
-                Our Export Products<span className="text-[#0070E0]">.</span>
+                Export Quality Indian Spices & Agro Commodities<span className="text-[#0070E0]">.</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
-                Featured flagship commodities from our 27-product portfolio. Sourced directly from contracted regional farms across India.
+                Featured flagship commodities from our 27-product portfolio: Guntur dry red chillies, Salem turmeric fingers, Unjha sortex cumin seeds, and Alleppey cardamom. Sourced directly from contracted regional farms across India.
               </p>
             </div>
 
@@ -1167,6 +1179,83 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
               </a>
             ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* 9.5 B2B SPICE EXPORTER FAQ SECTION (SEO & Google Rich Snippets) */}
+      <section className="py-20 sm:py-28 bg-slate-50 border-b border-slate-200/80" id="faq">
+        <div className="container-x mx-auto max-w-[1440px]">
+          
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+              B2B Trade Intelligence & FAQs
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-2">
+              Frequently Asked Questions About Sourcing & Exporting Indian Spices<span className="text-[#0070E0]">.</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
+              Commercial guidance, export documentation, container minimums, and port dispatch details for international spice procurement managers and commodity importers.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto space-y-4">
+            {HOME_FAQS.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div 
+                  key={idx}
+                  className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden transition-all duration-200 hover:border-slate-300"
+                >
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-start justify-between gap-4 text-left cursor-pointer focus:outline-none"
+                    aria-expanded={isOpen}
+                  >
+                    <span className="text-base sm:text-lg font-display font-semibold text-[#0F172A] leading-snug">
+                      {faq.question}
+                    </span>
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                      isOpen ? 'bg-[#0070E0] text-white' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-6 pb-6 sm:px-8 sm:pb-7 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                      <p>{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Sourcing Desk Help Strip */}
+          <div className="mt-12 max-w-4xl mx-auto p-6 sm:p-8 rounded-2xl bg-white border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0">
+                <HelpCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">
+                  Have a specific commodity specification or target discharge port?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  Our commercial trade team is ready to evaluate crop arrivals and prepare custom FOB / CIF container pricing.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onOpenGeneralQuote}
+              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 py-2.5 text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
+            >
+              <span>Ask Our Trade Desk</span>
+              <ArrowUpRight className="w-4 h-4 ml-1" />
+            </button>
           </div>
 
         </div>

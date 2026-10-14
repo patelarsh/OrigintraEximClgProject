@@ -96,13 +96,13 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
         <div className="container-x mx-auto max-w-[1440px] relative">
           <div className="max-w-3xl space-y-3 sm:space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-sky-300">
-              Standards & Compliance
+              Spices Board & APEDA Compliance • Quality Assurance
             </span>
             <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white">
               Quality Is Part of Every Shipment<span className="text-[#0070E0]">.</span>
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed pt-1 sm:pt-2">
-              Origintra focuses on responsible sourcing, product evaluation, proper documentation and export-ready packaging.
+              Rigorous quality assurance for Indian spice exports: NABL-accredited laboratory testing for moisture, aflatoxins, volatile oils, and pesticide MRLs meeting US FDA, EU, and GCC statutory import standards.
             </p>
           </div>
         </div>

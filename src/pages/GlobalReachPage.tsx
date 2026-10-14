@@ -79,13 +79,13 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
         <div className="container-x mx-auto max-w-[1440px] relative">
           <div className="max-w-3xl space-y-3 sm:space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-sky-300">
-              International Trade Corridors
+              Maritime Spice Shipping Routes • Mundra & JNPT Gateways
             </span>
             <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white">
               From India to Global Markets<span className="text-[#0070E0]">.</span>
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed pt-1 sm:pt-2">
-              Our global market focus: Connecting India’s agricultural heartlands with commercial importers, food manufacturers, and wholesalers across key trade regions.
+              Commercial containerized spice exports (FOB, CFR, CIF) to 24+ destination countries across GCC, North America, Europe, and Asia with scheduled sailings from India's gateway ports: Mundra, Nhava Sheva (JNPT), and Cochin.
             </p>
           </div>
         </div>
