@@ -82,7 +82,7 @@ export const ORGANIZATION_SCHEMA = {
   '@type': 'Corporation',
   '@id': `${BASE_URL}/#organization`,
   'name': 'Origintra Exim',
-  'legalName': 'Origintra Exim Private Limited',
+  'legalName': 'Origintra Exim',
   'alternateName': [
     'Origintra Indian Spices Exporter',
     'Origintra Agro Exim',

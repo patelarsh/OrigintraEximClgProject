@@ -422,10 +422,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
           aria-hidden="true"
         >
           <img 
-            src="/assets/dotted-world-map.svg" 
+            src="/assets/dotted-world-map.webp" 
             alt="" 
+            width="1600"
+            height="1000"
             className="w-full h-full object-cover object-center scale-105"
             loading="lazy"
+            decoding="async"
           />
         </div>
         {/* Soft edge fade overlay for seamless background integration */}

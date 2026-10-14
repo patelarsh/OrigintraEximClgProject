@@ -312,10 +312,18 @@ export const HomePage: React.FC<HomePageProps> = ({
               }`}
             >
               <picture className="w-full h-full block">
-                <source media="(max-width: 639px)" srcSet={slide.mobileImage} />
+                {/* Mobile Modern WebP (70KB) */}
+                <source media="(max-width: 639px)" type="image/webp" srcSet={slide.mobileImage.replace(/\.jpg$/, '.webp')} />
+                {/* Mobile Fallback JPEG */}
+                <source media="(max-width: 639px)" type="image/jpeg" srcSet={slide.mobileImage} />
+                {/* Desktop Modern WebP (150KB) */}
+                <source media="(min-width: 640px)" type="image/webp" srcSet={slide.image.replace(/\.jpg$/, '.webp')} />
+                {/* Desktop Fallback JPEG */}
                 <img
                   src={slide.image}
                   alt={slide.alt}
+                  width="1376"
+                  height="768"
                   loading={idx === 0 ? 'eager' : 'lazy'}
                   decoding={idx === 0 ? 'sync' : 'async'}
                   fetchPriority={idx === 0 ? 'high' : 'low'}
@@ -862,10 +870,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           aria-hidden="true"
         >
           <img 
-            src="/assets/dotted-world-map.svg" 
+            src="/assets/dotted-world-map.webp" 
             alt="" 
+            width="1600"
+            height="1000"
             className="w-full h-full object-cover object-center scale-105"
             loading="lazy"
+            decoding="async"
           />
         </div>
         {/* Soft edge fade overlay for seamless background integration */}
