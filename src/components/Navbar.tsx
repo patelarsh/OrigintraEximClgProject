@@ -112,12 +112,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-medium">{COMPANY_CONFIG.phoneDisplay}</span>
             </a>
 
-            <div className="hidden sm:flex items-center space-x-2 text-slate-400 border-l border-blue-900/60 pl-3">
+            <div className="hidden sm:flex items-center space-x-1 text-slate-300 border-l border-blue-900/60 pl-3">
               <a
                 href={COMPANY_CONFIG.facebookUrl || "https://www.facebook.com/origintra.exim"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 hover:text-[#38BDF8] transition-colors"
+                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-300 hover:text-[#38BDF8] transition-colors"
                 title="Facebook"
                 aria-label="Facebook"
               >
@@ -129,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={COMPANY_CONFIG.linkedinUrl || "https://www.linkedin.com/company/origintra-exim"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 hover:text-[#38BDF8] transition-colors"
+                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-300 hover:text-[#38BDF8] transition-colors"
                 title="LinkedIn"
                 aria-label="LinkedIn"
               >
@@ -141,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={COMPANY_CONFIG.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 hover:text-[#38BDF8] transition-colors"
+                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-300 hover:text-[#38BDF8] transition-colors"
                 title="Instagram (@origintra.exim)"
                 aria-label="Instagram"
               >
@@ -153,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={COMPANY_CONFIG.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 hover:text-[#25D366] transition-colors"
+                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-300 hover:text-[#25D366] transition-colors"
                 title="WhatsApp Trade Desk"
                 aria-label="WhatsApp Trade Desk"
               >
@@ -499,11 +499,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Mobile/Tablet Controls & Quick CTAs */}
+          {/* Mobile/Tablet Controls & Quick CTAs with accessible 44px touch targets */}
           <div className="lg:hidden flex items-center space-x-2 sm:space-x-2.5 shrink-0">
             <button
               onClick={() => handleLinkClick('meeting')}
-              className="text-xs bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-medium flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0"
+              className="text-xs bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-4 py-2.5 sm:px-5 sm:py-2.5 min-h-[44px] rounded-full font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0"
             >
               <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span className="hidden sm:inline">Schedule Meeting</span>
@@ -511,14 +511,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={onOpenQuote}
-              className="hidden sm:flex text-xs border border-slate-300 hover:border-[#0A1C3E] hover:bg-slate-50 text-[#0A1C3E] px-4 py-2 rounded-full font-medium items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              className="hidden sm:flex text-xs border border-slate-300 hover:border-[#0A1C3E] hover:bg-slate-50 text-[#0A1C3E] px-4 py-2.5 min-h-[44px] rounded-full font-semibold items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>Quote</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 sm:p-2.5 text-slate-700 hover:text-[#0A1C3E] rounded-full border border-slate-200 bg-white cursor-pointer transition-colors shrink-0"
+              className="w-11 h-11 p-2.5 text-slate-800 hover:text-[#0A1C3E] rounded-full border border-slate-300 bg-white cursor-pointer transition-colors shrink-0 flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

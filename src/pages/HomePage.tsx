@@ -354,10 +354,10 @@ export const HomePage: React.FC<HomePageProps> = ({
         >
           {/* Top Row: Slide Counter on the side (NOT in the middle) */}
           <div className="flex justify-end w-full">
-            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/20 backdrop-blur-md text-[10.5px] font-mono tracking-widest text-slate-200 shadow-md">
+            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-950/80 border border-white/20 backdrop-blur-md text-[10.5px] font-mono tracking-widest text-slate-200 shadow-md">
               <span className="text-[#38BDF8] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
-              <span className="text-white/30 mx-0.5">/</span>
-              <span className="text-slate-400">{String(heroSlides.length).padStart(2, '0')}</span>
+              <span className="text-slate-300 mx-0.5">/</span>
+              <span className="text-white font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
             </div>
           </div>
 
@@ -397,11 +397,11 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Bottom Zone: Placed firmly at the bottom */}
           <div className="w-full space-y-2.5 pt-2 pb-0.5">
-            {/* CTAs matching user reference exactly */}
+            {/* CTAs matching user reference exactly with accessible min 44px tap targets */}
             <div className="grid grid-cols-2 gap-2.5 w-full">
               <button
                 onClick={() => handleHeroCta(currentSlideData)}
-                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-2.5 px-3 rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg transition-all flex items-center justify-center space-x-1.5 border border-sky-400/30"
+                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-3 px-3 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg transition-all flex items-center justify-center space-x-1.5 border border-sky-400/30"
               >
                 <span>{currentSlideData.mobileCtaText}</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
@@ -409,41 +409,45 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <button
                 onClick={() => handleSecondaryCta(currentSlideData)}
-                className="w-full border border-white/35 hover:border-white text-white bg-black/40 hover:bg-black/60 backdrop-blur-md active:scale-[0.98] py-2.5 px-3 rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
+                className="w-full border border-white/35 hover:border-white text-white bg-black/40 hover:bg-black/60 backdrop-blur-md active:scale-[0.98] py-3 px-3 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
               >
                 <span>{currentSlideData.mobileSecondaryText}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 ml-0.5" />
               </button>
             </div>
 
-            {/* Mobile Slide Dot Controls on Left & Next/Prev Circular Buttons on Right (at the bottom) */}
+            {/* Mobile Slide Dot Controls on Left & Next/Prev Circular Buttons on Right with 44px touch targets */}
             <div className="flex items-center justify-between w-full pt-1 px-0.5">
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center -space-x-1">
                 {heroSlides.map((slide, idx) => (
                   <button
                     key={idx}
                     onClick={() => goToSlide(idx)}
-                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/40'
-                    }`}
+                    className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
                     aria-label={`Slide ${idx + 1}: ${slide.badge}`}
-                  />
+                  >
+                    <span
+                      className={`h-1.5 rounded-full transition-all duration-300 block ${
+                        idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/70'
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
-              <div className="flex items-center space-x-1.5 text-white/90">
+              <div className="flex items-center space-x-2 text-white/90">
                 <button
                   onClick={() => goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length)}
-                  className="w-7 h-7 rounded-full bg-black/45 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  className="w-11 h-11 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
                   aria-label="Previous slide"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => goToSlide((currentHeroSlide + 1) % heroSlides.length)}
-                  className="w-7 h-7 rounded-full bg-black/45 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  className="w-11 h-11 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
                   aria-label="Next slide"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -519,37 +523,41 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         {/* Floating Slide Navigation Controls on Tablet / Desktop */}
-        <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 lg:bottom-10 lg:right-10 z-20 hidden sm:flex items-center space-x-2.5 bg-black/45 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 shadow-xl">
+        <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 lg:bottom-10 lg:right-10 z-20 hidden sm:flex items-center space-x-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-xl">
           <button
             onClick={() => goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length)}
-            className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-full text-white/90 hover:text-white hover:bg-white/15 transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Previous spice slide"
             title="Previous spice"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-0.5">
             {heroSlides.map((slide, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                  idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/40 hover:bg-white/70'
-                }`}
+                className="p-2 min-w-[28px] min-h-[28px] flex items-center justify-center cursor-pointer"
                 title={slide.badge}
                 aria-label={`Slide ${idx + 1}: ${slide.badge}`}
-              />
+              >
+                <span
+                  className={`h-1.5 rounded-full transition-all duration-300 block ${
+                    idx === currentHeroSlide ? 'w-6 bg-[#0070E0]' : 'w-2 bg-white/60 hover:bg-white/90'
+                  }`}
+                />
+              </button>
             ))}
           </div>
 
           <button
             onClick={() => goToSlide((currentHeroSlide + 1) % heroSlides.length)}
-            className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-full text-white/90 hover:text-white hover:bg-white/15 transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Next spice slide"
             title="Next spice"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </section>
@@ -683,7 +691,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate('products')}
-              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-semibold shrink-0 cursor-pointer self-start md:self-auto"
+              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-5 py-2.5 sm:px-6 sm:py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer self-start md:self-auto inline-flex items-center"
             >
               <span>View All 27 Products</span>
               <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -749,7 +757,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                         </h3>
                       </a>
                       {product.botanicalName && (
-                        <p className="text-[11px] text-slate-400 mt-0.5 font-sans font-medium italic tracking-wide">
+                        <p className="text-[11px] text-slate-600 mt-0.5 font-sans font-medium italic tracking-wide">
                           Botanical: <span>{product.botanicalName}</span>
                         </p>
                       )}
@@ -763,7 +771,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     {/* Trade Specifications Panel */}
                     <div className="rounded-xl bg-slate-50/90 border border-slate-200/80 p-3 grid grid-cols-2 gap-3 text-xs">
                       <div className="min-w-0">
-                        <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider font-sans">
+                        <span className="text-slate-600 font-semibold block text-[10px] uppercase tracking-wider font-sans">
                           Export Forms
                         </span>
                         <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs">
@@ -771,7 +779,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                         </span>
                       </div>
                       <div className="min-w-0 border-l border-slate-200/80 pl-3">
-                        <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider font-sans">
+                        <span className="text-slate-600 font-semibold block text-[10px] uppercase tracking-wider font-sans">
                           Supply Grade
                         </span>
                         <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs">
@@ -782,19 +790,19 @@ export const HomePage: React.FC<HomePageProps> = ({
                   </div>
                 </div>
 
-                {/* Symmetrical Executive Action Pair */}
+                {/* Symmetrical Executive Action Pair with 44px touch targets */}
                 <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 mt-2 flex items-center gap-2.5">
                   <button
                     onClick={() => onOpenProductDetail(product)}
-                    className="flex-1 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                    className="flex-1 py-3 px-3 min-h-[44px] rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
                   >
                     <span>Specifications</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
                   </button>
 
                   <button
                     onClick={() => onOpenQuoteWithProduct(product.name)}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-sm hover:shadow"
+                    className="flex-1 py-3 px-3 min-h-[44px] rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-sm hover:shadow"
                   >
                     <span>Request Quote</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -808,12 +816,12 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="mt-8 sm:mt-12 text-center">
             <button
               onClick={() => onNavigate('products')}
-              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold inline-flex items-center space-x-2 shadow-sm transition-all cursor-pointer"
+              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 sm:px-8 py-3.5 sm:py-3.5 min-h-[44px] text-xs sm:text-sm font-semibold inline-flex items-center space-x-2 shadow-sm transition-all cursor-pointer"
             >
               <span>Explore All 27 Export Products</span>
               <ArrowRight className="w-4 h-4" />
             </button>
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="text-xs text-slate-600 mt-2">
               Browse all 4 categories: Whole Spices (9) • Ground Spices (6) • Sortex Seeds (5) • Blends (7)
             </p>
           </div>
@@ -900,7 +908,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate('quality')}
-              className="px-5 py-2.5 rounded-lg bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold shrink-0 cursor-pointer flex items-center space-x-2 transition-colors shadow-sm"
+              className="px-5 py-3 min-h-[44px] rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold shrink-0 cursor-pointer flex items-center space-x-2 transition-colors shadow-sm"
             >
               <span>View Full Quality & Compliance</span>
               <ArrowUpRight className="w-4 h-4 ml-0.5" />
@@ -1042,14 +1050,14 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <span className="font-bold text-[#0070E0] truncate max-w-[220px]" title={item.commodity}>
                         {item.commodity}
                       </span>
-                      <span className="text-slate-500 font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60 shrink-0">
+                      <span className="text-slate-700 font-semibold font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60 shrink-0">
                         {item.volumeOrType || 'FCL Container'}
                       </span>
                     </div>
 
                     {/* Port & Star Rating */}
                     <div className="flex items-center justify-between gap-2 mb-4">
-                      <div className="text-slate-400 font-mono text-[11px] flex items-center gap-1 truncate">
+                      <div className="text-slate-600 font-mono text-[11px] flex items-center gap-1 truncate font-medium">
                         <MapPin className="w-3 h-3 text-[#0070E0] shrink-0" />
                         <span className="truncate">{item.destinationPort}</span>
                       </div>
@@ -1089,16 +1097,16 @@ export const HomePage: React.FC<HomePageProps> = ({
                         </div>
                       )}
                       <div className="min-w-0">
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate group-hover:text-[#0070E0] transition-colors">
+                        <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate group-hover:text-[#0070E0] transition-colors">
                           {item.author}
-                        </h4>
-                        <p className="text-[11px] text-slate-500 truncate">
+                        </h3>
+                        <p className="text-[11px] text-slate-600 font-medium truncate">
                           {item.role}
                         </p>
                         <p className="text-[11px] font-semibold text-[#0A1C3E] truncate flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                          <Building2 className="w-3 h-3 text-slate-500 shrink-0" />
                           <span className="truncate">{item.company}</span>
-                          <span className="text-slate-400 font-normal shrink-0">({item.country})</span>
+                          <span className="text-slate-600 font-normal shrink-0">({item.country})</span>
                         </p>
                       </div>
                     </div>
@@ -1135,7 +1143,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate('blog')}
-              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-6 py-2.5 text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
+              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-6 py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
             >
               <span>View All Articles</span>
               <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -1166,9 +1174,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                   </div>
 
                   <div className="p-6 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-slate-400">
+                    <div className="flex items-center justify-between text-xs text-slate-600">
                       <span className="font-semibold text-[#0070E0]">{post.category}</span>
-                      <span>{post.readTime}</span>
+                      <span className="font-medium">{post.readTime}</span>
                     </div>
 
                     <h3 className="text-lg font-display font-semibold text-[#0F172A] group-hover:text-[#0070E0] transition-colors leading-snug">
@@ -1182,7 +1190,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
 
                 <div className="p-6 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between text-xs font-semibold text-slate-700">
-                  <span className="text-slate-400 font-normal">{post.date}</span>
+                  <span className="text-slate-600 font-medium">{post.date}</span>
                   <span className="text-[#0070E0] flex items-center space-x-1 group-hover:translate-x-0.5 transition-transform">
                     <span>Read Article</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -1254,7 +1262,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">
                   Have a specific commodity specification or target discharge port?
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
                   Our commercial trade team is ready to evaluate crop arrivals and prepare custom FOB / CIF container pricing.
                 </p>
               </div>
@@ -1262,7 +1270,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={onOpenGeneralQuote}
-              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 py-2.5 text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
+              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
             >
               <span>Ask Our Trade Desk</span>
               <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -1305,7 +1313,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </button>
             </div>
 
-            <div className="pt-6 text-xs text-slate-400 flex flex-wrap items-center justify-center gap-6">
+            <div className="pt-6 text-xs text-slate-300 font-medium flex flex-wrap items-center justify-center gap-6">
               <span>✓ Responses dispatched within 24-48 business hours</span>
               <span>✓ Direct Indian farmgate sourcing</span>
               <span>✓ Customized container packaging</span>
