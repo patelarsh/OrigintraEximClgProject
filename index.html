@@ -59,9 +59,9 @@
     <link rel="apple-touch-icon" href="/assets/logo/logo-mark-color.png" />
 
     <!-- Google Fonts: Asynchronously loaded to eliminate 1.17s render-blocking bottleneck -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&family=Space+Grotesk:wght@600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&family=Space+Grotesk:wght@600&display=swap">
     </noscript>
 
     <!-- Schema.org Knowledge Graph Structured Data -->
@@ -175,7 +175,73 @@
     </script>
   </head>
   <body class="bg-white text-slate-800 font-sans antialiased selection:bg-[#0070E0] selection:text-white">
-    <div id="root"></div>
+    <div id="root">
+      <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+        <div class="container-x mx-auto max-w-[1440px] px-4 sm:px-6">
+          <div class="flex items-center justify-between h-16 sm:h-20">
+            <a href="/" class="flex items-center group py-1" title="Origintra Exim — Home">
+              <img src="/assets/logo/logo-full-color.webp" alt="Origintra Exim — Connecting Markets. Moving Possibilities." width="144" height="48" fetchpriority="high" class="h-11 sm:h-12 w-auto max-h-12 object-contain" />
+            </a>
+            <div class="flex items-center space-x-3">
+              <a href="https://wa.me/917069182990" class="bg-[#0070E0] text-white px-4 py-2 text-xs font-semibold rounded-full flex items-center">
+                <span>Get Quote</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+      <section class="relative overflow-hidden min-h-[540px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white bg-[#071120]">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+          <div class="absolute inset-0 opacity-100 z-0">
+            <picture class="w-full h-full block">
+              <source media="(max-width: 639px)" type="image/webp" srcset="/assets/hero/hero-mobile-spices.webp">
+              <source media="(max-width: 639px)" type="image/jpeg" srcset="/assets/hero/hero-mobile-spices.jpg">
+              <source media="(min-width: 640px)" type="image/webp" srcset="/assets/hero/spices-hero-banner.webp">
+              <img src="/assets/hero/spices-hero-banner.jpg" alt="Origintra Exim premium whole spices and export agricultural assortment" width="1376" height="768" loading="eager" decoding="sync" fetchpriority="high" class="w-full h-full object-cover object-[center_40%] sm:object-center">
+            </picture>
+          </div>
+          <div class="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#071120] via-[#071120]/90 via-50% lg:via-45% to-transparent z-[1]"></div>
+          <div class="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]"></div>
+          <div class="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/80 via-[#071120]/55 to-[#071120]/85 z-[1]"></div>
+        </div>
+        <div class="sm:hidden relative z-10 w-full px-4 pt-16 pb-8 flex flex-col justify-between min-h-[540px]">
+          <div class="space-y-4 pt-4">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold">
+              <span>Direct Farmgate Sourcing • Multi-Commodity FCL</span>
+            </div>
+            <h1 class="text-3xl font-display font-extrabold tracking-tight text-white leading-[1.14]">
+              India’s Finest Export Spices
+            </h1>
+            <p class="text-xs text-slate-200/90 leading-relaxed font-sans line-clamp-3">
+              Direct farmgate sourcing of export-grade whole spices and pure ground powders.
+            </p>
+            <div class="flex items-center gap-3 pt-2">
+              <span class="flex-1 py-3 px-4 rounded-xl bg-[#0070E0] text-white font-bold text-xs text-center">
+                Get Quote
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="hidden sm:block container-x mx-auto max-w-[1440px] relative z-10 py-16 md:py-24 lg:py-28 w-full px-4 sm:px-6">
+          <div class="max-w-2xl text-left space-y-6">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold">
+              <span>Direct Farmgate Sourcing • Multi-Commodity FCL</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white leading-tight">
+              Connecting India’s Finest Spices to the World
+            </h1>
+            <p class="text-base lg:text-lg text-slate-200/90 leading-relaxed max-w-xl">
+              From prime whole pods and Sortex-cleaned seeds to ultra-fine pulverized powders, Origintra Exim connects international importers, food processors, and re-packers directly to certified Indian agricultural belts.
+            </p>
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+              <span class="bg-[#0070E0] text-white px-7 py-3.5 text-sm font-bold shadow-lg rounded-full">
+                Request a Quote
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

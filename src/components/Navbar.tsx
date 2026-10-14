@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Origintra Exim — Home"
           >
             <img
-              src="/assets/logo/logo-full-color.png"
+              src="/assets/logo/logo-full-color.webp"
               alt="Origintra Exim — Connecting Markets. Moving Possibilities."
               width="144"
               height="48"

@@ -4,6 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import zlib from 'node:zlib';
 
 function parseJsonBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -57,6 +58,7 @@ const sseClients = new Set<ServerResponse>();
 // Enables serving 10,000+ concurrent requests in sub-millisecond RAM time with ZERO database locking
 interface BootstrapCacheEntry {
   json: string;
+  gzip: Buffer;
   etag: string;
   lastUpdated: number;
 }
@@ -77,9 +79,11 @@ export function getCachedBootstrap(): BootstrapCacheEntry {
     }
   };
   const json = JSON.stringify(fullData);
+  const gzip = zlib.gzipSync(Buffer.from(json), { level: 6 });
   const hash = crypto.createHash('md5').update(json).digest('hex').slice(0, 16);
   bootstrapCache = {
     json,
+    gzip,
     etag: `"${hash}"`,
     lastUpdated: Date.now()
   };
@@ -331,7 +335,7 @@ export async function handleApiMiddleware(
 
     // --- Bootstrap / All Data (In-Memory Microsecond RAM Cache with HTTP 304 ETag) ---
     if (pathname === '/api/bootstrap' || pathname === '/api/all') {
-      const { json, etag } = getCachedBootstrap();
+      const { json, gzip, etag } = getCachedBootstrap();
 
       res.setHeader('Server', 'Origintra-Gateway');
       res.removeHeader('X-Powered-By');
@@ -350,7 +354,16 @@ export async function handleApiMiddleware(
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
       res.setHeader('X-XSS-Protection', '1; mode=block');
       res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-      res.end(json);
+
+      const acceptEncoding = req.headers['accept-encoding'] || '';
+      if (typeof acceptEncoding === 'string' && acceptEncoding.includes('gzip')) {
+        res.setHeader('Content-Encoding', 'gzip');
+        res.setHeader('Content-Length', gzip.length);
+        res.end(gzip);
+      } else {
+        res.setHeader('Content-Length', Buffer.byteLength(json));
+        res.end(json);
+      }
       return;
     }
 

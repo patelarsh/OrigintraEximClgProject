@@ -152,11 +152,15 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(0);
 
   React.useEffect(() => {
-    const nextIdx = (currentHeroSlide + 1) % heroSlides.length;
-    setLoadedSlideIndices(prev => {
-      if (prev.includes(currentHeroSlide) && prev.includes(nextIdx)) return prev;
-      return Array.from(new Set([...prev, currentHeroSlide, nextIdx]));
-    });
+    // Keep initial load light: only prepare next slide after initial paint settles
+    const timer = setTimeout(() => {
+      const nextIdx = (currentHeroSlide + 1) % heroSlides.length;
+      setLoadedSlideIndices(prev => {
+        if (prev.includes(currentHeroSlide) && prev.includes(nextIdx)) return prev;
+        return Array.from(new Set([...prev, currentHeroSlide, nextIdx]));
+      });
+    }, 4000);
+    return () => clearTimeout(timer);
   }, [currentHeroSlide, heroSlides.length]);
 
   const toggleFaq = (index: number) => {
@@ -337,9 +341,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     loading={idx === 0 ? 'eager' : 'lazy'}
                     decoding={idx === 0 ? 'sync' : 'async'}
                     fetchPriority={idx === 0 ? 'high' : 'low'}
-                    className={`w-full h-full object-cover object-[center_40%] sm:object-center transition-transform duration-[7000ms] ease-out ${
-                      idx === currentHeroSlide ? 'scale-105' : 'scale-100'
-                    }`}
+                    className="w-full h-full object-cover object-[center_40%] sm:object-center"
                   />
                 </picture>
               )}
