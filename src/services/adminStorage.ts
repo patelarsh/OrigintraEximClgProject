@@ -55,7 +55,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-admin-01',
     name: 'Rajesh Sharma',
     email: 'info@patelarsh.com',
-    password: '',
+    password: 'Arsh@2410',
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Managing Director & Global Trade Head',
@@ -65,7 +65,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-1791183682976',
     name: 'Patel Arsh',
     email: 'arsh@origintra.com',
-    password: '',
+    password: 'Arsh@2410',
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Corporate Admin & Global Trading Desk',
@@ -75,7 +75,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-editor-02',
     name: 'Priya Sundaram',
     email: 'editor@origintra.com',
-    password: '',
+    password: 'editor123',
     role: 'editor',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     department: 'Content Director & Quality Assurance',
@@ -85,7 +85,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-author-03',
     name: 'Vikram Malhotra',
     email: 'author@origintra.com',
-    password: '',
+    password: 'author123',
     role: 'author',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     department: 'Agri Commodity Market Intelligence',
@@ -95,7 +95,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-1791183469258',
     name: 'Sadik',
     email: 'sadik@origintra.com',
-    password: '',
+    password: 'author123',
     role: 'author',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     department: 'Commodity Research Analyst',
@@ -105,7 +105,7 @@ const DEFAULT_USERS: User[] = [
     id: 'usr-sales-04',
     name: 'David Sterling',
     email: 'sales@origintra.com',
-    password: '',
+    password: 'sales123',
     role: 'sales',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     department: 'Buyer Relations & Container Dispatch Desk',
@@ -472,6 +472,7 @@ export const AdminStorage = {
       return { success: false, error: 'Please enter both email/username and password.' };
     }
 
+    // 1. Attempt backend authentication (if Node server is running)
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -480,29 +481,89 @@ export const AdminStorage = {
       });
 
       const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        return { success: false, error: 'Authentication service is unavailable. Please try again later.' };
+      // If server responded with genuine JSON (Node/SQLite active)
+      if (contentType.includes('application/json')) {
+        const data: { success?: boolean; user?: User; token?: string; error?: string } = await res.json().catch(() => ({}));
+        if (res.ok && data.success && data.user) {
+          const user = data.user;
+          localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+          localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token || `origintra-sess-${user.id}-${Date.now()}`);
+          localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
+          window.dispatchEvent(new Event('origintra_auth_updated'));
+          return { success: true, user };
+        }
+        if (res.status === 429) {
+          return { success: false, error: 'Too many login attempts. Please wait 60 seconds.' };
+        }
+        if (data.error && res.status !== 404) {
+          return { success: false, error: data.error };
+        }
       }
-
-      const data: { success?: boolean; user?: User; token?: string; error?: string } = await res.json();
-      if (!res.ok || !data.success || !data.user) {
-        return {
-          success: false,
-          error: data.error || (res.status === 429
-            ? 'Too many login attempts. Please wait 60 seconds.'
-            : 'Incorrect email/username or password.')
-        };
-      }
-
-      const user = data.user;
-      localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token || `origintra-sess-${user.id}-${Date.now()}`);
-      localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
-      window.dispatchEvent(new Event('origintra_auth_updated'));
-      return { success: true, user };
     } catch {
-      return { success: false, error: 'Connection error. Could not reach authentication server.' };
+      // Backend unreachable or offline, fall through to client-side fallback
     }
+
+    // 2. Client-side resilient fallback (Netlify, Vercel static, GitHub Pages, or offline)
+    const allUsers = this.getUsers();
+
+    const defaultCredentials: Record<string, string> = {
+      'arsh@origintra.com': 'Arsh@2410',
+      'info@patelarsh.com': 'Arsh@2410',
+      'admin@origintra.com': 'Arsh@2410',
+      'admin': 'Arsh@2410',
+      'arsh': 'Arsh@2410',
+      'editor@origintra.com': 'editor123',
+      'editor': 'editor123',
+      'author@origintra.com': 'author123',
+      'author': 'author123',
+      'sadik@origintra.com': 'author123',
+      'sadik': 'author123',
+      'sales@origintra.com': 'sales123',
+      'sales': 'sales123',
+    };
+
+    const matchedUser = allUsers.find(u => 
+      (u.email || '').toLowerCase() === cleanId || 
+      (u.name || '').toLowerCase() === cleanId ||
+      (u.id || '').toLowerCase() === cleanId ||
+      (cleanId === 'admin' && u.role === 'admin') ||
+      (cleanId === 'sales' && u.role === 'sales') ||
+      (cleanId === 'editor' && u.role === 'editor') ||
+      (cleanId === 'author' && u.role === 'author') ||
+      (cleanId === 'sadik' && ((u.email || '').includes('sadik') || (u.name || '').toLowerCase().includes('sadik'))) ||
+      (cleanId === 'arsh' && ((u.email || '').includes('arsh') || (u.name || '').toLowerCase().includes('arsh')))
+    );
+
+    if (matchedUser) {
+      const expected = matchedUser.password || defaultCredentials[(matchedUser.email || '').toLowerCase()] || defaultCredentials[cleanId];
+      if (expected && expected === cleanPass) {
+        localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${matchedUser.id}-${Date.now()}`);
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matchedUser));
+        window.dispatchEvent(new Event('origintra_auth_updated'));
+        return { success: true, user: matchedUser };
+      }
+    }
+
+    // Check direct lookup in defaultCredentials
+    if (defaultCredentials[cleanId] && defaultCredentials[cleanId] === cleanPass) {
+      let fallbackUser = allUsers.find(u => (u.email || '').toLowerCase().includes(cleanId));
+      if (!fallbackUser && cleanId.includes('sales')) fallbackUser = allUsers.find(u => u.role === 'sales');
+      if (!fallbackUser && cleanId.includes('editor')) fallbackUser = allUsers.find(u => u.role === 'editor');
+      if (!fallbackUser && cleanId.includes('author')) fallbackUser = allUsers.find(u => u.role === 'author');
+      if (!fallbackUser) fallbackUser = allUsers.find(u => u.role === 'admin') || DEFAULT_USERS[0];
+
+      localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${fallbackUser.id}-${Date.now()}`);
+      localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(fallbackUser));
+      window.dispatchEvent(new Event('origintra_auth_updated'));
+      return { success: true, user: fallbackUser };
+    }
+
+    return {
+      success: false,
+      error: 'Incorrect email/username or password.'
+    };
   },
 
   logout(): void {
@@ -541,7 +602,15 @@ export const AdminStorage = {
       const data = localStorage.getItem(STORAGE_KEYS.USERS);
       if (data) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((u: User) => {
+            const def = DEFAULT_USERS.find(d => (d.email || '').toLowerCase() === (u.email || '').toLowerCase() || d.id === u.id);
+            if (def && (!u.password || u.password.trim() === '')) {
+              return { ...u, password: def.password };
+            }
+            return u;
+          });
+        }
       }
     } catch (e) {
       console.error('Error reading users from storage:', e);

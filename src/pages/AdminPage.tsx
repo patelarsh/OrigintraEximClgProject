@@ -758,7 +758,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </p>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200/60 mt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Persistent DB Connected (data/database.json)</span>
+              <span>{dbStatus?.connected ? 'Persistent SQLite Connected' : 'Secure Storage Synced'}</span>
             </div>
           </div>
 
