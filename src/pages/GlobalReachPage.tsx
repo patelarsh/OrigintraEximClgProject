@@ -138,14 +138,14 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Region Nav Tabs */}
-            <div className="lg:col-span-5 space-y-3">
+            <div className="lg:col-span-5 space-y-2.5 sm:space-y-3">
               {marketRegions.map((region, idx) => {
                 const isSelected = selectedRegion === idx;
                 return (
                   <button
                     key={idx}
                     onClick={() => setSelectedRegion(idx)}
-                    className={`w-full p-5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                    className={`w-full p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                       isSelected
                         ? 'border-[#0070E0] bg-white shadow-sm ring-1 ring-[#0070E0]'
                         : 'border-slate-200 bg-white/70 hover:bg-white text-slate-700'
@@ -153,24 +153,24 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
                   >
                     <div>
                       <div className="flex items-center space-x-2">
-                        <Globe className={`w-4 h-4 ${isSelected ? 'text-[#0070E0]' : 'text-slate-400'}`} />
-                        <h3 className={`text-base font-semibold ${isSelected ? 'text-[#0F172A]' : 'text-slate-700'}`}>
+                        <Globe className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#0070E0]' : 'text-slate-400'}`} />
+                        <h3 className={`text-sm sm:text-base font-semibold ${isSelected ? 'text-[#0F172A]' : 'text-slate-700'}`}>
                           {region.name}
                         </h3>
                       </div>
                       <p className="text-xs text-slate-500 mt-1 line-clamp-1">{region.countries}</p>
                     </div>
-                    <ChevronRight className={`w-4 h-4 ${isSelected ? 'text-[#0070E0]' : 'text-slate-300'}`} />
+                    <ChevronRight className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#0070E0]' : 'text-slate-300'}`} />
                   </button>
                 );
               })}
             </div>
 
             {/* Region Detailed Focus Card */}
-            <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="lg:col-span-7 bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-5 sm:p-8 shadow-sm space-y-5 sm:space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+                <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100">
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#0070E0]">
                     Destination Market Profile
                   </span>
                   <span className="text-xs font-mono font-medium text-slate-500">
@@ -178,11 +178,11 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
                   </span>
                 </div>
 
-                <h3 className="text-2xl font-display font-semibold text-[#0F172A]">
+                <h3 className="text-xl sm:text-2xl font-display font-semibold text-[#0F172A]">
                   {marketRegions[selectedRegion].name}
                 </h3>
 
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {marketRegions[selectedRegion].description}
                 </p>
 
@@ -239,12 +239,12 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
             {tradePorts.map((port, idx) => (
               <div
                 key={idx}
-                className="p-8 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 shadow-2xs"
+                className="p-5 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 sm:space-y-4 shadow-2xs"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
                   <Anchor className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-[#0F172A]">
+                <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
                   {port.name}
                 </h3>
                 <p className="text-xs font-semibold text-[#0070E0]">
@@ -261,30 +261,30 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
       </section>
 
       {/* Commercial Incoterms & Container Logistics */}
-      <section className="py-20 sm:py-28 bg-slate-50 border-b border-slate-200">
+      <section className="py-12 sm:py-20 md:py-28 bg-slate-50 border-b border-slate-200">
         <div className="container-x mx-auto max-w-[1440px]">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
-            <div className="lg:col-span-6 space-y-6">
+            <div className="lg:col-span-6 space-y-4 sm:space-y-6">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
                 Commercial Terms
               </span>
-              <h2 className="text-3xl sm:text-4xl font-display font-semibold text-[#0F172A] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-[#0F172A] tracking-tight">
                 Supported Trade Incoterms (Incoterms® 2020)
               </h2>
-              <p className="text-base text-slate-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                 We accommodate buyer commercial preferences with full transparency regarding costs, risks, and documentation responsibilities:
               </p>
 
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200 space-y-1">
                   <h4 className="text-sm font-bold text-[#0F172A]">FOB (Free On Board — Indian Port)</h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     We deliver cargo cleared for export aboard the vessel nominated by the buyer at Indian gateway ports (Mundra, JNPT, Cochin).
                   </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
+                <div className="p-4 sm:p-5 rounded-xl bg-white border border-slate-200 space-y-1">
                   <h4 className="text-sm font-bold text-[#0F172A]">CFR / CIF (Cost & Freight / Cost, Insurance & Freight)</h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
                     We arrange and pay ocean freight charges up to your specified destination discharge port, with comprehensive marine transit insurance included under CIF terms.
@@ -293,10 +293,10 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
               </div>
             </div>
 
-            <div className="lg:col-span-6 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+            <div className="lg:col-span-6 bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5 sm:space-y-6">
               <div className="flex items-center space-x-3 text-[#0070E0]">
-                <Ship className="w-6 h-6" />
-                <h3 className="text-xl font-display font-semibold text-[#0F172A]">
+                <Ship className="w-6 h-6 shrink-0" />
+                <h3 className="text-lg sm:text-xl font-display font-semibold text-[#0F172A]">
                   Maritime Container Stowage Standards
                 </h3>
               </div>
@@ -335,18 +335,18 @@ export const GlobalReachPage: React.FC<GlobalReachPageProps> = ({ onNavigate, on
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-[#0A1C3E] text-white text-center">
-        <div className="container-x mx-auto max-w-[1440px] space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-display font-semibold text-white tracking-tight">
+      <section className="py-12 sm:py-20 bg-[#0A1C3E] text-white text-center">
+        <div className="container-x mx-auto max-w-[1440px] space-y-4 sm:space-y-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-white tracking-tight">
             Connect with Our International Trade Desk
           </h2>
-          <p className="text-base text-slate-300 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
             Tell us your destination port and required commodity specifications for a prompt commercial proforma.
           </p>
           <div className="pt-2">
             <button
               onClick={onOpenQuote}
-              className="btn-pill btn-pill-dark bg-[#0070E0] hover:bg-[#005bb5] text-white px-8 py-3.5 text-sm font-semibold cursor-pointer shadow-md inline-flex items-center space-x-2"
+              className="btn-pill btn-pill-dark bg-[#0070E0] hover:bg-[#005bb5] text-white px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold cursor-pointer shadow-md inline-flex items-center space-x-2 w-full sm:w-auto justify-center"
             >
               <span>Request Proforma Indication</span>
               <ArrowUpRight className="w-4 h-4 ml-1" />

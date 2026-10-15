@@ -215,59 +215,59 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             
             {/* OUR MISSION */}
-            <div className="relative p-8 sm:p-10 lg:p-12 rounded-3xl bg-[#0A1C3E] text-white border border-white/10 shadow-sm flex flex-col justify-between overflow-hidden">
+            <div className="relative p-5 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl bg-[#0A1C3E] text-white border border-white/10 shadow-sm flex flex-col justify-between overflow-hidden">
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-44 h-44 rounded-full bg-[#0070E0]/15 blur-2xl pointer-events-none" />
               
-              <div className="space-y-6 relative z-10">
+              <div className="space-y-4 sm:space-y-6 relative z-10">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-sky-300">
-                    <Target className="w-6 h-6" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-sky-300">
+                    <Target className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <span className="text-xs uppercase font-mono tracking-wider text-sky-300/80">
+                  <span className="text-[11px] sm:text-xs uppercase font-mono tracking-wider text-sky-300/80">
                     DIRECTIVE // 01
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-display font-semibold text-white">
+                <div className="space-y-2 sm:space-y-3">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-white">
                     Our Mission
                   </h3>
-                  <p className="text-lg sm:text-xl text-slate-100 font-normal leading-relaxed pt-1">
+                  <p className="text-base sm:text-lg md:text-xl text-slate-100 font-normal leading-relaxed pt-1">
                     “To connect Indian products with global markets through quality-focused sourcing, transparent communication, and dependable trade coordination.”
                   </p>
                 </div>
               </div>
 
-              <div className="pt-8 mt-6 border-t border-white/10 text-xs sm:text-sm text-slate-300 relative z-10">
+              <div className="pt-6 sm:pt-8 mt-4 sm:mt-6 border-t border-white/10 text-xs sm:text-sm text-slate-300 relative z-10">
                 Grounded in farmgate sourcing discipline, certified laboratory testing, and responsible trade execution.
               </div>
             </div>
 
             {/* OUR VISION */}
-            <div className="relative p-8 sm:p-10 lg:p-12 rounded-3xl bg-slate-50 text-[#0F172A] border border-slate-200/90 shadow-2xs flex flex-col justify-between overflow-hidden">
+            <div className="relative p-5 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl bg-slate-50 text-[#0F172A] border border-slate-200/90 shadow-2xs flex flex-col justify-between overflow-hidden">
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-44 h-44 rounded-full bg-blue-100/50 blur-2xl pointer-events-none" />
               
-              <div className="space-y-6 relative z-10">
+              <div className="space-y-4 sm:space-y-6 relative z-10">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-[#0070E0]">
-                    <Compass className="w-6 h-6" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-[#0070E0]">
+                    <Compass className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <span className="text-xs uppercase font-mono tracking-wider text-slate-400">
+                  <span className="text-[11px] sm:text-xs uppercase font-mono tracking-wider text-slate-400">
                     DIRECTIVE // 02
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-display font-semibold text-[#0F172A]">
+                <div className="space-y-2 sm:space-y-3">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-[#0F172A]">
                     Our Vision
                   </h3>
-                  <p className="text-lg sm:text-xl text-slate-800 font-normal leading-relaxed pt-1">
+                  <p className="text-base sm:text-lg md:text-xl text-slate-800 font-normal leading-relaxed pt-1">
                     “To build Origintra Exim into a trusted international trading partner known for professionalism, consistency, and long-term business relationships.”
                   </p>
                 </div>
               </div>
 
-              <div className="pt-8 mt-6 border-t border-slate-200 text-xs sm:text-sm text-slate-600 relative z-10">
+              <div className="pt-6 sm:pt-8 mt-4 sm:mt-6 border-t border-slate-200 text-xs sm:text-sm text-slate-600 relative z-10">
                 Earning buyer trust through repeatable batch consistency, honest communication, and enduring relationships.
               </div>
             </div>
@@ -557,14 +557,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
       <section className="py-16 sm:py-24 bg-white">
         <div className="container-x mx-auto max-w-[1440px]">
           
-          <div className="bg-[#0A1C3E] rounded-3xl text-white p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-xl">
+          <div className="bg-[#0A1C3E] rounded-2xl sm:rounded-3xl text-white p-5 sm:p-10 lg:p-16 border border-slate-800 shadow-xl">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
               
               {/* Left Column: Narrative & Action CTAs */}
-              <div className="lg:col-span-7 space-y-6">
+              <div className="lg:col-span-7 space-y-4 sm:space-y-6">
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
                     Global Trade Inquiries
                   </span>
@@ -573,27 +573,27 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
                   </h2>
                 </div>
 
-                <div className="space-y-4 text-base sm:text-lg text-slate-200 font-normal leading-relaxed">
+                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-slate-200 font-normal leading-relaxed">
                   <p>
                     Looking for an Indian spice supplier or export partner? Share your product requirements, destination country, required quantity, and packaging preferences. Our team will review your enquiry and discuss the next steps.
                   </p>
-                  <p className="text-white font-semibold text-lg sm:text-xl">
+                  <p className="text-white font-semibold text-base sm:text-lg md:text-xl">
                     Contact Origintra Exim today to discuss your sourcing requirements.
                   </p>
                 </div>
 
                 {/* Primary CTAs */}
-                <div className="pt-2 flex flex-wrap items-center gap-4">
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <button
                     onClick={onOpenQuote}
-                    className="btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white px-8 py-3.5 text-sm font-semibold flex items-center space-x-2 transition-all duration-200 shadow-md shadow-[#0070E0]/20 cursor-pointer"
+                    className="btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-md shadow-[#0070E0]/20 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Submit Sourcing Enquiry</span>
                     <ArrowUpRight className="w-4 h-4 ml-1" />
                   </button>
                   <button
                     onClick={() => onNavigate('contact')}
-                    className="btn-pill border border-white/30 hover:border-white text-white hover:bg-white/10 px-8 py-3.5 text-sm font-semibold flex items-center space-x-2 transition-all duration-200 cursor-pointer"
+                    className="btn-pill border border-white/30 hover:border-white text-white hover:bg-white/10 px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Contact Trade Desk</span>
                     <ArrowRight className="w-4 h-4 ml-1" />

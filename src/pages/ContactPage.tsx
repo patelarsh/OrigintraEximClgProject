@@ -287,9 +287,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
             </div>
 
             {/* Right Column: Commercial Enquiry Form */}
-            <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-7 sm:p-10 shadow-xs">
+            <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-8 lg:p-10 shadow-xs">
               
-              <div className="border-b border-slate-100 pb-5 mb-6">
+              <div className="border-b border-slate-100 pb-4 sm:pb-5 mb-5 sm:mb-6">
                 <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-900">
                   Commercial Trade Enquiry
                 </h2>

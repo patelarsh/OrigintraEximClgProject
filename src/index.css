@@ -26,6 +26,12 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 320px;
   }
 }
 
@@ -149,8 +155,9 @@
 .btn-pill {
   border-radius: 9999px;
   align-items: center;
+  justify-content: center;
   gap: 0.625rem;
-  padding: 1rem 2rem;
+  padding: 0.875rem clamp(1.25rem, 3vw, 2rem);
   font-size: 1rem;
   font-weight: 500;
   line-height: 1;
@@ -158,6 +165,7 @@
   display: inline-flex;
   cursor: pointer;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .btn-pill-dark {

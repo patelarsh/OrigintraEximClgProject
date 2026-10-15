@@ -236,7 +236,7 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
             {qualityPillars.map((pillar, idx) => (
               <div
                 key={idx}
-                className="p-8 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-5 flex flex-col justify-between"
+                className="p-5 sm:p-8 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-4 sm:space-y-5 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">

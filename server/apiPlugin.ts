@@ -187,6 +187,7 @@ export async function handleApiMiddleware(
   next: () => void
 ) {
   const url = req.url || '';
+  console.log('[SERVER_REQ]', req.method, url);
  
   // SECURITY & PRIVACY: Mask server identity and strip hosting fingerprint headers
   res.setHeader('Server', 'Origintra-Gateway');

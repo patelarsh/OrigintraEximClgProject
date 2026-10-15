@@ -278,12 +278,12 @@ export const BlogPage: React.FC<BlogPageProps> = ({
         <div className="container-x mx-auto max-w-[1440px] flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Categories */}
-          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 ${
                   selectedCategory === cat
                     ? 'bg-[#0A1C3E] text-white shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -338,24 +338,24 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                     />
                   </div>
 
-                  <div className="p-8 space-y-4">
+                  <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between text-xs text-slate-400">
                       <span className="font-semibold text-[#0070E0] uppercase tracking-wider">{post.category}</span>
                       <span>{post.readTime}</span>
                     </div>
 
-                    <h2 className="text-2xl font-display font-semibold text-[#0F172A] group-hover:text-[#0070E0] transition-colors leading-snug">
+                    <h2 className="text-xl sm:text-2xl font-display font-semibold text-[#0F172A] group-hover:text-[#0070E0] transition-colors leading-snug">
                       {post.title}
                     </h2>
 
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {post.excerpt}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-8 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between text-xs font-semibold text-slate-700">
-                  <span className="text-slate-500 font-normal flex items-center gap-1.5 truncate max-w-[70%]">
+                <div className="p-5 sm:p-8 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between text-xs font-semibold text-slate-700">
+                  <span className="text-slate-500 font-normal flex items-center gap-1.5 truncate max-w-[65%] sm:max-w-[70%]">
                     <span className="text-slate-400 shrink-0">{post.date}</span>
                     <span className="text-slate-300 shrink-0">•</span>
                     <span className="text-slate-700 font-medium truncate">By {post.author}</span>

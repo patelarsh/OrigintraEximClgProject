@@ -963,13 +963,117 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       <div className="flex-1 flex flex-col md:flex-row">
         
         {/* Sidebar Nav */}
-        <aside className="w-full md:w-64 bg-white border-r border-slate-200 p-4 space-y-1.5 shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-2 flex items-center justify-between">
+        <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 p-2 sm:p-4 shrink-0">
+          <div className="hidden md:flex text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-2 items-center justify-between">
             <span>Navigation</span>
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 font-bold uppercase text-slate-600">
               Role: {currentRole}
             </span>
           </div>
+
+          {/* Mobile Horizontal Scrollable Tab Bar (<md) */}
+          <div className="flex md:hidden overflow-x-auto py-1 gap-1.5 scrollbar-none items-center">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                activeTab === 'dashboard' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Overview</span>
+            </button>
+            {canAccessProducts && (
+              <button
+                onClick={() => setActiveTab('products')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'products' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Package className="w-3.5 h-3.5" />
+                <span>Products ({products.length})</span>
+              </button>
+            )}
+            {canAccessBlog && (
+              <button
+                onClick={() => setActiveTab('blog')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'blog' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Blog ({blogPosts.length})</span>
+              </button>
+            )}
+            {canAccessTeam && (
+              <button
+                onClick={() => setActiveTab('team')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'team' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Team ({teamMembers.length})</span>
+              </button>
+            )}
+            {canAccessTestimonials && (
+              <button
+                onClick={() => setActiveTab('testimonials')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'testimonials' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Quote className="w-3.5 h-3.5" />
+                <span>Reviews ({testimonials.length})</span>
+              </button>
+            )}
+            {canAccessGallery && (
+              <button
+                onClick={() => setActiveTab('gallery')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'gallery' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Gallery ({galleryImages.length})</span>
+              </button>
+            )}
+            {canAccessInquiries && (
+              <button
+                onClick={() => setActiveTab('inquiries')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'inquiries' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Inbox className="w-3.5 h-3.5" />
+                <span>Leads ({inquiries.length})</span>
+              </button>
+            )}
+            {canAccessUsers && (
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'users' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Users ({users.length})</span>
+              </button>
+            )}
+            {canAccessSettings && (
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
+                  activeTab === 'settings' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Settings</span>
+              </button>
+            )}
+          </div>
+
+          {/* Desktop Vertical Nav (hidden on mobile) */}
+          <div className="hidden md:block space-y-1.5">
 
           <button
             onClick={() => setActiveTab('dashboard')}
@@ -1136,7 +1240,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </button>
           )}
 
-          {/* Quick System Stats in Sidebar */}
+          {/* Quick System Stats in Sidebar (hidden on mobile, visible on desktop) */}
           <div className="pt-6 mt-6 border-t border-slate-100 px-3 space-y-2 text-[11px] text-slate-500">
             <div className="flex justify-between">
               <span>DB Engine</span>
@@ -1153,6 +1257,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               <span>WhatsApp</span>
               <strong className="text-slate-700 font-mono">{companyConfig.phone}</strong>
             </div>
+          </div>
           </div>
         </aside>
 

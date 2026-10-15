@@ -113,21 +113,21 @@ export const LegalModal: React.FC<LegalModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6"
     >
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-8 animate-in fade-in duration-200">
         
         {/* Header */}
-        <div className="bg-[#0A1C3E] px-6 sm:px-8 py-5 text-white flex items-center justify-between border-b border-slate-800">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-[#38BDF8] flex items-center justify-center">
+        <div className="bg-[#0A1C3E] px-4 sm:px-8 py-4 sm:py-5 text-white flex items-center justify-between border-b border-slate-800">
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-[#38BDF8] flex items-center justify-center shrink-0">
               <IconComp className="w-5 h-5" />
             </div>
             <div>
               <span className="text-[11px] font-sans text-slate-400 uppercase tracking-wider block">
                 Origintra Exim Legal
               </span>
-              <h2 className="text-xl sm:text-2xl font-display font-semibold text-white">
+              <h2 className="text-lg sm:text-2xl font-display font-semibold text-white">
                 {activeContent.title}
               </h2>
             </div>
@@ -143,7 +143,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 sm:p-8 max-h-[75vh] overflow-y-auto space-y-6 text-sm text-slate-700">
+        <div className="p-4 sm:p-8 max-h-[80vh] overflow-y-auto space-y-5 sm:space-y-6 text-sm text-slate-700">
           <div className="text-xs text-slate-400 pb-2 border-b border-slate-100 flex justify-between">
             <span>Corporate Entity: {COMPANY_CONFIG.legalName}</span>
             <span>Effective: {activeContent.updated}</span>

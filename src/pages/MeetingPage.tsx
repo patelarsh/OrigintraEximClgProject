@@ -28,10 +28,10 @@ export const MeetingPage: React.FC<MeetingPageProps> = () => {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#F8FAFC] py-8 sm:py-14 px-4 sm:px-6 flex items-center justify-center">
+    <div className="min-h-[calc(100vh-80px)] bg-[#F8FAFC] py-5 sm:py-10 md:py-14 px-2 sm:px-6 flex items-center justify-center">
       <div className="w-full max-w-[960px] mx-auto flex justify-center">
         {/* Clean Centered Calendly Card */}
-        <div className="w-full bg-white rounded-xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative min-h-[760px]">
+        <div className="w-full bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative min-h-[620px] sm:min-h-[720px] md:min-h-[760px]">
           {!iframeLoaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 bg-white z-10">
               <div className="w-8 h-8 border-3 border-[#0070E0] border-t-transparent rounded-full animate-spin" />
@@ -42,12 +42,12 @@ export const MeetingPage: React.FC<MeetingPageProps> = () => {
           <iframe
             src={embedSrc}
             width="100%"
-            height="760"
+            height="100%"
             frameBorder="0"
             title="Schedule a Meeting with Origintra Exim"
-            className="w-full border-0 block"
+            className="w-full border-0 block min-h-[620px] sm:min-h-[720px] md:min-h-[760px]"
             onLoad={() => setIframeLoaded(true)}
-            style={{ minHeight: '760px', width: '100%', border: 'none' }}
+            style={{ width: '100%', border: 'none' }}
           />
         </div>
       </div>

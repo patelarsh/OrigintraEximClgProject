@@ -50,9 +50,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Priority LCP Hero Image Preloads (Direct discovery for mobile & desktop) -->
+    <!-- Priority LCP Hero Image Preloads (Direct discovery for mobile, tablet & desktop) -->
     <link rel="preload" as="image" href="/assets/hero/hero-mobile-spices.webp" type="image/webp" fetchpriority="high" media="(max-width: 639px)">
-    <link rel="preload" as="image" href="/assets/hero/spices-hero-banner.webp" type="image/webp" fetchpriority="high" media="(min-width: 640px)">
+    <link rel="preload" as="image" href="/assets/hero/spices-hero-banner-tablet.webp" type="image/webp" fetchpriority="high" media="(min-width: 640px) and (max-width: 1023px)">
+    <link rel="preload" as="image" href="/assets/hero/spices-hero-banner.webp" type="image/webp" fetchpriority="high" media="(min-width: 1024px)">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/logo/logo-mark-color.png" />
@@ -195,8 +196,8 @@
           <div class="absolute inset-0 opacity-100 z-0">
             <picture class="w-full h-full block">
               <source media="(max-width: 639px)" type="image/webp" srcset="/assets/hero/hero-mobile-spices.webp">
-              <source media="(max-width: 639px)" type="image/jpeg" srcset="/assets/hero/hero-mobile-spices.jpg">
-              <source media="(min-width: 640px)" type="image/webp" srcset="/assets/hero/spices-hero-banner.webp">
+              <source media="(max-width: 1023px)" type="image/webp" srcset="/assets/hero/spices-hero-banner-tablet.webp">
+              <source media="(min-width: 1024px)" type="image/webp" srcset="/assets/hero/spices-hero-banner.webp">
               <img src="/assets/hero/spices-hero-banner.jpg" alt="Origintra Exim premium whole spices and export agricultural assortment" width="1376" height="768" loading="eager" decoding="sync" fetchpriority="high" class="w-full h-full object-cover object-[center_40%] sm:object-center">
             </picture>
           </div>

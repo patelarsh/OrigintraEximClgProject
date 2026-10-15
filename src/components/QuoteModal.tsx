@@ -136,18 +136,18 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="rfq-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6"
     >
       <div 
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-8 animate-in fade-in zoom-in-95 duration-200"
       >
         {/* Modal Header */}
-        <div className="bg-[#0A1C3E] px-6 sm:px-8 py-5 text-white flex items-center justify-between border-b border-slate-800">
+        <div className="bg-[#0A1C3E] px-4 sm:px-8 py-4 sm:py-5 text-white flex items-center justify-between border-b border-slate-800">
           <div>
             <span className="text-[11px] font-sans text-[#38BDF8] uppercase tracking-wider font-semibold">
               Commercial Sourcing Desk
             </span>
-            <h2 id="rfq-title" className="text-xl sm:text-2xl font-display font-semibold mt-0.5 text-white">
+            <h2 id="rfq-title" className="text-lg sm:text-2xl font-display font-semibold mt-0.5 text-white">
               Request a Commercial Quote
             </h2>
           </div>
@@ -161,7 +161,7 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-8 max-h-[82vh] overflow-y-auto">
           {isSuccess ? (
             <div className="py-8 text-center space-y-5 animate-in fade-in">
               <div className="w-16 h-16 bg-blue-50 text-[#0070E0] rounded-full flex items-center justify-center mx-auto">

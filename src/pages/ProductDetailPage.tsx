@@ -78,9 +78,20 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             <div className="lg:col-span-6">
               <div className="relative aspect-[4/5] max-h-[560px] mx-auto rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-md">
                 <img
-                  src={product.image}
+                  src={product.image.replace(/\.(jpe?g|png)$/, '.webp')}
+                  srcSet={`${product.image.replace(/\.(jpe?g|png)$/, '-450.webp')} 450w, ${product.image.replace(/\.(jpe?g|png)$/, '.webp')} 800w`}
+                  sizes="(max-width: 1024px) 92vw, 560px"
                   alt={product.name}
+                  width="560"
+                  height="700"
                   className="w-full h-full object-cover"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.removeAttribute('srcset');
+                    if (e.currentTarget.src !== product.image) {
+                      e.currentTarget.src = product.image;
+                    }
+                  }}
                 />
                 <div className="absolute top-4 left-4 bg-[#0A1C3E]/85 backdrop-blur-xs text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[#38BDF8]" />
@@ -134,10 +145,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-wrap items-center gap-4">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <button
                   onClick={() => onOpenQuoteWithProduct(product.name)}
-                  className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-4 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold shadow-md flex items-center space-x-1.5 sm:space-x-2 cursor-pointer"
+                  className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-5 sm:px-7 py-3 text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer w-full sm:w-auto"
                 >
                   <span className="hidden sm:inline">Request a Quote for {product.name}</span>
                   <span className="sm:hidden">Request a Quote</span>
@@ -146,7 +157,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
                 <button
                   onClick={onBack}
-                  className="btn-pill btn-pill-outline border-slate-300 text-slate-700 hover:text-[#0A1C3E] px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 cursor-pointer"
+                  className="btn-pill btn-pill-outline border-slate-300 text-slate-700 hover:text-[#0A1C3E] px-5 py-3 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer w-full sm:w-auto"
                 >
                   <ArrowLeft className="w-4 h-4 mr-0.5" />
                   <span>Back to Catalog</span>
@@ -284,12 +295,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       <section className="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
         <div className="container-x mx-auto max-w-[1440px]">
           
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
                 Technical Parameters
               </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-[#0F172A] mt-1">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-[#0F172A] mt-1">
                 Factual Product Specifications
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -299,7 +310,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
             <button
               onClick={() => setSpecsExpanded(!specsExpanded)}
-              className="text-xs font-semibold text-[#0070E0] hover:text-[#0A1C3E] flex items-center space-x-1 p-2 cursor-pointer"
+              className="text-xs font-semibold text-[#0070E0] hover:text-[#0A1C3E] flex items-center space-x-1 py-1.5 px-3 bg-white rounded-lg border border-slate-200 sm:border-0 sm:bg-transparent sm:p-2 cursor-pointer self-start sm:self-auto shrink-0"
             >
               <span>{specsExpanded ? 'Collapse' : 'Expand'} Specifications</span>
               {specsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -311,12 +322,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               {product.specifications.map((spec, idx) => (
                 <div
                   key={idx}
-                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm gap-2"
+                  className="px-4 sm:px-6 py-3.5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm gap-1 sm:gap-2"
                 >
                   <span className="font-semibold text-slate-700 sm:w-1/3">
                     {spec.label}
                   </span>
-                  <span className={`sm:w-2/3 ${spec.value.includes('Available on request') ? 'text-slate-500 italic' : 'text-slate-900 font-medium'}`}>
+                  <span className={`sm:w-2/3 break-words ${spec.value.includes('Available on request') ? 'text-slate-500 italic' : 'text-slate-900 font-medium'}`}>
                     {spec.value}
                   </span>
                 </div>

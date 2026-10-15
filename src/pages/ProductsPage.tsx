@@ -147,38 +147,36 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
           </div>
 
           {/* Sub-Filters: Form Filter + Results Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100">
-            <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-500 font-medium">
               <span className="hidden sm:inline">Form Filter:</span>
               <button
                 onClick={() => setSelectedFormFilter('All')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
-                  selectedFormFilter === 'All' ? 'bg-[#0A1C3E] text-white font-semibold' : 'hover:text-slate-900'
+                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
+                  selectedFormFilter === 'All' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               >
                 All Forms
               </button>
-              <span>•</span>
               <button
                 onClick={() => setSelectedFormFilter('Whole')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
-                  selectedFormFilter === 'Whole' ? 'bg-[#0A1C3E] text-white font-semibold' : 'hover:text-slate-900'
+                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
+                  selectedFormFilter === 'Whole' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               >
                 Whole Spices & Seeds
               </button>
-              <span>•</span>
               <button
                 onClick={() => setSelectedFormFilter('Powder')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
-                  selectedFormFilter === 'Powder' ? 'bg-[#0A1C3E] text-white font-semibold' : 'hover:text-slate-900'
+                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
+                  selectedFormFilter === 'Powder' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               >
                 Ground Powders & Blends
               </button>
             </div>
 
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-slate-500 shrink-0">
               Showing <span className="font-bold text-slate-800">{filteredProducts.length}</span> of {products.length} products
             </div>
           </div>
@@ -230,10 +228,21 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                     {/* Product Image */}
                     <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
                       <img
-                        src={product.image}
+                        src={product.image.replace(/\.(jpe?g|png)$/, '.webp')}
+                        srcSet={`${product.image.replace(/\.(jpe?g|png)$/, '-450.webp')} 450w, ${product.image.replace(/\.(jpe?g|png)$/, '.webp')} 800w`}
+                        sizes="(max-width: 640px) 380px, (max-width: 1024px) 45vw, 400px"
                         alt={product.name}
+                        width="400"
+                        height="500"
                         className="w-full h-full object-cover transition-transform duration-500"
                         loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.removeAttribute('srcset');
+                          if (e.currentTarget.src !== product.image) {
+                            e.currentTarget.src = product.image;
+                          }
+                        }}
                       />
                       
                       {/* Category Tag on top right */}
