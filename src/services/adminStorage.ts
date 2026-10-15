@@ -465,8 +465,12 @@ export const AdminStorage = {
   },
 
   async loginWithCredentials(identifier: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
-    const cleanId = (identifier || '').trim();
+    const cleanId = (identifier || '').trim().toLowerCase();
     const cleanPass = (password || '').trim();
+
+    if (!cleanId || !cleanPass) {
+      return { success: false, error: 'Please enter both email/username and password.' };
+    }
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -474,22 +478,29 @@ export const AdminStorage = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanId, password: cleanPass })
       });
-      const data = await res.json().catch(() => ({}));
 
-      if (res.ok && data.success && data.user) {
-        const user: User = data.user;
-        localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token || `origintra-sess-${user.id}-${Date.now()}`);
-        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
-        window.dispatchEvent(new Event('origintra_auth_updated'));
-        return { success: true, user };
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return { success: false, error: 'Authentication service is unavailable. Please try again later.' };
       }
 
-      return {
-        success: false,
-        error: data.error || (res.status === 429 ? 'Too many login attempts. Please wait 60 seconds.' : 'Incorrect email/username or password.')
-      };
-    } catch (err: any) {
+      const data: { success?: boolean; user?: User; token?: string; error?: string } = await res.json();
+      if (!res.ok || !data.success || !data.user) {
+        return {
+          success: false,
+          error: data.error || (res.status === 429
+            ? 'Too many login attempts. Please wait 60 seconds.'
+            : 'Incorrect email/username or password.')
+        };
+      }
+
+      const user = data.user;
+      localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token || `origintra-sess-${user.id}-${Date.now()}`);
+      localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
+      window.dispatchEvent(new Event('origintra_auth_updated'));
+      return { success: true, user };
+    } catch {
       return { success: false, error: 'Connection error. Could not reach authentication server.' };
     }
   },
@@ -525,12 +536,12 @@ export const AdminStorage = {
     }
   },
 
-  // === USER MANAGEMENT (RBAC) ===
   getUsers(): User[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.USERS);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {
       console.error('Error reading users from storage:', e);
