@@ -18,13 +18,13 @@ define('DB_HOST', 'localhost');
 define('DB_PORT', 3306);
 
 // Your Hostinger Database Name (e.g. u123456789_origintra)
-define('DB_NAME', 'u123456789_origintra');
+define('DB_NAME', 'u504508702_origintra');
 
 // Your Hostinger Database User (e.g. u123456789_admin)
-define('DB_USER', 'u123456789_origintra');
+define('DB_USER', 'u504508702_origintra');
 
 // Your Hostinger Database Password
-define('DB_PASS', 'Your_Hostinger_Database_Password_Here');
+define('DB_PASS', 'Arsh@1234');
 
 // Character encoding
 define('DB_CHARSET', 'utf8mb4');
