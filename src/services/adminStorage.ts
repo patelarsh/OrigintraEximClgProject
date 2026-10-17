@@ -6,6 +6,7 @@ import { COMPANY_CONFIG as DEFAULT_COMPANY_CONFIG, CompanyConfig } from '../data
 import { DEFAULT_GALLERY_IMAGES, GalleryImage } from '../data/gallery';
 import { TESTIMONIALS as DEFAULT_TESTIMONIALS } from '../data/testimonials';
 import { slugify } from '../utils/slugify';
+import { supabase } from './supabaseClient';
 
 export interface DatabaseStatusInfo {
   connected: boolean;
@@ -231,11 +232,90 @@ let isBootstrapping = false;
 let sseConnection: EventSource | null = null;
 
 export const AdminStorage = {
-  // === BOOTSTRAP & REAL-TIME SYNC WITH SQLITE DATABASE ===
+  // === BOOTSTRAP & REAL-TIME SYNC WITH SUPABASE / SQLITE DATABASE ===
   async syncWithDatabase(): Promise<boolean> {
     if (isBootstrapping) return false;
     isBootstrapping = true;
     try {
+      // 1. Supabase Cloud PostgreSQL Sync (Priority when configured)
+      if (supabase.isConfigured()) {
+        const supaData = await supabase.fetchBootstrap();
+        if (supaData) {
+          const {
+            users,
+            products,
+            blogPosts,
+            teamMembers,
+            inquiries,
+            companyConfig,
+            customGallery,
+            testimonials
+          } = supaData;
+
+          if (Array.isArray(users) && users.length) {
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+            window.dispatchEvent(new Event('origintra_users_updated'));
+          }
+          if (Array.isArray(products) && products.length) {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+            window.dispatchEvent(new Event('origintra_products_updated'));
+          }
+          if (Array.isArray(blogPosts) && blogPosts.length) {
+            blogPosts.forEach((p: BlogPost) => {
+              if (p.slug && p.slug.startsWith('new-article-')) {
+                p.slug = slugify(p.title) || p.slug;
+              }
+            });
+            localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(blogPosts));
+            window.dispatchEvent(new Event('origintra_blog_updated'));
+          }
+          if (Array.isArray(teamMembers) && teamMembers.length) {
+            localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
+            window.dispatchEvent(new Event('origintra_team_updated'));
+          }
+          if (Array.isArray(inquiries)) {
+            localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(inquiries));
+            window.dispatchEvent(new Event('origintra_inquiries_updated'));
+          }
+          if (companyConfig) {
+            localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(companyConfig));
+            window.dispatchEvent(new Event('origintra_company_updated'));
+          }
+          if (Array.isArray(customGallery)) {
+            localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(customGallery));
+            window.dispatchEvent(new Event('origintra_gallery_updated'));
+          }
+          if (Array.isArray(testimonials) && testimonials.length) {
+            localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(testimonials));
+            window.dispatchEvent(new Event('origintra_testimonials_updated'));
+          }
+
+          const dbStatus: DatabaseStatusInfo = {
+            connected: true,
+            engine: 'Supabase PostgreSQL',
+            databaseFile: supabase.getConfig().url,
+            fileSizeKB: 0,
+            updatedAt: new Date().toISOString(),
+            liveConnectedClients: 1,
+            tables: {
+              users: users.length,
+              products: products.length,
+              blog_posts: blogPosts.length,
+              team_members: teamMembers.length,
+              inquiries: inquiries.length,
+              custom_gallery: customGallery.length,
+              testimonials: testimonials.length,
+              audit_logs: 0
+            },
+            recentAuditLogs: []
+          };
+          localStorage.setItem(STORAGE_KEYS.DB_STATUS, JSON.stringify(dbStatus));
+          window.dispatchEvent(new Event('origintra_db_status_updated'));
+          return true;
+        }
+      }
+
+      // 2. Fallback to Local/Hostinger API
       const resp = await apiCall('/api/bootstrap');
       if (resp && resp.success && resp.data) {
         const {
@@ -302,6 +382,34 @@ export const AdminStorage = {
   },
 
   async fetchDatabaseStatus(): Promise<DatabaseStatusInfo | null> {
+    if (supabase.isConfigured()) {
+      const test = await supabase.testConnection();
+      if (test.ok && test.counts) {
+        const info: DatabaseStatusInfo = {
+          connected: true,
+          engine: 'Supabase PostgreSQL',
+          databaseFile: supabase.getConfig().url,
+          fileSizeKB: 0,
+          updatedAt: new Date().toISOString(),
+          liveConnectedClients: 1,
+          tables: {
+            users: test.counts.users ?? 0,
+            products: test.counts.products ?? 0,
+            blog_posts: test.counts.blog_posts ?? 0,
+            team_members: test.counts.team_members ?? 0,
+            inquiries: test.counts.inquiries ?? 0,
+            custom_gallery: 0,
+            testimonials: 0,
+            audit_logs: 0
+          },
+          recentAuditLogs: []
+        };
+        localStorage.setItem(STORAGE_KEYS.DB_STATUS, JSON.stringify(info));
+        window.dispatchEvent(new Event('origintra_db_status_updated'));
+        return info;
+      }
+    }
+
     const resp = await apiCall('/api/db-status');
     if (resp && resp.success && resp.data) {
       localStorage.setItem(STORAGE_KEYS.DB_STATUS, JSON.stringify(resp.data));
@@ -729,6 +837,22 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
 
+    if (supabase.isConfigured()) {
+      supabase.from('products').upsert({
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        category: product.category,
+        hsn_code: product.hsCode || (product as any).hsnCode || '',
+        short_description: product.shortDescription || '',
+        image: product.image || '',
+        origin: product.origin || '',
+        sort_order: (product as any).sortOrder || 0,
+        payload_json: product,
+        updated_at: new Date().toISOString()
+      }, 'id').then(() => this.fetchDatabaseStatus());
+    }
+
     apiCall('/api/products', {
       method: 'POST',
       body: JSON.stringify(product)
@@ -751,6 +875,10 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_products_updated'));
       notifyCrossTab('origintra_products_updated');
+
+      if (supabase.isConfigured()) {
+        supabase.from('products').delete('id', productId).then(() => this.fetchDatabaseStatus());
+      }
 
       apiCall(`/api/products/${productId}`, { method: 'DELETE' }).then(() => {
         this.fetchDatabaseStatus();
@@ -815,6 +943,22 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_blog_updated'));
     notifyCrossTab('origintra_blog_updated');
 
+    if (supabase.isConfigured()) {
+      supabase.from('blog_posts').upsert({
+        id: post.id,
+        slug: post.slug,
+        title: post.title,
+        category: post.category,
+        author: post.author,
+        date: post.date,
+        featured: Boolean((post as any).featured),
+        image: post.image || '',
+        sort_order: (post as any).sortOrder || 0,
+        payload_json: post,
+        updated_at: new Date().toISOString()
+      }, 'id').then(() => this.fetchDatabaseStatus());
+    }
+
     apiCall('/api/blog', {
       method: 'POST',
       body: JSON.stringify(post)
@@ -837,6 +981,10 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_blog_updated'));
       notifyCrossTab('origintra_blog_updated');
+
+      if (supabase.isConfigured()) {
+        supabase.from('blog_posts').delete('id', postId).then(() => this.fetchDatabaseStatus());
+      }
 
       apiCall(`/api/blog/${postId}`, { method: 'DELETE' }).then(() => {
         this.fetchDatabaseStatus();
@@ -884,6 +1032,21 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_team_updated'));
     notifyCrossTab('origintra_team_updated');
 
+    if (supabase.isConfigured()) {
+      supabase.from('team_members').upsert({
+        id: member.id,
+        name: member.name,
+        role: member.role || member.position || '',
+        department: (member as any).department || 'Executive Leadership',
+        email: (member as any).email || '',
+        phone: (member as any).phone || '',
+        photo: member.photo || member.image || '',
+        sort_order: (member as any).sortOrder || 0,
+        payload_json: member,
+        updated_at: new Date().toISOString()
+      }, 'id').then(() => this.fetchDatabaseStatus());
+    }
+
     apiCall('/api/team', {
       method: 'POST',
       body: JSON.stringify(member)
@@ -906,6 +1069,10 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_team_updated'));
       notifyCrossTab('origintra_team_updated');
+
+      if (supabase.isConfigured()) {
+        supabase.from('team_members').delete('id', memberId).then(() => this.fetchDatabaseStatus());
+      }
 
       apiCall(`/api/team/${memberId}`, { method: 'DELETE' }).then(() => {
         this.fetchDatabaseStatus();
@@ -951,6 +1118,27 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_inquiries_updated'));
     notifyCrossTab('origintra_inquiries_updated');
 
+    if (supabase.isConfigured()) {
+      supabase.from('inquiries').insert({
+        id: newInq.id,
+        full_name: newInq.fullName,
+        company_name: newInq.companyName || null,
+        business_email: newInq.businessEmail,
+        country: newInq.country || null,
+        phone_whatsapp: newInq.phoneWhatsApp || null,
+        product: newInq.product,
+        product_form: newInq.productForm || null,
+        quantity_required: newInq.quantityRequired || null,
+        packaging_requirement: newInq.packagingRequirement || null,
+        destination_port: newInq.destinationPort || null,
+        message: newInq.message || '',
+        status: newInq.status || 'new',
+        source: newInq.source || 'quote_modal',
+        created_at: newInq.createdAt,
+        updated_at: newInq.createdAt
+      }).then(() => this.fetchDatabaseStatus());
+    }
+
     apiCall('/api/inquiries', {
       method: 'POST',
       body: JSON.stringify(newInq)
@@ -970,6 +1158,13 @@ export const AdminStorage = {
       window.dispatchEvent(new Event('origintra_inquiries_updated'));
       notifyCrossTab('origintra_inquiries_updated');
 
+      if (supabase.isConfigured()) {
+        supabase.from('inquiries').update({
+          status,
+          updated_at: new Date().toISOString()
+        }, 'id', id).then(() => this.fetchDatabaseStatus());
+      }
+
       apiCall(`/api/inquiries/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status })
@@ -988,6 +1183,10 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_inquiries_updated'));
       notifyCrossTab('origintra_inquiries_updated');
+
+      if (supabase.isConfigured()) {
+        supabase.from('inquiries').delete('id', id).then(() => this.fetchDatabaseStatus());
+      }
 
       apiCall(`/api/inquiries/${id}`, { method: 'DELETE' }).then(() => {
         this.fetchDatabaseStatus();
@@ -1046,6 +1245,24 @@ export const AdminStorage = {
     localStorage.setItem(STORAGE_KEYS.COMPANY, JSON.stringify(merged));
     window.dispatchEvent(new Event('origintra_company_updated'));
     notifyCrossTab('origintra_company_updated');
+
+    if (supabase.isConfigured()) {
+      supabase.from('company_config').upsert({
+        id: 1,
+        name: merged.name,
+        legal_name: merged.legalName,
+        tagline: merged.tagline,
+        primary_email: merged.primaryEmail,
+        export_email: (merged as any).exportEmail || merged.supportEmail || merged.primaryEmail,
+        phone: merged.phone,
+        phone_display: merged.phoneDisplay,
+        whatsapp_number: merged.whatsapp,
+        whatsapp_display: merged.whatsappDisplay,
+        whatsapp_url: merged.whatsappUrl,
+        payload_json: merged,
+        updated_at: new Date().toISOString()
+      }, 'id').then(() => this.fetchDatabaseStatus());
+    }
 
     apiCall('/api/company', {
       method: 'POST',
@@ -1119,6 +1336,20 @@ export const AdminStorage = {
 
     window.dispatchEvent(new Event('origintra_gallery_updated'));
     notifyCrossTab('origintra_gallery_updated');
+
+    if (supabase.isConfigured()) {
+      supabase.from('custom_gallery').insert({
+        id: newImage.id,
+        url: newImage.url,
+        title: newImage.title,
+        category: newImage.category,
+        description: newImage.description || '',
+        tag: newImage.tag || '',
+        is_uploaded: true,
+        created_at: newImage.createdAt
+      }).then(() => this.fetchDatabaseStatus());
+    }
+
     this.fetchDatabaseStatus();
     return newImage;
   },
@@ -1133,6 +1364,10 @@ export const AdminStorage = {
         localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(filtered));
         window.dispatchEvent(new Event('origintra_gallery_updated'));
         notifyCrossTab('origintra_gallery_updated');
+
+        if (supabase.isConfigured()) {
+          supabase.from('custom_gallery').delete('id', imageId).then(() => this.fetchDatabaseStatus());
+        }
 
         apiCall(`/api/gallery/${imageId}`, { method: 'DELETE' }).then(() => {
           this.fetchDatabaseStatus();
@@ -1189,6 +1424,24 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_testimonials_updated'));
     notifyCrossTab('origintra_testimonials_updated');
 
+    if (supabase.isConfigured()) {
+      supabase.from('testimonials').upsert({
+        id: updated.id,
+        buyer_name: (updated as any).buyerName || updated.author,
+        company: updated.company,
+        country: updated.country,
+        flag: (updated as any).flag || '',
+        product_supplied: (updated as any).productSupplied || updated.commodity,
+        container_type: (updated as any).containerType || updated.volumeOrType,
+        quote: (updated as any).quote || updated.testimonial,
+        rating: Number(updated.rating) || 5,
+        verified: Boolean((updated as any).verified ?? true),
+        date: (updated as any).date || updated.createdAt || new Date().toISOString().slice(0, 10),
+        created_at: updated.createdAt || new Date().toISOString(),
+        payload_json: updated
+      }, 'id').then(() => this.fetchDatabaseStatus());
+    }
+
     await apiCall('/api/testimonials', {
       method: 'POST',
       body: JSON.stringify(updated)
@@ -1205,6 +1458,10 @@ export const AdminStorage = {
       localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(filtered));
       window.dispatchEvent(new Event('origintra_testimonials_updated'));
       notifyCrossTab('origintra_testimonials_updated');
+
+      if (supabase.isConfigured()) {
+        supabase.from('testimonials').delete('id', id).then(() => this.fetchDatabaseStatus());
+      }
 
       await apiCall(`/api/testimonials/${id}`, { method: 'DELETE' });
       this.fetchDatabaseStatus();
