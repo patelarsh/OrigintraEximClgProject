@@ -367,9 +367,12 @@ export function updatePageSeo(config: SeoConfig) {
 
 export function getHomeSeo(): SeoConfig {
   return {
-    title: 'Spices Exporter in India | Wholesale Indian Spices & Agricultural Export - Origintra Exim',
+    title: 'Origintra Exim | Spices Exporter in India | Wholesale Indian Agro Commodities',
     description: 'Leading spices exporter in India offering bulk whole spices, sortex seeds, ground powders & agricultural staples with certified quality and reliable global B2B supply. Spices Board & APEDA registered exporter shipping containerized FCL orders worldwide. Get a quote today.',
     keywords: [
+      'origintra exim',
+      'origintra',
+      'origintra spices exporter',
       'spice exporter in india',
       'spices exporter in india',
       'indian spice exporter',
@@ -417,10 +420,11 @@ export function getHomeSeo(): SeoConfig {
 
 export function getAboutSeo(): SeoConfig {
   return {
-    title: 'About Origintra Exim | Leading Spices Exporter in India & Sourcing House',
+    title: 'About Us | Origintra Exim - Indian Spices Exporter Profile & Sourcing Network',
     description: "Discover Origintra Exim, India's trusted merchant spices exporter. Direct farmgate sourcing networks across Gujarat, Andhra Pradesh, Rajasthan and Kerala supplying export-grade agricultural commodities worldwide.",
     keywords: [
       'about origintra exim',
+      'about us origintra',
       'indian spices export company',
       'spices exporter in india profile',
       'agricultural trading company india',

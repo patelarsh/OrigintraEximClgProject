@@ -5,16 +5,15 @@ Disallow: /api/
 
 User-agent: Googlebot
 Allow: /
-Allow: /assets/
-Allow: /flags/
+
+User-agent: Google-Favicon
+Allow: /
 
 User-agent: Googlebot-Image
-Allow: /assets/
-Allow: /flags/
+Allow: /
 
 User-agent: Bingbot
 Allow: /
-Allow: /assets/
 
 Sitemap: https://www.origintra.com/sitemap.xml
 Host: https://www.origintra.com
