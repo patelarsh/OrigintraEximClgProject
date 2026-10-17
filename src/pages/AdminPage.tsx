@@ -3191,9 +3191,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      MailService.saveCredentials(emailCreds);
-                      showToast('Nodemailer SMTP email credentials saved successfully!');
+                    onClick={async () => {
+                      const res = await MailService.saveCredentials(emailCreds);
+                      showToast(res.message || 'Nodemailer SMTP email credentials saved successfully!');
                     }}
                     className="px-6 py-2.5 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white font-semibold text-xs transition shadow-sm cursor-pointer"
                   >

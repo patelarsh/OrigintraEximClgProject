@@ -464,16 +464,45 @@ export const MailService = {
   },
 
   /**
-   * Saves email credentials to localStorage
+   * Saves email credentials to localStorage and persists to Hostinger server
    */
-  saveCredentials(creds: EmailCredentials): void {
+  async saveCredentials(creds: EmailCredentials): Promise<{ success: boolean; message: string }> {
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(creds));
         window.dispatchEvent(new CustomEvent('origintra_email_credentials_updated', { detail: creds }));
       }
-    } catch (e) {
+
+      // Also persist to Hostinger server-side mail-config.php so all visitor forms use authenticated SMTP
+      if (creds.smtpPassword) {
+        const endpoints = ['/api/save-smtp.php', '/api/save-smtp'];
+        for (const ep of endpoints) {
+          try {
+            const res = await fetch(ep, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                host: creds.smtpHost || 'smtp.hostinger.com',
+                port: Number(creds.smtpPort) || 465,
+                user: creds.smtpUser || creds.senderEmail,
+                pass: creds.smtpPassword,
+                from: creds.senderEmail,
+                name: creds.senderName,
+                adminAlertEmail: creds.adminAlertEmail
+              })
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok && data?.success) {
+              return { success: true, message: 'Credentials saved locally and synced to server SMTP configuration!' };
+            }
+          } catch {}
+        }
+      }
+
+      return { success: true, message: 'Credentials saved locally.' };
+    } catch (e: any) {
       console.error('[MailService] Failed to save credentials:', e);
+      return { success: false, message: e?.message || 'Failed to save credentials' };
     }
   },
 

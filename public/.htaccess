@@ -17,6 +17,7 @@
   # 2. API Endpoints: Route clean API URLs directly to PHP handlers
   RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
   RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
+  RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
 
   # 3. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -38,8 +39,8 @@
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 </IfModule>
 
-# Block access to sensitive files
-<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$)">
+# Block access to sensitive files and configs
+<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$|mail-config\.php$)">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>

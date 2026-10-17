@@ -54,6 +54,19 @@ if (empty($user)) {
     exit;
 }
 
+// Check server-side mail-config.php if password omitted
+$configFile = __DIR__ . '/mail-config.php';
+if (empty($pass) && file_exists($configFile)) {
+    if (!defined('SECURE_MAIL_CONFIG')) define('SECURE_MAIL_CONFIG', true);
+    $serverConfig = @include($configFile);
+    if (is_array($serverConfig) && !empty($serverConfig['pass'])) {
+        $host = $serverConfig['host'] ?? $host;
+        $port = (int)($serverConfig['port'] ?? $port);
+        $user = $serverConfig['user'] ?? $user;
+        $pass = $serverConfig['pass'];
+    }
+}
+
 if (empty($pass)) {
     http_response_code(400);
     echo json_encode([

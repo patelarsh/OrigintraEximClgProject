@@ -71,6 +71,29 @@ $senderEmail = filter_var($data['senderEmail'] ?? 'export@origintra.com', FILTER
 $senderName = trim($data['senderName'] ?? 'Origintra Exim Administration');
 $smtp = $data['smtp'] ?? null;
 
+// Fallback to server-side mail-config.php if not provided in payload
+$configFile = __DIR__ . '/mail-config.php';
+if ((!$smtp || empty($smtp['pass'])) && file_exists($configFile)) {
+    if (!defined('SECURE_MAIL_CONFIG')) define('SECURE_MAIL_CONFIG', true);
+    $serverConfig = @include($configFile);
+    if (is_array($serverConfig) && !empty($serverConfig['pass'])) {
+        $smtp = [
+            'host' => $serverConfig['host'] ?? 'smtp.hostinger.com',
+            'port' => (int)($serverConfig['port'] ?? 465),
+            'user' => $serverConfig['user'] ?? 'export@origintra.com',
+            'pass' => $serverConfig['pass'],
+            'from' => $serverConfig['from'] ?? $senderEmail,
+            'name' => $serverConfig['name'] ?? $senderName
+        ];
+        if (empty($senderEmail) || $senderEmail === 'export@origintra.com') {
+            $senderEmail = $serverConfig['from'] ?? $senderEmail;
+        }
+        if (empty($senderName) || $senderName === 'Origintra Exim Administration') {
+            $senderName = $serverConfig['name'] ?? $senderName;
+        }
+    }
+}
+
 /**
  * Send via pure PHP SMTP socket connection (Hostinger SSL/TLS)
  */
