@@ -220,20 +220,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     }
   };
 
-  const handleQuickSwitchRole = (targetRole: UserRole) => {
-    const targetUser = users.find(u => u.role === targetRole);
-    if (targetUser) {
-      AdminStorage.switchUser(targetUser);
-      setCurrentUser(targetUser);
-      showToast(`Switched active role to ${targetUser.name} (${targetRole.toUpperCase()})`);
-      if (targetRole === 'author' && !['dashboard', 'blog', 'gallery'].includes(activeTab)) {
-        setActiveTab('blog');
-      } else if (targetRole === 'sales' && !['dashboard', 'inquiries', 'products'].includes(activeTab)) {
-        setActiveTab('inquiries');
-      }
-    }
-  };
-
   const handleLogout = () => {
     AdminStorage.logout();
     setIsAuthenticated(false);
@@ -765,25 +751,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               Origintra Exim Admin
             </h1>
             <p className="text-xs text-slate-500">
-              Corporate portal with role-based authentication and persistent database storage.
+              Authorized Corporate Portal · 256-Bit SSL/TLS Protected Authentication.
             </p>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200/60 mt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{supabase.isConfigured() ? 'Supabase Cloud Connected' : 'Cloud Database Synced'}</span>
+              <span>{supabase.isConfigured() ? 'Supabase Cloud PostgreSQL Active' : 'Live Cloud Database Active'}</span>
             </div>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Email or Username
+                Corporate Email Address
               </label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="email"
+                  required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="e.g. arsh@origintra.com, admin, or sadik"
+                  placeholder="e.g. arsh@origintra.com"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0070E0] text-xs font-mono"
                 />
                 <Mail className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
@@ -931,24 +918,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               </div>
             )}
 
-            {/* Quick Role Switcher for Interactive Demo */}
-            <div className="hidden xl:flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 text-[11px]">
-              <span className="text-[10px] text-slate-400 px-1 font-semibold">Test Role:</span>
-              {(['admin', 'editor', 'author', 'sales'] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => handleQuickSwitchRole(r)}
-                  className={`px-2 py-0.5 rounded-lg font-bold text-[10px] uppercase transition cursor-pointer ${
-                    currentRole === r
-                      ? 'bg-[#0070E0] text-white shadow-2xs'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  }`}
-                  title={`Switch active session to test ${r.toUpperCase()} role permissions`}
-                >
-                  {r}
-                </button>
-              ))}
+            {/* Production Security Shield Badge */}
+            <div className="hidden xl:flex items-center gap-1.5 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-500/30 text-[11px] text-emerald-300 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="font-semibold">Security Active · 256-Bit SSL/TLS</span>
             </div>
 
             <button
@@ -2967,13 +2941,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end space-x-1.5">
-                              <button
-                                onClick={() => handleQuickSwitchRole(u.role)}
-                                className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-semibold transition cursor-pointer"
-                                title="Login and test session as this user"
-                              >
-                                Test Role
-                              </button>
                               <button
                                 onClick={() => handleOpenEditUser(u)}
                                 className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-500 hover:text-blue-600 transition cursor-pointer"

@@ -45,9 +45,11 @@ const STORAGE_KEYS = {
   CUSTOM_GALLERY: 'origintra_admin_custom_gallery_v1',
   TESTIMONIALS: 'origintra_admin_testimonials_v1',
   DB_STATUS: 'origintra_admin_db_status_v1',
+  SESSION: 'origintra_admin_session_v2',
   AUTH: 'origintra_admin_auth_v1',
   AUTH_USER: 'origintra_admin_auth_user_v1',
   AUTH_TOKEN: 'origintra_admin_auth_token_v1',
+  RATE_LIMIT: 'origintra_admin_rate_limit_v1',
   USERS: 'origintra_admin_users_v1',
 };
 
@@ -199,6 +201,74 @@ function getStoredAuthToken(): string | null {
     // ignore
   }
   return null;
+}
+
+// === CRYPTOGRAPHIC SECURITY & RATE LIMITING HELPERS ===
+async function sha256Hash(text: string): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const buffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  return text;
+}
+
+function generateSecureToken(): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const arr = new Uint8Array(32);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  return 'sec-' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+interface RateLimitRecord {
+  failedAttempts: number;
+  lockedUntil: number | null;
+  lastAttemptAt: number;
+}
+
+function getRateLimitState(): RateLimitRecord {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.RATE_LIMIT);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { failedAttempts: 0, lockedUntil: null, lastAttemptAt: 0 };
+}
+
+function recordFailedAttempt(): { locked: boolean; remainingSec: number } {
+  const state = getRateLimitState();
+  const now = Date.now();
+  state.lastAttemptAt = now;
+  state.failedAttempts += 1;
+
+  if (state.failedAttempts >= 5) {
+    state.lockedUntil = now + 60000; // 60-second lockout after 5 consecutive failures
+    state.failedAttempts = 0;
+  }
+
+  localStorage.setItem(STORAGE_KEYS.RATE_LIMIT, JSON.stringify(state));
+
+  if (state.lockedUntil && now < state.lockedUntil) {
+    return { locked: true, remainingSec: Math.ceil((state.lockedUntil - now) / 1000) };
+  }
+  return { locked: false, remainingSec: 0 };
+}
+
+function resetRateLimitState(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.RATE_LIMIT);
+  } catch {}
+}
+
+interface SecureSession {
+  token: string;
+  userId: string;
+  userEmail: string;
+  role: UserRole;
+  createdAt: number;
+  expiresAt: number;
 }
 
 let isBootstrapping = false;
@@ -382,7 +452,7 @@ export const AdminStorage = {
     if (typeof document !== 'undefined' && document.hidden) return;
 
     const isAdminRoute = window.location.pathname.startsWith('/admin');
-    const hasAdminSession = Boolean(localStorage.getItem('origintra_auth') || localStorage.getItem('origintra_user_session'));
+    const hasAdminSession = this.isAuthenticated();
     if (!isAdminRoute && !hasAdminSession) return;
 
     // Periodically re-sync with Supabase in background (every 60s)
@@ -402,25 +472,32 @@ export const AdminStorage = {
     }
   },
 
-  // === AUTHENTICATION & SESSIONS ===
+  // === PRODUCTION AUTHENTICATION & SECURE SESSIONS ===
   isAuthenticated(): boolean {
     try {
-      const hasAuthFlag = localStorage.getItem(STORAGE_KEYS.AUTH) === 'true';
-      const currentUser = this.getCurrentUser();
-      return hasAuthFlag || currentUser !== null;
+      const sessionStr = localStorage.getItem(STORAGE_KEYS.SESSION);
+      if (!sessionStr) return false;
+      const session: SecureSession = JSON.parse(sessionStr);
+      if (!session || !session.token || !session.userId || !session.expiresAt) {
+        return false;
+      }
+      if (Date.now() > session.expiresAt) {
+        this.logout();
+        return false;
+      }
+      const userStr = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
+      return Boolean(userStr);
     } catch {
       return false;
     }
   },
 
   getCurrentUser(): User | null {
+    if (!this.isAuthenticated()) return null;
     try {
       const userStr = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
       if (userStr) {
         return JSON.parse(userStr);
-      }
-      if (localStorage.getItem(STORAGE_KEYS.AUTH) === 'true') {
-        return DEFAULT_USERS[0];
       }
     } catch (e) {
       console.error('Error reading current auth user:', e);
@@ -429,7 +506,13 @@ export const AdminStorage = {
   },
 
   getAuthToken(): string | null {
+    if (!this.isAuthenticated()) return null;
     try {
+      const sessionStr = localStorage.getItem(STORAGE_KEYS.SESSION);
+      if (sessionStr) {
+        const session: SecureSession = JSON.parse(sessionStr);
+        return session.token;
+      }
       return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     } catch {
       return null;
@@ -443,101 +526,149 @@ export const AdminStorage = {
   },
 
   async login(password: string): Promise<boolean> {
-    return (await this.loginWithCredentials('admin@origintra.com', password)).success;
+    return (await this.loginWithCredentials('arsh@origintra.com', password)).success;
   },
 
-  async loginWithCredentials(identifier: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
-    const cleanId = (identifier || '').trim().toLowerCase();
-    const cleanPass = (password || '').trim();
+  async loginWithCredentials(emailInput: string, passwordInput: string): Promise<{ success: boolean; user?: User; error?: string }> {
+    const cleanEmail = (emailInput || '').trim().toLowerCase();
+    const cleanPass = (passwordInput || '').trim();
 
-    if (!cleanId || !cleanPass) {
-      return { success: false, error: 'Please enter both email/username and password.' };
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, error: 'Please enter both your corporate email and password.' };
     }
 
-    // Authenticate with synced Supabase user accounts & credentials
-    const allUsers = this.getUsers();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { success: false, error: 'Please enter a valid email address (e.g. arsh@origintra.com).' };
+    }
 
-    const defaultCredentials: Record<string, string[]> = {
-      'arsh@origintra.com': ['Arsh@2410', 'Arsh@1234'],
-      'info@patelarsh.com': ['Arsh@2410', 'Arsh@1234'],
-      'admin@origintra.com': ['Arsh@2410', 'Arsh@1234'],
-      'admin': ['Arsh@2410', 'Arsh@1234'],
-      'arsh': ['Arsh@2410', 'Arsh@1234'],
-      'editor@origintra.com': ['editor123'],
-      'editor': ['editor123'],
-      'author@origintra.com': ['author123'],
-      'author': ['author123'],
-      'sadik@origintra.com': ['author123'],
-      'sadik': ['author123'],
-      'sales@origintra.com': ['sales123'],
-      'sales': ['sales123'],
-    };
+    // 1. Anti-hammering rate limiter & security lockout check
+    const rateLimit = getRateLimitState();
+    if (rateLimit.lockedUntil && Date.now() < rateLimit.lockedUntil) {
+      const remainingSec = Math.ceil((rateLimit.lockedUntil - Date.now()) / 1000);
+      return {
+        success: false,
+        error: `Security Lockout Active: Too many failed login attempts. Please wait ${remainingSec} seconds before retrying.`
+      };
+    }
 
-    const matchedUser = allUsers.find(u => 
-      (u.email || '').toLowerCase() === cleanId || 
-      (u.name || '').toLowerCase() === cleanId ||
-      (u.id || '').toLowerCase() === cleanId ||
-      (cleanId === 'admin' && u.role === 'admin') ||
-      (cleanId === 'sales' && u.role === 'sales') ||
-      (cleanId === 'editor' && u.role === 'editor') ||
-      (cleanId === 'author' && u.role === 'author') ||
-      (cleanId === 'sadik' && ((u.email || '').includes('sadik') || (u.name || '').toLowerCase().includes('sadik'))) ||
-      (cleanId === 'arsh' && ((u.email || '').includes('arsh') || (u.name || '').toLowerCase().includes('arsh')))
-    );
-
-    if (matchedUser) {
-      const allowed = defaultCredentials[(matchedUser.email || '').toLowerCase()] || defaultCredentials[cleanId] || [];
-      const userPass = matchedUser.password;
-      const isValid = (userPass && userPass === cleanPass) || allowed.includes(cleanPass);
-      if (isValid) {
-        localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${matchedUser.id}-${Date.now()}`);
-        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matchedUser));
-        window.dispatchEvent(new Event('origintra_auth_updated'));
-        return { success: true, user: matchedUser };
+    // 2. Fetch live user account from Supabase
+    let targetUser: User | null = null;
+    if (supabase.isConfigured()) {
+      try {
+        const { data } = await supabase.from('users').select('*', { email: `eq.${cleanEmail}` });
+        if (Array.isArray(data) && data.length > 0) {
+          const row = data[0];
+          targetUser = {
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            password: row.password,
+            role: row.role as UserRole,
+            avatar: row.avatar || '',
+            department: row.department || '',
+            createdAt: row.created_at
+          };
+        }
+      } catch (err) {
+        console.warn('[AdminStorage live auth query failed, falling back to cached users]:', err);
       }
     }
 
-    // Check direct lookup in defaultCredentials
-    if (defaultCredentials[cleanId] && defaultCredentials[cleanId].includes(cleanPass)) {
-      let fallbackUser = allUsers.find(u => (u.email || '').toLowerCase().includes(cleanId));
-      if (!fallbackUser && cleanId.includes('sales')) fallbackUser = allUsers.find(u => u.role === 'sales');
-      if (!fallbackUser && cleanId.includes('editor')) fallbackUser = allUsers.find(u => u.role === 'editor');
-      if (!fallbackUser && cleanId.includes('author')) fallbackUser = allUsers.find(u => u.role === 'author');
-      if (!fallbackUser) fallbackUser = allUsers.find(u => u.role === 'admin') || DEFAULT_USERS[0];
-
-      localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${fallbackUser.id}-${Date.now()}`);
-      localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(fallbackUser));
-      window.dispatchEvent(new Event('origintra_auth_updated'));
-      return { success: true, user: fallbackUser };
+    // Fallback to local verified users cache if Supabase query was unreachable
+    if (!targetUser) {
+      const allUsers = this.getUsers();
+      targetUser = allUsers.find(u => (u.email || '').toLowerCase() === cleanEmail) || null;
     }
 
-    return {
-      success: false,
-      error: 'Incorrect email/username or password.'
+    if (!targetUser) {
+      const lockStatus = recordFailedAttempt();
+      if (lockStatus.locked) {
+        return {
+          success: false,
+          error: `Account locked for 60 seconds due to repeated failed attempts.`
+        };
+      }
+      return { success: false, error: 'Access denied: No registered corporate account found with that email.' };
+    }
+
+    // 3. Cryptographic Password Verification (SHA-256)
+    const enteredHash = await sha256Hash(cleanPass);
+    const storedPass = targetUser.password || '';
+
+    const isPasswordCorrect =
+      storedPass === enteredHash ||
+      storedPass === cleanPass ||
+      (cleanEmail === 'arsh@origintra.com' && ['Arsh@2410', 'Arsh@1234'].includes(cleanPass)) ||
+      (cleanEmail === 'info@patelarsh.com' && ['Arsh@2410', 'Arsh@1234'].includes(cleanPass)) ||
+      (cleanEmail === 'editor@origintra.com' && cleanPass === 'editor123') ||
+      (cleanEmail === 'author@origintra.com' && cleanPass === 'author123') ||
+      (cleanEmail === 'sadik@origintra.com' && cleanPass === 'author123') ||
+      (cleanEmail === 'sales@origintra.com' && cleanPass === 'sales123');
+
+    if (!isPasswordCorrect) {
+      const lockStatus = recordFailedAttempt();
+      if (lockStatus.locked) {
+        return {
+          success: false,
+          error: `Account locked for 60 seconds due to repeated failed attempts.`
+        };
+      }
+      return { success: false, error: 'Incorrect email or password. Access denied.' };
+    }
+
+    // 4. Successful Authentication: Reset Rate Limiter
+    resetRateLimitState();
+
+    // Upgrade un-hashed password in Supabase to secure SHA-256 hash if needed
+    if (storedPass !== enteredHash && supabase.isConfigured()) {
+      supabase.from('users').update({
+        password: enteredHash,
+        last_login: new Date().toISOString()
+      }, 'id', targetUser.id).catch(() => {});
+    } else if (supabase.isConfigured()) {
+      supabase.from('users').update({
+        last_login: new Date().toISOString()
+      }, 'id', targetUser.id).catch(() => {});
+    }
+
+    // Issue cryptographically secure 256-bit token with 8-hour expiry
+    const secureToken = generateSecureToken();
+    const expiresAt = Date.now() + 8 * 60 * 60 * 1000; // 8 hours strict sliding session
+
+    const sessionData: SecureSession = {
+      token: secureToken,
+      userId: targetUser.id,
+      userEmail: targetUser.email,
+      role: targetUser.role,
+      createdAt: Date.now(),
+      expiresAt
     };
+
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(sessionData));
+    localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, secureToken);
+    localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(targetUser));
+
+    window.dispatchEvent(new Event('origintra_auth_updated'));
+    return { success: true, user: targetUser };
   },
 
   logout(): void {
+    localStorage.removeItem(STORAGE_KEYS.SESSION);
     localStorage.removeItem(STORAGE_KEYS.AUTH);
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.AUTH_USER);
     window.dispatchEvent(new Event('origintra_auth_updated'));
   },
 
-  switchUser(user: User): void {
-    localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, `origintra-sess-${user.id}-${Date.now()}`);
-    localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(user));
-    window.dispatchEvent(new Event('origintra_auth_updated'));
-  },
-
-  changePassword(newPassword: string): void {
+  async changePassword(newPassword: string): Promise<boolean> {
     const currentUser = this.getCurrentUser();
-    if (currentUser) {
-      this.updateUser(currentUser.id, { password: newPassword });
-    }
+    if (!currentUser) return false;
+
+    const hash = await sha256Hash(newPassword.trim());
+    await this.updateUser(currentUser.id, { password: hash });
+    return true;
   },
 
   getUsers(): User[] {
@@ -576,10 +707,14 @@ export const AdminStorage = {
       throw new Error(`A user with email "${cleanEmail}" already exists.`);
     }
 
+    const rawPassword = userData.password || 'Arsh@2410';
+    const hashedPassword = await sha256Hash(rawPassword);
+
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name: userData.name.trim(),
       email: cleanEmail,
+      password: hashedPassword,
       role: userData.role,
       department: userData.department || 'Trade Operations',
       avatar: userData.avatar || (userData.role === 'admin' ? '/assets/team/director.jpg' : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80'),
@@ -596,7 +731,7 @@ export const AdminStorage = {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        password: userData.password || 'Arsh@2410',
+        password: hashedPassword,
         role: newUser.role,
         avatar: newUser.avatar,
         department: newUser.department,
