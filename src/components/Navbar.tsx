@@ -37,8 +37,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [mobileAboutExpanded, setMobileAboutExpanded] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAboutMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -68,10 +79,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all">
-      {/* Top Utility Information Bar */}
-      <div className="w-full bg-[#0A1C3E] text-slate-300 border-b border-blue-900/50 text-[11px] sm:text-xs">
-        <div className="container-x mx-auto max-w-[1440px] py-1.5 sm:py-2 flex items-center justify-between gap-x-4">
+    <header className="sticky top-0 z-50 w-full transition-all duration-300">
+      {/* Top Utility Information Bar (Collapses smoothly on scroll to maximize viewport) */}
+      <div 
+        className={`w-full bg-[#0A1C3E] text-slate-300 border-b border-blue-900/50 text-[11px] sm:text-xs transition-all duration-300 ease-in-out ${
+          isScrolled 
+            ? 'max-h-0 opacity-0 overflow-hidden py-0 border-b-0 pointer-events-none' 
+            : 'max-h-12 opacity-100 py-1.5 sm:py-2'
+        }`}
+      >
+        <div className="container-x mx-auto max-w-[1440px] flex items-center justify-between gap-x-4">
           {/* Left: Contact Info & Hub Location */}
           <div className="flex items-center space-x-3 sm:space-x-5 md:space-x-6 overflow-hidden">
             <a
@@ -167,9 +184,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Corporate Header */}
-      <div className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+      <div 
+        className={`w-full bg-white/95 backdrop-blur-md border-b transition-all duration-300 ease-in-out ${
+          isScrolled 
+            ? 'shadow-[0_4px_20px_rgba(0,0,0,0.06)] border-slate-200/90' 
+            : 'shadow-xs border-slate-200'
+        }`}
+      >
         <div className="container-x mx-auto max-w-[1440px]">
-          <div className="flex h-20 items-center justify-between">
+          <div 
+            className={`flex items-center justify-between transition-all duration-300 ease-in-out ${
+              isScrolled ? 'h-16' : 'h-20'
+            }`}
+          >
 
           {/* Nav bar button fix: keep the header actions and menu controls aligned and clickable in mobile layouts. */}
           {/* Logo with strict proportion preservation and SEO clean URL */}
@@ -190,7 +217,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               width="144"
               height="48"
               fetchPriority="high"
-              className="h-11 sm:h-12 w-auto max-h-12 object-contain transition-transform duration-200 group-hover:opacity-90"
+              className={`w-auto object-contain transition-all duration-300 group-hover:opacity-90 ${
+                isScrolled ? 'h-9 sm:h-10 max-h-10' : 'h-11 sm:h-12 max-h-12'
+              }`}
             />
           </a>
 
@@ -533,7 +562,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 shadow-xl animate-in slide-in-from-top-2 duration-200">
+        <div className="lg:hidden bg-white border-b border-slate-200 shadow-2xl animate-in slide-in-from-top-2 duration-200 max-h-[calc(100svh-4.5rem)] overflow-y-auto overscroll-contain">
           <div className="container-x mx-auto px-4 py-6 space-y-1">
 
             {/* 1. Home */}

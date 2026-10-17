@@ -274,7 +274,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
       </section>
 
       {/* Filter and Search Bar */}
-      <section className="border-b border-slate-200 bg-slate-50/80 sticky top-[108px] sm:top-[114px] lg:top-20 z-20 backdrop-blur-md py-3 sm:py-4">
+      <section className="border-b border-slate-200 bg-slate-50/80 sticky top-16 z-20 backdrop-blur-md py-3 sm:py-4">
         <div className="container-x mx-auto max-w-[1440px] flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Categories */}

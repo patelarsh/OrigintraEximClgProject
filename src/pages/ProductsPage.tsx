@@ -97,7 +97,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
       </section>
 
       {/* 2. Filter and Search Bar (Sticky) */}
-      <section className="border-b border-slate-200 bg-white/95 sticky top-[108px] sm:top-[114px] lg:top-20 z-20 backdrop-blur-md py-3 sm:py-4 shadow-2xs">
+      <section className="border-b border-slate-200 bg-white/95 sticky top-16 z-20 backdrop-blur-md py-3 sm:py-4 shadow-2xs">
         <div className="container-x mx-auto max-w-[1440px] space-y-3.5">
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
