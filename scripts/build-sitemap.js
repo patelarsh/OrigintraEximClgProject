@@ -1,6 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
+function escapeXml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 // Read products.ts
 const productsContent = fs.readFileSync('src/data/products.ts', 'utf8');
 const productMatches = [...productsContent.matchAll(/"id":\s*"([^"]+)",\s*"slug":\s*"([^"]+)",\s*"name":\s*"([^"]+)"[\s\S]*?"image":\s*"([^"]+)"/g)];
@@ -28,7 +38,7 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <image:image>
       <image:loc>${BASE_URL}/assets/hero/spices-hero-banner.jpg</image:loc>
       <image:title>Origintra Exim - Premier Indian Spices Exporter</image:title>
-      <image:caption>Connecting India's finest spices to international markets</image:caption>
+      <image:caption>Connecting India&apos;s finest spices to international markets</image:caption>
     </image:image>
   </url>
   <url>
@@ -83,7 +93,9 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
 
 for (const match of productMatches) {
   const [, id, slug, name, image] = match;
-  const imgUrl = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+  const rawImgUrl = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+  const imgUrl = escapeXml(rawImgUrl);
+  const escapedName = escapeXml(name);
   xml += `  <url>
     <loc>${BASE_URL}/products/${slug}</loc>
     <lastmod>${TODAY}</lastmod>
@@ -91,8 +103,8 @@ for (const match of productMatches) {
     <priority>0.90</priority>
     <image:image>
       <image:loc>${imgUrl}</image:loc>
-      <image:title>${name} Exporter India - Origintra Exim</image:title>
-      <image:caption>Export grade ${name} from India with verified laboratory specifications</image:caption>
+      <image:title>${escapedName} Exporter India - Origintra Exim</image:title>
+      <image:caption>Export grade ${escapedName} from India with verified laboratory specifications</image:caption>
     </image:image>
   </url>\n`;
 }
@@ -101,7 +113,9 @@ xml += `\n  <!-- Export Intelligence & Trade Insight Articles -->\n`;
 
 for (const match of blogMatches) {
   const [, id, slug, title, image] = match;
-  const imgUrl = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+  const rawImgUrl = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+  const imgUrl = escapeXml(rawImgUrl);
+  const escapedTitle = escapeXml(title);
   xml += `  <url>
     <loc>${BASE_URL}/blog/${slug}</loc>
     <lastmod>${TODAY}</lastmod>
@@ -109,7 +123,7 @@ for (const match of blogMatches) {
     <priority>0.85</priority>
     <image:image>
       <image:loc>${imgUrl}</image:loc>
-      <image:title>${title}</image:title>
+      <image:title>${escapedTitle}</image:title>
     </image:image>
   </url>\n`;
 }
@@ -144,4 +158,4 @@ xml += `
 `;
 
 fs.writeFileSync('public/sitemap.xml', xml, 'utf8');
-console.log('Successfully wrote public/sitemap.xml with updated lastmod and image schema!');
+console.log('Successfully wrote public/sitemap.xml with XML-escaped entities!');
