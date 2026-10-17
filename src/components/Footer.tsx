@@ -347,18 +347,6 @@ export const Footer: React.FC<FooterProps> = ({
             >
               Cookie Policy
             </a>
-            <a
-              href={getHref('admin')}
-              onClick={(e) => {
-                if (!e.ctrlKey && !e.metaKey && e.button === 0) {
-                  e.preventDefault();
-                  handleNav('admin');
-                }
-              }}
-              className="text-[#38BDF8] hover:text-white transition-colors cursor-pointer font-medium flex items-center space-x-1"
-            >
-              <span>Admin Portal</span>
-            </a>
           </div>
         </div>
       </div>
