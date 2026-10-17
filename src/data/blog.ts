@@ -183,8 +183,8 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: 'Trade Compliance & Customs Operations',
     excerpt: 'Essential documentation, Incoterms, container stuffing, and customs clearance procedures for first-time and seasoned spice importers.',
     image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80',
-    seoTitle: 'A Practical Guide to Importing Spices from India | Origintra Exim',
-    metaDescription: 'Step-by-step export guide: Incoterms (FOB vs CIF), required customs documents (COO, Phytosanitary, COA), container stuffing, and transit planning.',
+    seoTitle: 'Incoterms Explained: FOB vs CIF vs CFR for Sourcing Indian Spices | Origintra Exim',
+    metaDescription: 'Understand FOB vs CIF vs CFR when sourcing bulk spices from India. Complete buyer guide for ocean freight, marine insurance, customs clearance, and container shipping.',
     tableOfContents: [
       'Choosing the Right Incoterm: FOB, CFR, or CIF',
       'The Essential Export Documentation Checklist',
