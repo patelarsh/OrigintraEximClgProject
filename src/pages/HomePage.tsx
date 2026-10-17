@@ -1152,17 +1152,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   className="w-[360px] sm:w-[420px] md:w-[460px] shrink-0 bg-white rounded-xl p-6 sm:p-7 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Top Header: Discharge Port & Verified Trade Partner Badge */}
-                    <div className="flex items-center justify-between gap-2 pb-3 mb-3.5 border-b border-slate-100 text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-600 font-medium truncate">
-                        <MapPin className="w-3.5 h-3.5 text-[#0070E0] shrink-0" />
-                        <span className="truncate">{item.destinationPort}</span>
-                      </div>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-[11px] font-semibold tracking-wide shrink-0">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>Verified Buyer</span>
-                      </span>
-                    </div>
+
 
                     {/* Commodity Title & Consignment Volume */}
                     <div className="mb-3.5">

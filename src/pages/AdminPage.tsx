@@ -2258,17 +2258,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     className="bg-white rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group overflow-hidden"
                   >
                     <div className="p-6">
-                      {/* Top Header: Discharge Port & Verified Buyer Badge */}
-                      <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100 text-xs">
-                        <div className="flex items-center gap-1.5 text-slate-600 font-medium truncate">
-                          <MapPin className="w-3.5 h-3.5 text-[#0070E0] shrink-0" />
-                          <span className="truncate">{item.destinationPort}</span>
-                        </div>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-[10px] font-semibold tracking-wide shrink-0">
-                          <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>Verified Buyer</span>
-                        </span>
-                      </div>
 
                       {/* Commodity & Volume */}
                       <div className="mb-3">
