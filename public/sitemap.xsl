@@ -386,7 +386,7 @@
           </div>
 
           <footer>
-            <p>© 2026 Origintra Exim Private Limited. All rights reserved. | <a href="https://www.origintra.com" style="color: #0070e0; text-decoration: none;">Visit Website</a></p>
+            <p>© 2026 Origintra Exim. All rights reserved. | <a href="https://www.origintra.com" style="color: #0070e0; text-decoration: none;">Visit Website</a></p>
           </footer>
         </div>
       </body>
