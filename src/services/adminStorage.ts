@@ -7,6 +7,7 @@ import { DEFAULT_GALLERY_IMAGES, GalleryImage } from '../data/gallery';
 import { TESTIMONIALS as DEFAULT_TESTIMONIALS } from '../data/testimonials';
 import { slugify } from '../utils/slugify';
 import { supabase } from './supabaseClient';
+import { MailService } from './mailService';
 
 export interface DatabaseStatusInfo {
   connected: boolean;
@@ -1113,6 +1114,15 @@ export const AdminStorage = {
         created_at: newInq.createdAt,
         updated_at: newInq.createdAt
       }).then(() => this.fetchDatabaseStatus());
+    }
+
+    // Automatically notify admin and confirm with buyer via Nodemailer / mail server
+    try {
+      MailService.dispatchInquiryAlert(newInq).catch(e => {
+        console.warn('[AdminStorage] Automated inquiry email dispatch error:', e);
+      });
+    } catch (e) {
+      console.warn('[AdminStorage] Error triggering inquiry email:', e);
     }
 
     return newInq;

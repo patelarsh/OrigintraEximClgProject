@@ -2996,6 +2996,63 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#0070E0]"
                     />
                   </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      Admin Alert Recipient Email(s) (Receives New Inquiries) *
+                    </label>
+                    <input
+                      type="text"
+                      value={emailCreds.adminAlertEmail}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, adminAlertEmail: e.target.value })}
+                      placeholder="e.g. export@origintra.com, info@patelarsh.com"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Multiple emails can be separated by commas (e.g. export@origintra.com, info@patelarsh.com). Whenever a buyer inquires on the website, this address receives the full dossier immediately.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Notification Toggles */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5">
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={emailCreds.autoSendOnInquiry}
+                        onChange={(e) => setEmailCreds({ ...emailCreds, autoSendOnInquiry: e.target.checked })}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0] cursor-pointer"
+                      />
+                      <div>
+                        <span className="font-bold text-slate-800 text-xs block">
+                          Email admin when buyer submits trade inquiry
+                        </span>
+                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                          Sends an immediate inquiry alert with buyer name, company, email, phone, commodity, required volume, and port.
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5">
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={emailCreds.autoConfirmBuyer}
+                        onChange={(e) => setEmailCreds({ ...emailCreds, autoConfirmBuyer: e.target.checked })}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0] cursor-pointer"
+                      />
+                      <div>
+                        <span className="font-bold text-slate-800 text-xs block">
+                          Email receipt confirmation to prospective buyer
+                        </span>
+                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                          Sends a branded commercial acknowledgement confirming their inquiry was received and will be answered in 24 hours.
+                        </span>
+                      </div>
+                    </label>
+                  </div>
                 </div>
 
                 {/* Auto Send Toggle */}
@@ -3020,31 +3077,76 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
                 {/* Test & Verification Section */}
                 <div className="bg-blue-50/50 border border-blue-200/70 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[#0070E0]" />
                       Nodemailer Test & Connection Verification
                     </span>
-                    <button
-                      type="button"
-                      disabled={isVerifyingSmtp}
-                      onClick={async () => {
-                        setIsVerifyingSmtp(true);
-                        setVerifySmtpResult(null);
-                        try {
-                          const res = await MailService.verifySmtp(emailCreds);
-                          setVerifySmtpResult({ ok: res.success, message: res.message });
-                        } catch (err: any) {
-                          setVerifySmtpResult({ ok: false, message: err?.message || 'Verification error' });
-                        } finally {
-                          setIsVerifyingSmtp(false);
-                        }
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
-                    >
-                      {isVerifyingSmtp ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#0070E0]" /> : <Server className="w-3.5 h-3.5 text-[#0070E0]" />}
-                      <span>{isVerifyingSmtp ? 'Verifying SMTP...' : 'Verify SMTP Connection'}</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={isSendingTestEmail}
+                        onClick={async () => {
+                          setIsSendingTestEmail(true);
+                          setTestEmailResult(null);
+                          MailService.saveCredentials(emailCreds);
+                          try {
+                            const sampleInq = {
+                              id: `inq-sample-${Date.now().toString().slice(-4)}`,
+                              fullName: 'Alexander Wright',
+                              companyName: 'Global Spice Trading Ltd',
+                              businessEmail: testEmailTarget.trim() || 'export@origintra.com',
+                              country: 'United Kingdom',
+                              phoneWhatsApp: '+44 7911 123456',
+                              product: 'Green Cardamom (8mm Bold)',
+                              productForm: 'Whole Pods Export Grade',
+                              quantityRequired: '2x 20ft FCL Container (28 Metric Tons)',
+                              destinationPort: 'Felixstowe Port, UK',
+                              packagingRequirement: '25kg Multiwall Kraft Bags with Poly Liner',
+                              message: 'Sample test inquiry: Please provide CIF Felixstowe price quotation with laboratory pesticide screening certificate.',
+                              createdAt: new Date().toISOString(),
+                              status: 'new' as const,
+                              source: 'quote_modal' as const
+                            };
+                            const res = await MailService.dispatchInquiryAlert(sampleInq);
+                            setTestEmailResult({ ok: res.success, message: res.message });
+                            if (res.success) {
+                              showToast(`Sample inquiry alert sent to admin: ${emailCreds.adminAlertEmail}!`);
+                            }
+                          } catch (err: any) {
+                            setTestEmailResult({ ok: false, message: err?.message || 'Send error' });
+                          } finally {
+                            setIsSendingTestEmail(false);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                        title="Send sample inquiry alert to admin"
+                      >
+                        <Inbox className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>Send Test Inquiry Alert</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isVerifyingSmtp}
+                        onClick={async () => {
+                          setIsVerifyingSmtp(true);
+                          setVerifySmtpResult(null);
+                          try {
+                            const res = await MailService.verifySmtp(emailCreds);
+                            setVerifySmtpResult({ ok: res.success, message: res.message });
+                          } catch (err: any) {
+                            setVerifySmtpResult({ ok: false, message: err?.message || 'Verification error' });
+                          } finally {
+                            setIsVerifyingSmtp(false);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        {isVerifyingSmtp ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#0070E0]" /> : <Server className="w-3.5 h-3.5 text-[#0070E0]" />}
+                        <span>{isVerifyingSmtp ? 'Verifying SMTP...' : 'Verify SMTP Connection'}</span>
+                      </button>
+                    </div>
                   </div>
 
                   {verifySmtpResult && (

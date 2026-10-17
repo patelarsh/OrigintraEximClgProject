@@ -4,13 +4,17 @@
  * ===============================================================
  * 
  * Manages email server credentials (Hostinger SMTP / Custom SMTP / Webhooks)
- * and dispatches account welcome credentials, test emails, and corporate notices.
+ * and dispatches account welcome credentials, inquiry alerts to admin,
+ * buyer confirmation notices, and test emails via Nodemailer and Hostinger mailer.
  */
+
+import { Inquiry } from '../types';
 
 export interface EmailCredentials {
   provider: 'hostinger_smtp' | 'custom_smtp' | 'resend' | 'webhook';
   senderEmail: string;       // e.g. "export@origintra.com" or "info@origintra.com"
-  senderName: string;        // e.g. "Origintra Exim Administration"
+  senderName: string;        // e.g. "Origintra Exim Administration Desk"
+  adminAlertEmail: string;   // Recipient email for new inquiry alerts (e.g. "export@origintra.com, info@patelarsh.com")
   smtpHost: string;          // e.g. "smtp.hostinger.com"
   smtpPort: number;          // e.g. 465 (SSL) or 587 (TLS)
   smtpSecure: boolean;       // SSL encryption
@@ -18,13 +22,16 @@ export interface EmailCredentials {
   smtpPassword: string;      // Password / App password
   webhookUrl?: string;       // Optional HTTP webhook (e.g. Formspree/Zapier/Resend)
   apiKey?: string;           // Optional API key
-  autoSendOnUserCreate: boolean; // Automatically deliver directly via server
+  autoSendOnUserCreate: boolean; // Automatically deliver user credentials directly via server
+  autoSendOnInquiry: boolean;    // Automatically notify admin when a new inquiry arrives
+  autoConfirmBuyer: boolean;     // Automatically send polite receipt acknowledgement to buyer
 }
 
 export const DEFAULT_EMAIL_CREDENTIALS: EmailCredentials = {
   provider: 'hostinger_smtp',
   senderEmail: 'export@origintra.com',
   senderName: 'Origintra Exim Administration Desk',
+  adminAlertEmail: 'export@origintra.com, info@patelarsh.com',
   smtpHost: 'smtp.hostinger.com',
   smtpPort: 465,
   smtpSecure: true,
@@ -32,7 +39,9 @@ export const DEFAULT_EMAIL_CREDENTIALS: EmailCredentials = {
   smtpPassword: '',
   webhookUrl: '',
   apiKey: '',
-  autoSendOnUserCreate: true
+  autoSendOnUserCreate: true,
+  autoSendOnInquiry: true,
+  autoConfirmBuyer: true
 };
 
 const CREDENTIALS_KEY = 'origintra_email_credentials_v1';
@@ -169,6 +178,273 @@ Website: https://www.origintra.com
   return { subject, body, html, mailtoUrl };
 }
 
+/**
+ * Formats an urgent notification email sent to the Administrator
+ * when a new buyer inquiry or quote request is received.
+ */
+export function formatInquiryAdminAlert(inquiry: Inquiry): {
+  subject: string;
+  body: string;
+  html: string;
+} {
+  const companyOrName = inquiry.companyName ? `${inquiry.companyName} (${inquiry.fullName})` : inquiry.fullName;
+  const country = inquiry.country || 'Global';
+  const subject = `[New Trade Inquiry] ${inquiry.product} — ${companyOrName} (${country})`;
+
+  const portalUrl = typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'https://www.origintra.com/admin';
+  const cleanPhone = (inquiry.phoneWhatsApp || '').replace(/[^0-9]/g, '');
+
+  const body = `======================================================================
+ORIGINTRA EXIM — NEW TRADE LEAD & INQUIRY ALERT
+======================================================================
+Lead ID        : ${inquiry.id}
+Received Date  : ${new Date(inquiry.createdAt).toLocaleString()}
+Source         : ${inquiry.source || 'Website Portal'}
+
+BUYER / IMPORTER INFORMATION:
+- Contact Name : ${inquiry.fullName}
+- Company Name : ${inquiry.companyName || 'Not Specified'}
+- Email        : ${inquiry.businessEmail}
+- Phone/WhatsApp: ${inquiry.phoneWhatsApp || 'Not Provided'}
+- Country/Port : ${inquiry.country || 'International'} (Discharge: ${inquiry.destinationPort || 'To Be Nominated'})
+
+COMMODITY REQUIREMENTS:
+- Commodity    : ${inquiry.product}
+- Product Form : ${inquiry.productForm || 'Standard Commercial Grade'}
+- Required Vol : ${inquiry.quantityRequired || 'FCL'}
+- Packaging    : ${inquiry.packagingRequirement || 'Standard Export Bagging'}
+
+BUYER MESSAGE & SPECIFICATIONS:
+${inquiry.message || 'No additional message provided.'}
+
+======================================================================
+DIRECT ACTIONS:
+- Reply to buyer directly: mailto:${inquiry.businessEmail}?subject=Re:%20Origintra%20Exim%20Quote%20Request%20-%20${encodeURIComponent(inquiry.product)}
+- Review inquiry in Admin Portal: ${portalUrl}
+======================================================================
+Origintra Exim Trade Operations Desk
+`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px; color: #0f172a;">
+  <div style="max-width: 650px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #cbd5e1; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+    <div style="background-color: #0A1C3E; padding: 24px 32px; color: #ffffff;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td>
+            <h1 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: #ffffff;">ORIGINTRA EXIM</h1>
+            <p style="margin: 4px 0 0; font-size: 11px; color: #38BDF8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Automated Trade Lead Alert</p>
+          </td>
+          <td style="text-align: right;">
+            <span style="background: #0284c7; color: #ffffff; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px;">
+              New RFQ Lead
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <div style="padding: 32px;">
+      <div style="background-color: #f8fafc; border-left: 4px solid #0070E0; padding: 14px 18px; border-radius: 8px; margin-bottom: 24px;">
+        <p style="margin: 0; font-size: 14px; font-weight: 600; color: #0f172a;">
+          A new commercial inquiry for <strong>${inquiry.product}</strong> has been received on www.origintra.com.
+        </p>
+        <p style="margin: 4px 0 0; font-size: 12px; color: #64748b;">
+          Lead ID: <code style="font-family: monospace; color: #0070E0;">${inquiry.id}</code> &bull; Source: ${inquiry.source || 'Website'} &bull; ${new Date(inquiry.createdAt).toLocaleString()}
+        </p>
+      </div>
+
+      <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 0 0 12px; font-weight: 700;">
+        1. Buyer & Company Dossier
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px;">
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b; width: 140px;">Contact Person:</td>
+          <td style="padding: 8px 0; font-weight: 700; color: #0f172a;">${inquiry.fullName}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Company Name:</td>
+          <td style="padding: 8px 0; font-weight: 600; color: #334155;">${inquiry.companyName || 'Not Specified'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Business Email:</td>
+          <td style="padding: 8px 0; font-family: monospace; font-size: 13px; font-weight: 600;">
+            <a href="mailto:${inquiry.businessEmail}" style="color: #0070E0; text-decoration: none;">${inquiry.businessEmail}</a>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Phone / WhatsApp:</td>
+          <td style="padding: 8px 0; font-weight: 600; color: #0f172a;">
+            ${cleanPhone ? `<a href="https://wa.me/${cleanPhone}" style="color: #16a34a; text-decoration: none;">${inquiry.phoneWhatsApp}</a>` : (inquiry.phoneWhatsApp || 'Not provided')}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #64748b;">Country / Market:</td>
+          <td style="padding: 8px 0; font-weight: 600; color: #0f172a;">${inquiry.country || 'International'}</td>
+        </tr>
+      </table>
+
+      <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 0 0 12px; font-weight: 700;">
+        2. Commodity & Shipment Specifications
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px;">
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b; width: 140px;">Commodity:</td>
+          <td style="padding: 8px 0; font-weight: 700; color: #0284c7; font-size: 14px;">${inquiry.product}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Product Form:</td>
+          <td style="padding: 8px 0; color: #334155;">${inquiry.productForm || 'Standard Export Grade'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Quantity Required:</td>
+          <td style="padding: 8px 0; font-weight: 600; color: #0f172a;">${inquiry.quantityRequired || 'FCL Container'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 8px 0; color: #64748b;">Destination Port:</td>
+          <td style="padding: 8px 0; font-weight: 600; color: #0f172a;">${inquiry.destinationPort || 'To Be Nominated'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #64748b;">Packaging Specs:</td>
+          <td style="padding: 8px 0; color: #334155;">${inquiry.packagingRequirement || 'Standard Export Multiwall / Jute Bags'}</td>
+        </tr>
+      </table>
+
+      <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 0 0 12px; font-weight: 700;">
+        3. Buyer Requirements & Message
+      </h3>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #334155; line-height: 1.6; white-space: pre-wrap; margin-bottom: 28px;">
+${inquiry.message || 'No additional message provided.'}
+      </div>
+
+      <div style="text-align: center; margin: 24px 0 12px;">
+        <a href="mailto:${inquiry.businessEmail}?subject=Re:%20Origintra%20Exim%20Quote%20Request%20-%20${encodeURIComponent(inquiry.product)}" style="display: inline-block; background-color: #0070E0; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 12px 28px; border-radius: 8px; margin-right: 8px;">
+          Reply Directly to Buyer &rarr;
+        </a>
+        <a href="${portalUrl}" style="display: inline-block; background-color: #0A1C3E; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 12px 28px; border-radius: 8px;">
+          Open Admin Portal &rarr;
+        </a>
+      </div>
+    </div>
+    
+    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; font-size: 11px; color: #64748b; text-align: center;">
+      Origintra Exim — Global Agro-Commodities Trading Desk &bull; <a href="https://www.origintra.com" style="color: #64748b;">www.origintra.com</a>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  return { subject, body, html };
+}
+
+/**
+ * Formats a polite receipt confirmation sent to the buyer/prospect.
+ */
+export function formatInquiryBuyerConfirmation(inquiry: Inquiry): {
+  subject: string;
+  body: string;
+  html: string;
+} {
+  const subject = `Trade Inquiry Confirmation: ${inquiry.product} — Origintra Exim`;
+
+  const body = `Dear ${inquiry.fullName},
+
+Thank you for reaching out to Origintra Exim regarding your requirement for ${inquiry.product}.
+
+We have received your commercial inquiry (Reference ID: ${inquiry.id}). Our export desk specialists are currently reviewing your requested volume (${inquiry.quantityRequired || 'FCL'}) and discharge port requirements (${inquiry.destinationPort || 'To Be Nominated'}).
+
+A trade specialist will contact you within 24 business hours with commercial FOB/CIF pricing, laboratory certificate of analysis (COA) specifications, and container schedule availability.
+
+SUMMARY OF YOUR REQUEST:
+- Commodity: ${inquiry.product}
+- Product Form: ${inquiry.productForm || 'Standard Commercial'}
+- Quantity: ${inquiry.quantityRequired || 'FCL'}
+- Destination Port: ${inquiry.destinationPort || 'To Be Nominated'}
+- Packaging: ${inquiry.packagingRequirement || 'Standard Export Bagging'}
+
+If your shipment requirement is urgent, feel free to reach our direct WhatsApp hotline:
+- WhatsApp Trade Desk: +91 70691 82990
+- Corporate Export Desk: export@origintra.com
+- Website: https://www.origintra.com
+
+Best regards,
+Origintra Exim Trade Operations Desk
+Global Agro-Commodities Export Division
+`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    <div style="background-color: #0A1C3E; padding: 24px 32px; color: #ffffff;">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">ORIGINTRA EXIM</h1>
+      <p style="margin: 4px 0 0; font-size: 12px; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px;">Trade Inquiry Confirmation</p>
+    </div>
+    <div style="padding: 32px;">
+      <p style="font-size: 15px; margin-top: 0;">Dear <strong>${inquiry.fullName}</strong>,</p>
+      <p style="font-size: 14px; line-height: 1.6; color: #475569;">
+        Thank you for contacting Origintra Exim regarding your requirement for <strong>${inquiry.product}</strong>. We have successfully registered your inquiry (Reference: <code style="font-family: monospace; color: #0070E0;">${inquiry.id}</code>).
+      </p>
+
+      <div style="background: #f1f5f9; border-radius: 12px; padding: 20px; margin: 24px 0; border: 1px solid #cbd5e1;">
+        <h4 style="margin: 0 0 12px; font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Your Submitted Specifications</h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr>
+            <td style="padding: 5px 0; color: #64748b; width: 140px;">Commodity:</td>
+            <td style="padding: 5px 0; font-weight: 700; color: #0f172a;">${inquiry.product}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; color: #64748b;">Quantity:</td>
+            <td style="padding: 5px 0; font-weight: 600; color: #0f172a;">${inquiry.quantityRequired || 'FCL Container'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; color: #64748b;">Discharge Port:</td>
+            <td style="padding: 5px 0; font-weight: 600; color: #0f172a;">${inquiry.destinationPort || 'To Be Nominated'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0; color: #64748b;">Status:</td>
+            <td style="padding: 5px 0; font-weight: 700; color: #16a34a; text-transform: uppercase; font-size: 11px;">Under Commercial Review</td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #475569;">
+        Our export desk is preparing detailed FOB/CIF pricing along with quality certificates (COA, Phytosanitary, Spice Board Compliance). A specialist will follow up with you within <strong>24 business hours</strong>.
+      </p>
+
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin: 24px 0;">
+        <p style="margin: 0; font-size: 13px; color: #166534; font-weight: 600;">Need immediate assistance?</p>
+        <p style="margin: 4px 0 0; font-size: 12px; color: #15803d;">
+          Reach our 24/7 export desk via WhatsApp: <strong><a href="https://wa.me/917069182990" style="color: #15803d; text-decoration: underline;">+91 70691 82990</a></strong>
+        </p>
+      </div>
+
+      <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-bottom: 0;">
+        Best regards,<br>
+        <strong>Origintra Exim Trade Operations Desk</strong><br>
+        Website: <a href="https://www.origintra.com" style="color: #0070E0;">www.origintra.com</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  return { subject, body, html };
+}
+
 export const MailService = {
   /**
    * Retrieves saved email credentials from localStorage or defaults
@@ -202,7 +478,7 @@ export const MailService = {
   },
 
   /**
-   * Dispatches email via Hostinger PHP mailer (/api/send-mail.php) or configured webhook
+   * Dispatches email via Nodemailer / Hostinger PHP mailer or configured webhook
    */
   async sendDirectEmail(options: {
     to: string;
@@ -275,7 +551,6 @@ export const MailService = {
 
         if (json && !json.success) {
           lastError = json.message || 'Server mailer reported failure.';
-          // If server explicitly responded with failure, don't try next endpoint
           break;
         }
 
@@ -391,6 +666,63 @@ Origintra Exim Trade Desk
     return {
       deliveredDirectly: false,
       message: `Mail client opened to dispatch credentials to ${payload.toEmail}.`
+    };
+  },
+
+  /**
+   * Dispatches new inquiry alert to the Administrator and confirmation to the buyer.
+   */
+  async dispatchInquiryAlert(
+    inquiry: Inquiry
+  ): Promise<{ success: boolean; message: string }> {
+    const creds = this.getCredentials();
+    if (creds.autoSendOnInquiry === false) {
+      return { success: false, message: 'Automated inquiry alerts disabled in settings.' };
+    }
+
+    // 1. Send Alert to Administrator(s)
+    const adminRecipients = (creds.adminAlertEmail || creds.senderEmail || 'export@origintra.com')
+      .split(',')
+      .map(e => e.trim())
+      .filter(Boolean);
+
+    const { subject: adminSubject, body: adminBody, html: adminHtml } = formatInquiryAdminAlert(inquiry);
+
+    let adminSent = false;
+    for (const recipient of adminRecipients) {
+      try {
+        const res = await this.sendDirectEmail({
+          to: recipient,
+          subject: adminSubject,
+          body: adminBody,
+          html: adminHtml
+        });
+        if (res.success) adminSent = true;
+      } catch (e) {
+        console.warn(`[MailService] Failed to notify admin (${recipient}):`, e);
+      }
+    }
+
+    // 2. Send Polite Receipt Confirmation to Buyer (if enabled and email looks valid)
+    if (creds.autoConfirmBuyer !== false && inquiry.businessEmail && inquiry.businessEmail.includes('@')) {
+      const { subject: buyerSubject, body: buyerBody, html: buyerHtml } = formatInquiryBuyerConfirmation(inquiry);
+      try {
+        await this.sendDirectEmail({
+          to: inquiry.businessEmail.trim(),
+          subject: buyerSubject,
+          body: buyerBody,
+          html: buyerHtml
+        });
+      } catch (e) {
+        console.warn('[MailService] Failed to send buyer confirmation:', e);
+      }
+    }
+
+    return {
+      success: adminSent,
+      message: adminSent
+        ? `Inquiry alert emailed to admin (${adminRecipients.join(', ')})`
+        : 'Inquiry registered locally.'
     };
   },
 

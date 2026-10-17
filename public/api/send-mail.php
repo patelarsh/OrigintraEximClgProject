@@ -50,12 +50,19 @@ if (!$data || !is_array($data)) {
     exit;
 }
 
-$to = filter_var($data['to'] ?? '', FILTER_VALIDATE_EMAIL);
-if (!$to) {
+$rawTo = $data['to'] ?? '';
+$toAddresses = is_array($rawTo) ? $rawTo : explode(',', (string)$rawTo);
+$validRecipients = [];
+foreach ($toAddresses as $addr) {
+    $cleaned = filter_var(trim($addr), FILTER_VALIDATE_EMAIL);
+    if ($cleaned) $validRecipients[] = $cleaned;
+}
+if (empty($validRecipients)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Valid recipient email (to) is required.']);
     exit;
 }
+$to = implode(', ', $validRecipients);
 
 $subject = trim($data['subject'] ?? 'Origintra Exim Notification');
 $bodyText = trim($data['body'] ?? $data['text'] ?? '');
@@ -128,8 +135,13 @@ function sendViaSocketSmtp($host, $port, $user, $pass, $from, $fromName, $to, $s
     // 5. MAIL FROM
     $sendCommand("MAIL FROM: <{$from}>", 250);
 
-    // 6. RCPT TO
-    $sendCommand("RCPT TO: <{$to}>", 250);
+    // 6. RCPT TO (supports multiple recipients)
+    $recipientsList = array_map('trim', explode(',', $to));
+    foreach ($recipientsList as $rcptAddr) {
+        if (!empty($rcptAddr)) {
+            $sendCommand("RCPT TO: <{$rcptAddr}>", 250);
+        }
+    }
 
     // 7. DATA
     $sendCommand("DATA", 354);
