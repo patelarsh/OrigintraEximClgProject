@@ -134,8 +134,8 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
   <url>
     <loc>${BASE_URL}/schedule-meeting</loc>
     <lastmod>${TODAY}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
   </url>
 
   <!-- ============================================================= -->

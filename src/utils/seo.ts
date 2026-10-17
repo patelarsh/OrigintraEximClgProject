@@ -185,7 +185,8 @@ export const WEBSITE_SCHEMA = {
   '@type': 'WebSite',
   '@id': `${BASE_URL}/#website`,
   'url': BASE_URL,
-  'name': 'Origintra Exim - Spices Exporter in India',
+  'name': 'Origintra Exim',
+  'alternateName': 'Origintra Exim - Spices Exporter in India',
   'description': 'B2B export portal for Indian spices, whole commodities, sortex seeds, and agricultural trading.',
   'publisher': {
     '@id': `${BASE_URL}/#organization`
@@ -195,6 +196,56 @@ export const WEBSITE_SCHEMA = {
     'target': `${BASE_URL}/products?search={search_term_string}`,
     'query-input': 'required name=search_term_string'
   }
+};
+
+export const SITE_NAVIGATION_SCHEMA = {
+  '@type': 'ItemList',
+  '@id': `${BASE_URL}/#site-navigation`,
+  'name': 'Origintra Exim Site Navigation',
+  'itemListElement': [
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 1,
+      'name': 'Products Catalog',
+      'description': 'Export catalog of 27+ premium Indian whole spices, sortex seeds, ground powders, and masala blends.',
+      'url': `${BASE_URL}/products`
+    },
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 2,
+      'name': 'About Us',
+      'description': 'Leading merchant spices exporter in India with direct farmgate sourcing networks across Gujarat and southern states.',
+      'url': `${BASE_URL}/about`
+    },
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 3,
+      'name': 'Quality & Certifications',
+      'description': 'Spices Board of India CRES, APEDA, FSSAI accredited compliance, and pre-shipment laboratory COA testing.',
+      'url': `${BASE_URL}/quality`
+    },
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 4,
+      'name': 'Global Reach & Logistics',
+      'description': 'Direct ocean container shipping from Mundra and JNPT ports to commercial buyers in over 24 countries.',
+      'url': `${BASE_URL}/global-reach`
+    },
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 5,
+      'name': 'Contact & Request Quote',
+      'description': 'Request FOB/CIF price quotation and commercial inquiries from our international export desk.',
+      'url': `${BASE_URL}/contact`
+    },
+    {
+      '@type': 'SiteNavigationElement',
+      'position': 6,
+      'name': 'Schedule Meeting',
+      'description': 'Book a direct 30-minute B2B consultation with our trade desk to discuss orders, shipping terms, and pricing.',
+      'url': `${BASE_URL}/schedule-meeting`
+    }
+  ]
 };
 
 function buildBreadcrumbSchema(breadcrumbs: BreadcrumbItem[]) {
@@ -341,7 +392,7 @@ export function updatePageSeo(config: SeoConfig) {
     document.head.appendChild(scriptLd);
   }
 
-  const graphItems: any[] = [ORGANIZATION_SCHEMA, WEBSITE_SCHEMA];
+  const graphItems: any[] = [ORGANIZATION_SCHEMA, WEBSITE_SCHEMA, SITE_NAVIGATION_SCHEMA];
 
   if (config.breadcrumbs && config.breadcrumbs.length > 0) {
     graphItems.push(buildBreadcrumbSchema(config.breadcrumbs));
@@ -420,7 +471,7 @@ export function getHomeSeo(): SeoConfig {
 
 export function getAboutSeo(): SeoConfig {
   return {
-    title: 'About Us | Origintra Exim - Indian Spices Exporter Profile & Sourcing Network',
+    title: 'About Us | Origintra Exim - Indian Spices Exporter',
     description: "Discover Origintra Exim, India's trusted merchant spices exporter. Direct farmgate sourcing networks across Gujarat, Andhra Pradesh, Rajasthan and Kerala supplying export-grade agricultural commodities worldwide.",
     keywords: [
       'about origintra exim',
@@ -444,7 +495,7 @@ export function getAboutSeo(): SeoConfig {
 export function getProductsCatalogSeo(category?: string): SeoConfig {
   const catSuffix = category ? ` - ${category}` : '';
   return {
-    title: `Indian Spices Export Catalog${catSuffix} | Bulk Wholesale Spices Supplier India - Origintra Exim`,
+    title: `Products Catalog${catSuffix} | Bulk Spices Supplier - Origintra Exim`,
     description: 'Browse our full export portfolio of 27+ premium Indian spices: whole chillies, turmeric fingers, green cardamom, black pepper, sortex seeds, and authentic curry blends with certified laboratory testing.',
     keywords: [
       'indian spices catalog',
@@ -543,7 +594,7 @@ export function getProductSeo(product: Product): SeoConfig {
 
 export function getQualitySeo(): SeoConfig {
   return {
-    title: 'Quality Assurance & Lab Compliance | Spices Board & APEDA Certified Exporter India - Origintra Exim',
+    title: 'Quality & Certifications | Origintra Exim - Certified Exporter',
     description: 'Export-grade compliance with Spices Board of India, FSSAI, APEDA, and ISO. Certified laboratory testing for moisture, aflatoxins, volatile oils, and pesticide MRLs.',
     keywords: [
       'spice export quality standards india',
@@ -565,7 +616,7 @@ export function getQualitySeo(): SeoConfig {
 
 export function getGlobalReachSeo(): SeoConfig {
   return {
-    title: 'Global Export Logistics & Maritime Shipping Routes | Mundra & JNPT - Origintra Exim',
+    title: 'Global Reach & Ports | Origintra Exim Logistics',
     description: 'Containerized Indian agricultural spice exports to 24+ destination countries across GCC, North America, Europe, and Asia. Direct ocean freight from Mundra, Nhava Sheva and Cochin.',
     keywords: [
       'spice export shipping routes india',
@@ -658,7 +709,7 @@ export function getBlogPostSeo(post: BlogPost): SeoConfig {
 
 export function getContactSeo(): SeoConfig {
   return {
-    title: 'Contact Origintra Exim | B2B Commercial Spice Trade Desk & Inquiries',
+    title: 'Contact Us | Origintra Exim Commercial Trade Desk',
     description: 'Connect directly with our international export desk for FOB / CIF container pricing, product specifications, and commercial sample shipments.',
     keywords: [
       'contact spices exporter in india',
@@ -672,6 +723,25 @@ export function getContactSeo(): SeoConfig {
     breadcrumbs: [
       { name: 'Home', item: '/' },
       { name: 'Contact Trade Desk', item: '/contact' }
+    ]
+  };
+}
+
+export function getScheduleMeetingSeo(): SeoConfig {
+  return {
+    title: 'Schedule Meeting | Origintra Exim 30-Min Consultation',
+    description: 'Book a direct 30-minute B2B consultation with Origintra Exim senior export desk to discuss FOB/CIF container pricing, crop availability, and statutory compliance.',
+    keywords: [
+      'schedule spice meeting',
+      'commercial spice consultation',
+      'b2b spice import meeting india',
+      'spices exporter in india consultation'
+    ].join(', '),
+    canonicalPath: '/schedule-meeting',
+    ogType: 'website',
+    breadcrumbs: [
+      { name: 'Home', item: '/' },
+      { name: 'Schedule Meeting', item: '/schedule-meeting' }
     ]
   };
 }

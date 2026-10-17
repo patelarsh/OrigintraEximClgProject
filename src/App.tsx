@@ -19,7 +19,8 @@ import {
   getQualitySeo, 
   getGlobalReachSeo, 
   getBlogIndexSeo, 
-  getContactSeo 
+  getContactSeo,
+  getScheduleMeetingSeo 
 } from './utils/seo';
 
 // Route-based Code Splitting: Lazy-load secondary pages & heavy modals
@@ -128,17 +129,7 @@ export const App: React.FC = () => {
         updatePageSeo(getContactSeo());
         break;
       case 'meeting':
-        updatePageSeo({
-          title: 'Schedule Commercial Spice Consultation | Origintra Exim 30-Min Meeting',
-          description: 'Book a direct 30-minute B2B consultation with Origintra Exim senior export desk to discuss FOB/CIF container pricing, crop availability, and statutory compliance.',
-          keywords: 'schedule spice meeting, commercial spice consultation, b2b spice import meeting india, spices exporter in india consultation',
-          canonicalPath: '/schedule-meeting',
-          ogType: 'website',
-          breadcrumbs: [
-            { name: 'Home', item: '/' },
-            { name: 'Schedule Meeting', item: '/schedule-meeting' }
-          ]
-        });
+        updatePageSeo(getScheduleMeetingSeo());
         break;
       case 'admin':
         updatePageSeo({

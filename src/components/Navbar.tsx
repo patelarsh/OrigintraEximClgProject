@@ -224,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
 
           {/* Desktop Navigation Links (SEO Crawlable Semantic Links) */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+          <nav aria-label="Main Corporate Navigation" className="hidden lg:flex items-center space-x-1 xl:space-x-2">
 
             {/* 1. Home */}
             <a
