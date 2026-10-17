@@ -54,12 +54,13 @@ import {
   Send,
   Copy,
   Key,
-  UserCheck
+  UserCheck,
+  Server
 } from 'lucide-react';
 import { Product, BlogPost, Inquiry, TeamMember, User, UserRole, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 import { supabase } from '../services/supabaseClient';
-import { MailService, WelcomeEmailPayload } from '../services/mailService';
+import { MailService, WelcomeEmailPayload, EmailCredentials } from '../services/mailService';
 import { PRODUCT_CATEGORIES } from '../data/products';
 import { MediaGalleryModal } from '../components/MediaGalleryModal';
 import { SupabaseModal } from '../components/SupabaseModal';
@@ -103,6 +104,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [createdCredentialsModal, setCreatedCredentialsModal] = useState<WelcomeEmailPayload | null>(null);
   const [copiedPassword, setCopiedPassword] = useState<boolean>(false);
   const [copiedEmailText, setCopiedEmailText] = useState<boolean>(false);
+
+  // === EMAIL & NODEMAILER SMTP STATE ===
+  const [emailCreds, setEmailCreds] = useState<EmailCredentials>(() => MailService.getCredentials());
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false);
+  const [testEmailTarget, setTestEmailTarget] = useState(() => currentUser?.email || 'export@origintra.com');
+  const [isVerifyingSmtp, setIsVerifyingSmtp] = useState(false);
+  const [verifySmtpResult, setVerifySmtpResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   // === NAVIGATION & TABS ===
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -547,13 +557,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           adminName: currentUser?.name || 'Origintra Exim Super Administrator'
         };
 
-        // Launch email client pre-addressed to user with temporary credentials
+        // Dispatch email via Nodemailer / mail server (with fallback to client)
         if (sendEmailOnCreate) {
-          MailService.openMailClient(emailPayload);
+          MailService.dispatchWelcomeEmail(emailPayload).then((res) => {
+            if (res.deliveredDirectly) {
+              showToast(res.message);
+            }
+          }).catch(() => {});
         }
-
-        // Optional webhook dispatch in background
-        MailService.sendViaWebhook(emailPayload).catch(() => {});
 
         setIsUserModalOpen(false);
         setEditingUser(null);
@@ -2809,6 +2820,308 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
               </div>
 
+              {/* Email & Nodemailer SMTP Credentials Card */}
+              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display font-bold text-base text-slate-800">
+                          Email & SMTP Service Credentials
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider">
+                          Nodemailer
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Configure Hostinger Webmail, custom SMTP, or email services to send account credentials and system notifications directly.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Preset Badges */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase mr-1">Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailCreds({
+                          ...emailCreds,
+                          provider: 'hostinger_smtp',
+                          smtpHost: 'smtp.hostinger.com',
+                          smtpPort: 465,
+                          smtpSecure: true,
+                          senderEmail: emailCreds.senderEmail || 'export@origintra.com',
+                          smtpUser: emailCreds.smtpUser || 'export@origintra.com'
+                        });
+                        showToast('Applied Hostinger Webmail SMTP preset (smtp.hostinger.com:465)');
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition cursor-pointer"
+                    >
+                      Hostinger Webmail
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailCreds({
+                          ...emailCreds,
+                          provider: 'custom_smtp',
+                          smtpHost: 'smtp.gmail.com',
+                          smtpPort: 465,
+                          smtpSecure: true
+                        });
+                        showToast('Applied Google Workspace / Gmail preset (smtp.gmail.com:465)');
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition cursor-pointer"
+                    >
+                      Gmail
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailCreds({
+                          ...emailCreds,
+                          provider: 'custom_smtp',
+                          smtpHost: 'smtp.office365.com',
+                          smtpPort: 587,
+                          smtpSecure: false
+                        });
+                        showToast('Applied Microsoft 365 / Outlook preset (smtp.office365.com:587)');
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition cursor-pointer"
+                    >
+                      Outlook 365
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      SMTP Host Server *
+                    </label>
+                    <input
+                      type="text"
+                      value={emailCreds.smtpHost}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, smtpHost: e.target.value })}
+                      placeholder="e.g. smtp.hostinger.com"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      SMTP Port *
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={emailCreds.smtpPort}
+                        onChange={(e) => setEmailCreds({ ...emailCreds, smtpPort: Number(e.target.value) || 465 })}
+                        placeholder="465 or 587"
+                        className="w-32 px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                      />
+                      <label className="flex items-center gap-1.5 cursor-pointer text-slate-600 select-none">
+                        <input
+                          type="checkbox"
+                          checked={emailCreds.smtpSecure}
+                          onChange={(e) => setEmailCreds({ ...emailCreds, smtpSecure: e.target.checked })}
+                          className="rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0]"
+                        />
+                        <span className="font-medium text-[11px]">Secure SSL/TLS</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      SMTP Username / Account Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={emailCreds.smtpUser}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, smtpUser: e.target.value })}
+                      placeholder="e.g. export@origintra.com"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      SMTP Password / App Password *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showSmtpPassword ? 'text' : 'password'}
+                        value={emailCreds.smtpPassword}
+                        onChange={(e) => setEmailCreds({ ...emailCreds, smtpPassword: e.target.value })}
+                        placeholder="••••••••••••••••"
+                        className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSmtpPassword(!showSmtpPassword)}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        {showSmtpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      From Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={emailCreds.senderEmail}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, senderEmail: e.target.value })}
+                      placeholder="e.g. export@origintra.com"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1">
+                      From Display Name
+                    </label>
+                    <input
+                      type="text"
+                      value={emailCreds.senderName}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, senderName: e.target.value })}
+                      placeholder="e.g. Origintra Exim Administration Desk"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                  </div>
+                </div>
+
+                {/* Auto Send Toggle */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5">
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={emailCreds.autoSendOnUserCreate}
+                      onChange={(e) => setEmailCreds({ ...emailCreds, autoSendOnUserCreate: e.target.checked })}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0] cursor-pointer"
+                    />
+                    <div>
+                      <span className="font-bold text-slate-800 text-xs block">
+                        Auto-dispatch welcome email via Nodemailer when user is created
+                      </span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        When enabled, the server sends the email in the background directly through your SMTP connection, with fallback to the local mail client if needed.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Test & Verification Section */}
+                <div className="bg-blue-50/50 border border-blue-200/70 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#0070E0]" />
+                      Nodemailer Test & Connection Verification
+                    </span>
+                    <button
+                      type="button"
+                      disabled={isVerifyingSmtp}
+                      onClick={async () => {
+                        setIsVerifyingSmtp(true);
+                        setVerifySmtpResult(null);
+                        try {
+                          const res = await MailService.verifySmtp(emailCreds);
+                          setVerifySmtpResult({ ok: res.success, message: res.message });
+                        } catch (err: any) {
+                          setVerifySmtpResult({ ok: false, message: err?.message || 'Verification error' });
+                        } finally {
+                          setIsVerifyingSmtp(false);
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {isVerifyingSmtp ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#0070E0]" /> : <Server className="w-3.5 h-3.5 text-[#0070E0]" />}
+                      <span>{isVerifyingSmtp ? 'Verifying SMTP...' : 'Verify SMTP Connection'}</span>
+                    </button>
+                  </div>
+
+                  {verifySmtpResult && (
+                    <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+                      verifySmtpResult.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {verifySmtpResult.ok ? <Check className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-red-600" />}
+                      <span>{verifySmtpResult.message}</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                    <input
+                      type="email"
+                      value={testEmailTarget}
+                      onChange={(e) => setTestEmailTarget(e.target.value)}
+                      placeholder="Enter test recipient email"
+                      className="w-full sm:flex-1 px-3.5 py-2 rounded-xl bg-white border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#0070E0]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isSendingTestEmail}
+                      onClick={async () => {
+                        if (!testEmailTarget.trim()) {
+                          alert('Please enter a test recipient email.');
+                          return;
+                        }
+                        setIsSendingTestEmail(true);
+                        setTestEmailResult(null);
+                        MailService.saveCredentials(emailCreds);
+                        try {
+                          const res = await MailService.sendTestEmail(testEmailTarget.trim());
+                          setTestEmailResult({ ok: res.success, message: res.message });
+                          if (res.success) {
+                            showToast(`Test email dispatched to ${testEmailTarget}!`);
+                          }
+                        } catch (err: any) {
+                          setTestEmailResult({ ok: false, message: err?.message || 'Send error' });
+                        } finally {
+                          setIsSendingTestEmail(false);
+                        }
+                      }}
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#0A1C3E] hover:bg-[#0070E0] text-white text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-50"
+                    >
+                      {isSendingTestEmail ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      <span>{isSendingTestEmail ? 'Sending Test...' : 'Send Live Test Email'}</span>
+                    </button>
+                  </div>
+
+                  {testEmailResult && (
+                    <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+                      testEmailResult.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {testEmailResult.ok ? <Check className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-red-600" />}
+                      <span>{testEmailResult.message}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+                  <span className="text-xs text-slate-400">
+                    Credentials are stored securely and used by Nodemailer to dispatch welcome emails.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      MailService.saveCredentials(emailCreds);
+                      showToast('Nodemailer SMTP email credentials saved successfully!');
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white font-semibold text-xs transition shadow-sm cursor-pointer"
+                  >
+                    Save Email Credentials
+                  </button>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -2834,6 +3147,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
 
                 <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setActiveTab('settings')}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5"
+                    title="Configure Nodemailer & Email SMTP credentials"
+                  >
+                    <Mail className="w-4 h-4 text-[#0070E0]" />
+                    <span>Email & Nodemailer Setup</span>
+                  </button>
                   <button
                     onClick={handleOpenAddUser}
                     className="px-4 py-2.5 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 shadow-sm"

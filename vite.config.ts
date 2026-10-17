@@ -1,5 +1,120 @@
-import { defineConfig } from 'vite';
+import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+function nodemailerPlugin(): Plugin {
+  return {
+    name: 'vite-plugin-nodemailer',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.method === 'POST' && (req.url === '/api/send-mail' || req.url === '/api/send-mail.php')) {
+          let body = '';
+          req.on('data', (chunk) => { body += chunk; });
+          req.on('end', async () => {
+            try {
+              const data = JSON.parse(body || '{}');
+              const { to, subject, body: bodyText, html, smtp, senderEmail, senderName } = data;
+              
+              if (!to) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ success: false, message: 'Recipient email (to) is required.' }));
+                return;
+              }
+
+              const nodemailerModule = await import('nodemailer');
+              const nodemailer = nodemailerModule.default || nodemailerModule;
+              
+              const host = smtp?.host || 'smtp.hostinger.com';
+              const port = Number(smtp?.port) || 465;
+              const secure = smtp?.secure !== undefined ? Boolean(smtp.secure) : (port === 465);
+              const user = smtp?.user || senderEmail || 'export@origintra.com';
+              const pass = smtp?.pass || '';
+              const fromName = senderName || 'Origintra Exim Administration';
+              const fromEmail = senderEmail || user;
+
+              const transporter = nodemailer.createTransport({
+                host,
+                port,
+                secure,
+                auth: pass ? { user, pass } : undefined,
+                tls: {
+                  rejectUnauthorized: false
+                }
+              });
+
+              const info = await transporter.sendMail({
+                from: `"${fromName}" <${fromEmail}>`,
+                to,
+                subject: subject || 'Origintra Exim Corporate Notification',
+                text: bodyText || '',
+                html: html || undefined
+              });
+
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: true,
+                message: `Email dispatched successfully to ${to} via Nodemailer`,
+                method: `Nodemailer (${host}:${port})`,
+                messageId: info.messageId
+              }));
+            } catch (err: any) {
+              console.error('[Nodemailer Dev Plugin Error]:', err);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: false,
+                message: `Nodemailer delivery error: ${err.message || err}`
+              }));
+            }
+          });
+          return;
+        }
+
+        if (req.method === 'POST' && req.url === '/api/verify-smtp') {
+          let body = '';
+          req.on('data', (chunk) => { body += chunk; });
+          req.on('end', async () => {
+            try {
+              const data = JSON.parse(body || '{}');
+              const { host, port, secure, user, pass } = data;
+
+              const nodemailerModule = await import('nodemailer');
+              const nodemailer = nodemailerModule.default || nodemailerModule;
+
+              const transporter = nodemailer.createTransport({
+                host: host || 'smtp.hostinger.com',
+                port: Number(port) || 465,
+                secure: secure !== undefined ? Boolean(secure) : (Number(port) === 465),
+                auth: { user, pass },
+                tls: { rejectUnauthorized: false }
+              });
+
+              await transporter.verify();
+
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: true,
+                message: `SMTP connection to ${host}:${port} successfully verified!`
+              }));
+            } catch (err: any) {
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: false,
+                message: `SMTP verification failed: ${err.message || err}`
+              }));
+            }
+          });
+          return;
+        }
+
+        next();
+      });
+    }
+  };
+}
 
 function inlineCssPlugin() {
   return {
@@ -28,7 +143,7 @@ function inlineCssPlugin() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), inlineCssPlugin()],
+  plugins: [react(), inlineCssPlugin(), nodemailerPlugin()],
   build: {
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
