@@ -10,7 +10,11 @@
   RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap\.xml) [NC]
   RewriteRule ^ - [L]
 
-  # 1. Canonical 301 Redirect: Enforce https://www.origintra.com (unifies indexing and merges split link equity)
+  # 1. Canonical 301 Redirect: Enforce HTTPS & www.origintra.com (eliminates duplicate crawl errors in GSC)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
+
   RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
   RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
 
