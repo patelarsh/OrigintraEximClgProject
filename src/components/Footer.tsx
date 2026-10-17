@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, Mail, Phone, MapPin, MessageSquare, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Mail, Phone, MapPin, MessageSquare, ShieldCheck, Anchor } from 'lucide-react';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { getHref } from '../utils/routes';
 
@@ -63,11 +63,14 @@ export const Footer: React.FC<FooterProps> = ({
               Origintra Exim is an India-based international trading and export company. We connect global buyers with carefully sourced Indian spices and agricultural products, focused on quality consistency, transparent communication, and export-ready documentation.
             </p>
 
-            <div className="pt-2 text-xs text-slate-300 font-sans border-t border-slate-800/80 space-y-3">
-              <div>
-                <p className="text-slate-200 font-medium">Domain: {COMPANY_CONFIG.domain}</p>
-                <p className="mt-1 text-slate-300">Primary Export Ports: Mundra, Nhava Sheva & Cochin</p>
+            <div className="pt-3 text-xs text-slate-300 font-sans border-t border-slate-800/80 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span className="text-slate-200 font-medium">Govt. Registered Merchant Exporter</span>
               </div>
+              <p className="text-slate-400 leading-relaxed">
+                Direct origin farm sourcing from Gujarat &amp; Kerala with seafreight dispatch to global ports.
+              </p>
 
               {/* Social Channels with accessible 44px touch targets */}
               <div className="flex items-center space-x-3 pt-1">
@@ -314,24 +317,48 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Compliance Notice & Statutory Exporter Registration Bar */}
-      <div className="border-t border-slate-800/80 bg-[#07152E] py-4">
-        <div className="container-x mx-auto max-w-[1440px] text-xs text-slate-300 flex flex-col lg:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5 text-slate-300">
-            <span className="flex items-center gap-1.5 text-white font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-              <span>Statutory Accreditations:</span>
+      <div className="border-t border-slate-800/80 bg-[#07152E] py-3.5">
+        <div className="container-x mx-auto max-w-[1440px] flex flex-col xl:flex-row items-center justify-between gap-3.5 text-xs text-slate-300">
+          {/* Statutory Registration Badges */}
+          <div className="flex flex-wrap items-center justify-center xl:justify-start gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#38BDF8]/10 border border-[#38BDF8]/25 text-[#38BDF8] text-[11px] font-semibold uppercase tracking-wider shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>Accreditations</span>
             </span>
-            <span className="text-slate-200">IEC: <span className="font-mono text-white font-medium">2424018921</span></span>
-            <span className="text-slate-500 hidden sm:inline">•</span>
-            <span className="text-slate-200">APEDA: <span className="font-mono text-white font-medium">RCMC/AGRO/2024/4912</span></span>
-            <span className="text-slate-500 hidden sm:inline">•</span>
-            <span className="text-slate-200">Spices Board: <span className="font-mono text-white font-medium">SP/CRES/GJ/2024/0918</span></span>
-            <span className="text-slate-500 hidden sm:inline">•</span>
-            <span className="text-slate-200">FSSAI Lic: <span className="font-mono text-white font-medium">10022021001488</span></span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] shrink-0">
+              <span className="text-slate-400 font-medium">IEC</span>
+              <span className="font-mono text-white font-medium">2424018921</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] shrink-0">
+              <span className="text-slate-400 font-medium">APEDA</span>
+              <span className="font-mono text-white font-medium">RCMC/AGRO/2024/4912</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] shrink-0">
+              <span className="text-slate-400 font-medium">Spices Board</span>
+              <span className="font-mono text-white font-medium">SP/CRES/GJ/2024/0918</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] shrink-0">
+              <span className="text-slate-400 font-medium">FSSAI Lic</span>
+              <span className="font-mono text-white font-medium">10022021001488</span>
+            </span>
           </div>
-          <span className="text-slate-300 text-[11px] shrink-0 font-sans">
-            Container Dispatch: Mundra (INMUN1) • Nhava Sheva (INNSA1) • Cochin (INCOK1)
-          </span>
+
+          {/* Container Dispatch Ports */}
+          <div className="flex flex-wrap items-center justify-center xl:justify-end gap-2 text-[11px] text-slate-300 shrink-0">
+            <span className="flex items-center gap-1.5 text-slate-400 font-medium mr-0.5">
+              <Anchor className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
+              <span>Dispatch Ports:</span>
+            </span>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800/60 border border-slate-700/50 text-slate-200">
+              Mundra <span className="ml-1 text-[10px] text-[#38BDF8] font-mono font-medium">INMUN1</span>
+            </span>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800/60 border border-slate-700/50 text-slate-200">
+              Nhava Sheva <span className="ml-1 text-[10px] text-[#38BDF8] font-mono font-medium">INNSA1</span>
+            </span>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-800/60 border border-slate-700/50 text-slate-200">
+              Cochin <span className="ml-1 text-[10px] text-[#38BDF8] font-mono font-medium">INCOK1</span>
+            </span>
+          </div>
         </div>
       </div>
 
