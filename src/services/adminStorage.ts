@@ -603,7 +603,12 @@ export const AdminStorage = {
         if (res.status === 429) {
           return { success: false, error: 'Too many login attempts. Please wait 60 seconds.' };
         }
-        if (data.error && res.status !== 404) {
+        if (res.status === 401) {
+          return { success: false, error: data.error || 'Incorrect email/username or password.' };
+        }
+        if (res.status >= 500) {
+          console.warn('[AdminStorage Backend Database Connection Failed, falling back]:', data.error);
+        } else if (data.error && res.status !== 404) {
           return { success: false, error: data.error };
         }
       }
