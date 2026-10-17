@@ -17,61 +17,73 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't-1',
     author: 'Tariq Al-Mansoor',
-    role: 'Head of Agricultural Procurement',
-    company: 'Al-Ameen Food Distribution LLC',
+    role: 'Procurement Director',
+    company: 'Al-Ameen Foodstuff Trading LLC',
     country: 'United Arab Emirates',
     destinationPort: 'Port of Jebel Ali, UAE',
-    commodity: 'Guntur S17 Whole Chillies & Powder',
-    volumeOrType: 'Commercial FCL Containers',
+    commodity: 'Guntur S17 Dried Red Chilli',
+    volumeOrType: '2 x 20ft FCL (28 MT)',
     rating: 5,
-    testimonial: 'In the Middle Eastern spice import trade, consistency in heat levels (SHU) and moisture ceiling is non-negotiable. Origintra Exim delivered our containerized red chilli shipments directly to Jebel Ali on schedule, with fumigation certificates and original bills of lading dispatched without delay. The Sortex cleaning quality and 25kg multi-wall packing met our exact re-packing specifications.'
+    testimonial: 'We have been ordering Guntur stemless chillies from Origintra for our wholesale distribution in Dubai. Clean lot, moisture was well within our limits, and the container stuffing photos were shared on WhatsApp before dispatch from Mundra. The original documents reached our customs broker before the ship docked at Jebel Ali. Very honest and responsive team to work with.'
   },
   {
     id: 't-2',
-    author: 'Lars Van Der Meer',
-    role: 'Senior Supply Chain Director',
+    author: 'Lars van der Meer',
+    role: 'Supply Chain Manager',
     company: 'Nordic Spice & Seasoning Blends B.V.',
     country: 'Netherlands',
     destinationPort: 'Port of Rotterdam, Netherlands',
-    commodity: 'Salem Turmeric Fingers & 100-Mesh Powder',
-    volumeOrType: 'Industrial Ingredient Lots',
+    commodity: 'Salem Turmeric Fingers & Powder',
+    volumeOrType: '1 x 20ft FCL (18 MT)',
     rating: 5,
-    testimonial: 'Sourcing single-origin turmeric with verified curcumin content and complete pesticide residue compliance for the European market requires dependable partners. Origintra’s pre-shipment laboratory COA matched the delivered container lots precisely. Zero caking, clean palletization, and prompt commercial coordination from Mundra port.'
+    testimonial: 'Importing turmeric into the EU can be tricky with pesticide residue regulations. Origintra provided certified lab test reports from an accredited lab prior to shipment, and our independent testing at Rotterdam port matched the specs completely. Goods were well palletized with zero bag damage. Smooth coordination from start to finish.'
   },
   {
     id: 't-3',
     author: 'Mei-Ling Chen',
-    role: 'Import & Quality Assurance Manager',
+    role: 'Senior Sourcing Lead',
     company: 'Nusantara Food Ingredients Pte Ltd',
     country: 'Singapore',
     destinationPort: 'Port of Singapore (PSA)',
-    commodity: 'Sortex Cumin Seeds 99.5% & Coriander',
-    volumeOrType: 'Scheduled Quarterly Contracts',
+    commodity: 'Machine-Cleaned Cumin & Coriander Seeds',
+    volumeOrType: 'Quarterly Contract (24 MT)',
     rating: 5,
-    testimonial: 'For our commercial curry powder manufacturing facility, extraneous matter and foreign seeds must be strictly absent. Origintra’s Sortex-cleaned cumin seed consignments arrived with pristine purity and robust essential oil aroma. Their team maintained transparent weekly vessel tracking from container stuffing to discharge.'
+    testimonial: 'We use Indian cumin and coriander seeds for our seasoning manufacturing line in Jurong. Sourcing from Origintra has been very dependable—high seed purity, strong aroma, and no dust or foreign seeds. Their weekly vessel tracking updates made planning our production schedule simple.'
   },
   {
     id: 't-4',
     author: 'Dr. Klaus Weber',
-    role: 'Head of Botanical Procurement',
-    company: 'Bavarian Seasonings & Herbals GmbH',
+    role: 'Head of Raw Materials Purchasing',
+    company: 'Bavarian Seasonings & Botanicals GmbH',
     country: 'Germany',
     destinationPort: 'Port of Hamburg, Germany',
     commodity: 'Alleppey Green Cardamom (8mm Bold)',
-    volumeOrType: 'Vacuum Packed 5kg Cartons',
+    volumeOrType: 'LCL Consignment (2.5 MT)',
     rating: 5,
-    testimonial: 'European Union MRL standards require uncompromising purity and zero pesticide residue tolerance. Origintra provided certified batch testing from NABL accredited laboratories before vessel loading. The cardamom arrived in pristine aroma-sealed foil boxes with unbroken emerald hue.'
+    testimonial: 'We placed an initial commercial order of 8mm Alleppey green cardamom in aroma-sealed foil packaging. The uniform green color, bold size, and essential oil content were consistent across the whole shipment. Everything passed German customs and health inspection without any queries.'
   },
   {
     id: 't-5',
     author: 'Marcus Sterling',
-    role: 'Commercial Import Director',
+    role: 'Import Operations Director',
     company: 'Commonwealth Seasoning Mills Ltd',
     country: 'United Kingdom',
     destinationPort: 'Port of Felixstowe, UK',
-    commodity: 'Malabar Black Pepper (TGSEB 570 g/L)',
-    volumeOrType: 'Spot & Annual Contract Orders',
+    commodity: 'Tellicherry Black Pepper (570 g/L)',
+    volumeOrType: '1 x 20ft FCL (16 MT)',
     rating: 5,
-    testimonial: 'We import Tellicherry bold black pepper for retail grinding across Britain. Origintra delivered exceptional bulk density and piperine punch with perfectly dry 10.5% moisture ceiling. Container stuffing was well-ventilated with moisture traps, preventing any ship-hold condensation.'
+    testimonial: 'First time working with Origintra for bulk black pepper. The density and pungency were exactly what we agreed upon during sample approval. The container was well stuffed with silica traps so there was zero condensation during ocean transit. We have already placed our repeat order for next quarter.'
+  },
+  {
+    id: 't-6',
+    author: 'David Rosenfeld',
+    role: 'VP Sourcing & Procurement',
+    company: 'Atlantic Spice & Specialty Importers Inc.',
+    country: 'United States',
+    destinationPort: 'Port of New York / NJ, USA',
+    commodity: 'Sortex Fennel & Cumin Seeds',
+    volumeOrType: 'Mixed 40ft Container (22 MT)',
+    rating: 5,
+    testimonial: 'Consolidating different seed spices into a single 40ft container saved us substantial ocean freight. Origintra handled the FDA prior notice documentation, phytosanitary certificate, and palletizing professionally. No delays at US customs entry. Straightforward communication and reliable quality.'
   }
 ];
