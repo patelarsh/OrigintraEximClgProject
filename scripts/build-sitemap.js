@@ -185,35 +185,7 @@ for (const match of blogMatches) {
   </url>\n`;
 }
 
-xml += `
-  <!-- ============================================================= -->
-  <!-- 6. COMPLIANCE & LEGAL TRADE POLICIES -->
-  <!-- ============================================================= -->
-  <url>
-    <loc>${BASE_URL}/privacy-policy</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/terms-of-service</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/shipping-policy</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/cookie-policy</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-</urlset>
+xml += `</urlset>
 `;
 
 fs.writeFileSync('public/sitemap.xml', xml, 'utf8');

@@ -19,6 +19,9 @@
   RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
   RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
 
+  # 2.5 Set environment variable to trigger X-Robots-Tag noindex on legal, policy & admin pages
+  RewriteRule ^(terms-of-service|terms-and-conditions|terms|privacy-policy|cookie-policy|shipping-policy|legal|admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
+
   # 3. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
@@ -29,7 +32,7 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
-# Security Headers
+# Security Headers & Anti-Indexing Directives
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
@@ -37,6 +40,7 @@
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PAGE
 </IfModule>
 
 # Block access to sensitive files and configs

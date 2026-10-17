@@ -155,7 +155,7 @@ export function parseCurrentRoute(): ParsedRoute {
     return { page: 'legal', legalType: 'privacy', path: '/privacy-policy' };
   }
 
-  if (pathname === '/terms-of-service' || pathname === '/terms' || pathname === '/legal/terms') {
+  if (pathname === '/terms-of-service' || pathname === '/terms' || pathname === '/terms-and-conditions' || pathname === '/terms-conditions' || pathname === '/legal/terms') {
     return { page: 'legal', legalType: 'terms', path: '/terms-of-service' };
   }
 

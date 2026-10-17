@@ -144,7 +144,7 @@ export const App: React.FC = () => {
           title: `${route.legalType ? route.legalType.charAt(0).toUpperCase() + route.legalType.slice(1) : 'Legal'} Policy | Origintra Exim`,
           description: 'Legal notices, commercial compliance, and trade terms for Origintra Exim.',
           canonicalPath: route.path,
-          ogType: 'website',
+          noIndex: true,
           breadcrumbs: [
             { name: 'Home', item: '/' },
             { name: 'Legal Policy', item: route.path }

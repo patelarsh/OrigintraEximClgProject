@@ -301,6 +301,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="flex flex-wrap items-center gap-6">
             <a
               href={getHref('legal-privacy')}
+              rel="nofollow"
               onClick={(e) => {
                 if (!e.ctrlKey && !e.metaKey && e.button === 0) {
                   e.preventDefault();
@@ -313,6 +314,7 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
             <a
               href={getHref('legal-terms')}
+              rel="nofollow"
               onClick={(e) => {
                 if (!e.ctrlKey && !e.metaKey && e.button === 0) {
                   e.preventDefault();
@@ -325,6 +327,7 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
             <a
               href={getHref('legal-shipping')}
+              rel="nofollow"
               onClick={(e) => {
                 if (!e.ctrlKey && !e.metaKey && e.button === 0) {
                   e.preventDefault();
@@ -337,6 +340,7 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
             <a
               href={getHref('legal-cookies')}
+              rel="nofollow"
               onClick={(e) => {
                 if (!e.ctrlKey && !e.metaKey && e.button === 0) {
                   e.preventDefault();
