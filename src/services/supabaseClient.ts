@@ -19,6 +19,9 @@ const STORAGE_KEYS = {
   KEY: 'origintra_supabase_anon_key_v1',
 };
 
+const DEFAULT_SUPABASE_URL = 'https://wmdxsgvgaxlvgnibixsl.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_9a6MH9kXxRCMLkLxnWR3zA_KZQohNKP';
+
 export class SupabaseClient {
   private url: string = '';
   private anonKey: string = '';
@@ -44,8 +47,8 @@ export class SupabaseClient {
       }
     }
 
-    this.url = (storedUrl || envUrl || '').trim().replace(/\/+$/, '');
-    this.anonKey = (storedKey || envKey || '').trim();
+    this.url = (storedUrl || envUrl || DEFAULT_SUPABASE_URL).trim().replace(/\/+$/, '');
+    this.anonKey = (storedKey || envKey || DEFAULT_SUPABASE_KEY).trim();
   }
 
   public isConfigured(): boolean {

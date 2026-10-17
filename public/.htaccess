@@ -6,16 +6,12 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. API Routing: Route /api/* requests to api/index.php
-  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
-  RewriteRule ^api$ api/index.php [QSA,L]
-
-  # 2. Existing physical files and directories: Serve directly without rewriting
+  # 1. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 3. React Single Page Application (SPA) Fallback:
+  # 2. React Single Page Application (SPA) Fallback:
   # Rewrite all virtual routes (/schedule-meeting, /products, /about, etc.) to index.html
   RewriteRule ^ index.html [L]
 </IfModule>
