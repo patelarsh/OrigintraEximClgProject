@@ -25,3 +25,11 @@ data/*.sqlite-wal
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary audit and test files
+.chrome-temp/
+*.zip
+data/backups/
+lighthouse-*-report.json
+test-lh.json
+

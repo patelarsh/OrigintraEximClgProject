@@ -55,7 +55,7 @@ export function getHref(target: string): string {
   if (clean === 'quality' || clean === 'quality-compliance') return ROUTES.quality;
   if (clean === 'blog') return ROUTES.blog;
   if (clean === 'contact') return ROUTES.contact;
-  if (clean === 'meeting' || clean === 'schedule-meeting') return ROUTES.meeting;
+  if (clean === 'meeting' || clean === 'schedule-meeting' || clean === 'schedule-metting' || clean === 'schedule') return ROUTES.meeting;
   if (clean === 'admin') return ROUTES.admin;
 
   if (clean.startsWith('product-')) {
@@ -143,7 +143,7 @@ export function parseCurrentRoute(): ParsedRoute {
     return { page: 'contact', path: '/contact' };
   }
 
-  if (pathname === '/schedule-meeting' || pathname === '/meeting') {
+  if (pathname === '/schedule-meeting' || pathname === '/schedule-metting' || pathname === '/meeting' || pathname === '/schedule') {
     return { page: 'meeting', path: '/schedule-meeting' };
   }
 
