@@ -42,6 +42,8 @@
   AddType image/x-icon .ico
   AddType image/webp .webp
   AddType image/svg+xml .svg
+  AddType text/xsl .xsl
+  AddType application/xml .xml
   AddType application/font-woff2 .woff2
   AddType application/manifest+json .webmanifest
 </IfModule>

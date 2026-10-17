@@ -1,71 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Core Company & Commercial Portals -->
+  <!-- ============================================================= -->
+  <!-- 1. HOME PAGE - HIGHEST SEO PRIORITY (1.0) & PRIMARY DOMAIN GATEWAY -->
+  <!-- ============================================================= -->
   <url>
     <loc>https://www.origintra.com/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.origintra.com/assets/hero/spices-hero-banner.jpg</image:loc>
+      <image:loc>https://www.origintra.com/assets/hero/spices-hero-banner.webp</image:loc>
       <image:title>Origintra Exim - Premier Indian Spices Exporter</image:title>
-      <image:caption>Connecting India&apos;s finest spices to international markets</image:caption>
+      <image:caption>Connecting India&apos;s finest farmgate spices, seeds, and powders to global markets</image:caption>
     </image:image>
-  </url>
-  <url>
-    <loc>https://www.origintra.com/about</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
     <image:image>
-      <image:loc>https://www.origintra.com/assets/about/spice-harvest-sourcing.jpg</image:loc>
-      <image:title>Farmgate Spice Sourcing Across India</image:title>
+      <image:loc>https://www.origintra.com/assets/hero/banner-red-chilli.webp</image:loc>
+      <image:title>Guntur S17 Dried Red Chilli Export</image:title>
+      <image:caption>Premium stemless and stem-on red chillies with calibrated ASTA color and SHU heat</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/hero/banner-cumin.webp</image:loc>
+      <image:title>Sortex Cleaned Indian Cumin Seeds (Jeera)</image:title>
+      <image:caption>99.5% Singapore/Europe machine cleaned cumin seeds with rich essential aroma</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/hero/banner-turmeric.webp</image:loc>
+      <image:title>Salem &amp; Nizamabad Pure Turmeric Fingers and Powder</image:title>
+      <image:caption>High-curcumin polished turmeric fingers with certified low heavy metals and pesticide compliance</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/hero/banner-coriander.webp</image:loc>
+      <image:title>Indian Green Coriander Seeds (Dhania)</image:title>
+      <image:caption>Whole export green coriander seeds sorted and packed in seaworthy PP bags</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/hero/facility-hero.webp</image:loc>
+      <image:title>Modern Spice Processing &amp; Sortex Facility</image:title>
+      <image:caption>Sortex cleaning, grading, and container stuffing facility in Gujarat, India</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/logo/logo-full-color.png</image:loc>
+      <image:title>Origintra Exim Official Brand Logo</image:title>
+      <image:caption>Origintra Exim - Indian Spices &amp; Agricultural Commodities Exporter</image:caption>
     </image:image>
   </url>
+
+  <!-- ============================================================= -->
+  <!-- 2. COMMERCIAL PRODUCTS CATALOG INDEX -->
+  <!-- ============================================================= -->
   <url>
     <loc>https://www.origintra.com/products</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.95</priority>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- ============================================================= -->
+  <!-- 3. CORE COMPANY & CREDENTIALS PORTALS -->
+  <!-- ============================================================= -->
+  <url>
+    <loc>https://www.origintra.com/about</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <image:image>
+      <image:loc>https://www.origintra.com/assets/hero/facility-hero.webp</image:loc>
+      <image:title>Farmgate Spice Sourcing &amp; Processing Across India</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.origintra.com/quality</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/global-reach</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.origintra.com/blog</loc>
-    <lastmod>2026-10-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/contact</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://www.origintra.com/blog</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/schedule-meeting</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
+    <priority>0.60</priority>
   </url>
 
-  <!-- Commodity & Spice Product Specifications (27 Products) -->
+  <!-- ============================================================= -->
+  <!-- 4. COMMODITY & SPICE PRODUCT SPECIFICATIONS (27 PRODUCTS) -->
+  <!-- ============================================================= -->
   <url>
     <loc>https://www.origintra.com/products/whole-red-chili</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/whole-red-chili.jpg</image:loc>
       <image:title>Whole Red Chillies Exporter India - Origintra Exim</image:title>
@@ -74,9 +117,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/green-cardamom</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/green-cardamom.jpg</image:loc>
       <image:title>Green Cardamom Exporter India - Origintra Exim</image:title>
@@ -85,9 +128,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/black-pepper</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/black-pepper.jpg</image:loc>
       <image:title>Black Pepper Exporter India - Origintra Exim</image:title>
@@ -96,9 +139,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/cinnamon</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/cinnamon.jpg</image:loc>
       <image:title>Cinnamon Exporter India - Origintra Exim</image:title>
@@ -107,9 +150,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/star-anise</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/star-anise.jpg</image:loc>
       <image:title>Star Anise Exporter India - Origintra Exim</image:title>
@@ -118,9 +161,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/clove</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/clove.jpg</image:loc>
       <image:title>Cloves Exporter India - Origintra Exim</image:title>
@@ -129,9 +172,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/nutmeg</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/nutmeg.jpg</image:loc>
       <image:title>Nutmeg and Mace Exporter India - Origintra Exim</image:title>
@@ -140,9 +183,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/dry-ginger</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/dry-ginger.jpg</image:loc>
       <image:title>Dry Ginger Exporter India - Origintra Exim</image:title>
@@ -151,9 +194,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/bay-leaf</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/bay-leaf.jpg</image:loc>
       <image:title>Bay Leaf (Tej Patta) Exporter India - Origintra Exim</image:title>
@@ -162,9 +205,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/red-chili-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/red-chili-powder.jpg</image:loc>
       <image:title>Red Chilli Powder Exporter India - Origintra Exim</image:title>
@@ -173,9 +216,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/turmeric</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/turmeric.jpg</image:loc>
       <image:title>Turmeric Exporter India - Origintra Exim</image:title>
@@ -184,9 +227,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/asafoetida</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/asafoetida.jpg</image:loc>
       <image:title>Asafoetida (Hing) Exporter India - Origintra Exim</image:title>
@@ -195,9 +238,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/coriander-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/coriander-powder.jpg</image:loc>
       <image:title>Coriander Powder Exporter India - Origintra Exim</image:title>
@@ -206,9 +249,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/cumin-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/cumin-powder.jpg</image:loc>
       <image:title>Cumin Powder Exporter India - Origintra Exim</image:title>
@@ -217,9 +260,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/black-pepper-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/black-pepper-powder.jpg</image:loc>
       <image:title>Black Pepper Powder Exporter India - Origintra Exim</image:title>
@@ -228,9 +271,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/cumin-seeds</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/cumin-seeds.jpg</image:loc>
       <image:title>Cumin Seeds Exporter India - Origintra Exim</image:title>
@@ -239,9 +282,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/coriander-seeds</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.85</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/coriander-seeds.jpg</image:loc>
       <image:title>Coriander Seeds Exporter India - Origintra Exim</image:title>
@@ -250,9 +293,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/mustard-seeds</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/mustard-seeds.jpg</image:loc>
       <image:title>Mustard Seeds Exporter India - Origintra Exim</image:title>
@@ -261,9 +304,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/fenugreek-seeds</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/fenugreek-seeds.jpg</image:loc>
       <image:title>Fenugreek Seeds Exporter India - Origintra Exim</image:title>
@@ -272,9 +315,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/fennel</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/fennel.jpg</image:loc>
       <image:title>Fennel Seeds Exporter India - Origintra Exim</image:title>
@@ -283,9 +326,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/garam-masala</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/garam-masala.jpg</image:loc>
       <image:title>Garam Masala Exporter India - Origintra Exim</image:title>
@@ -294,9 +337,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/sambar-masala</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/sambar-masala.jpg</image:loc>
       <image:title>Sambar Masala Exporter India - Origintra Exim</image:title>
@@ -305,9 +348,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/rasam-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/rasam-powder.jpg</image:loc>
       <image:title>Rasam Powder Exporter India - Origintra Exim</image:title>
@@ -316,9 +359,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/biryani-masala</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/biryani-masala.jpg</image:loc>
       <image:title>Biryani Masala Exporter India - Origintra Exim</image:title>
@@ -327,9 +370,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/tandoori-masala</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/tandoori-masala.jpg</image:loc>
       <image:title>Tandoori Masala Exporter India - Origintra Exim</image:title>
@@ -338,9 +381,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/curry-powder</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/curry-powder.jpg</image:loc>
       <image:title>Curry Powder Exporter India - Origintra Exim</image:title>
@@ -349,9 +392,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/products/chaat-masala</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.80</priority>
     <image:image>
       <image:loc>https://www.origintra.com/assets/products/chaat-masala.jpg</image:loc>
       <image:title>Chaat Masala Exporter India - Origintra Exim</image:title>
@@ -359,12 +402,14 @@
     </image:image>
   </url>
 
-  <!-- Export Intelligence & Trade Insight Articles -->
+  <!-- ============================================================= -->
+  <!-- 5. EXPORT INTELLIGENCE & TRADE INSIGHT ARTICLES -->
+  <!-- ============================================================= -->
   <url>
     <loc>https://www.origintra.com/blog/indias-role-in-global-spice-trade</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.70</priority>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>
       <image:title>India’s Role in the Global Spice Trade</image:title>
@@ -372,9 +417,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/blog/how-international-buyers-source-indian-spices</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.70</priority>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>
       <image:title>How International Buyers Source Indian Spices</image:title>
@@ -382,9 +427,9 @@
   </url>
   <url>
     <loc>https://www.origintra.com/blog/understanding-indian-red-chilli-for-global-markets</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.70</priority>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>
       <image:title>Understanding Indian Red Chilli for Global Markets</image:title>
@@ -392,37 +437,39 @@
   </url>
   <url>
     <loc>https://www.origintra.com/blog/a-practical-guide-to-importing-spices-from-india</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.70</priority>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>
       <image:title>A Practical Guide to Importing Spices from India</image:title>
     </image:image>
   </url>
 
-  <!-- Compliance & Commercial Trade Policies -->
+  <!-- ============================================================= -->
+  <!-- 6. COMPLIANCE & LEGAL TRADE POLICIES -->
+  <!-- ============================================================= -->
   <url>
     <loc>https://www.origintra.com/privacy-policy</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.40</priority>
+    <priority>0.30</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/terms-of-service</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.40</priority>
+    <priority>0.30</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/shipping-policy</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.50</priority>
+    <priority>0.30</priority>
   </url>
   <url>
     <loc>https://www.origintra.com/cookie-policy</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-17</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.30</priority>
   </url>

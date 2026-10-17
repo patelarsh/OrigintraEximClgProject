@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host --port 5173",
-    "build": "tsc && vite build",
+    "sitemap": "node scripts/build-sitemap.js",
+    "build": "node scripts/build-sitemap.js && tsc && vite build",
     "preview": "vite preview --host --port 4173",
     "start": "vite preview --host --port 5173",
     "mail-server": "node server/mailer.js"

@@ -347,6 +347,14 @@ export const Footer: React.FC<FooterProps> = ({
             >
               Cookie Policy
             </a>
+            <a
+              href="/sitemap.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 hover:text-white transition-colors cursor-pointer py-1.5"
+            >
+              Sitemap
+            </a>
           </div>
         </div>
       </div>
