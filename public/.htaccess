@@ -6,12 +6,16 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Existing physical files and directories: Serve directly without rewriting
+  # 1. API Routing: Route /api/* requests to api/index.php
+  RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+  RewriteRule ^api$ api/index.php [QSA,L]
+
+  # 2. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 2. React Single Page Application (SPA) Fallback:
+  # 3. React Single Page Application (SPA) Fallback:
   # Rewrite all virtual routes (/schedule-meeting, /products, /about, etc.) to index.html
   RewriteRule ^ index.html [L]
 </IfModule>
@@ -23,6 +27,17 @@
   Header always set X-XSS-Protection "1; mode=block"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+# Block access to sensitive files
+<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
 
 # MIME Types for WebP, modern fonts, and icons
 <IfModule mod_mime.c>
