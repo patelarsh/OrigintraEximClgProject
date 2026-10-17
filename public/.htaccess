@@ -6,12 +6,16 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Existing physical files and directories: Serve directly without rewriting
+  # 1. Canonical 301 Redirect: Enforce https://www.origintra.com (unifies indexing and merges split link equity)
+  RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
+  RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
+
+  # 2. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 2. React Single Page Application (SPA) Fallback:
+  # 3. React Single Page Application (SPA) Fallback:
   # Rewrite all virtual routes (/schedule-meeting, /products, /about, etc.) to index.html
   RewriteRule ^ index.html [L]
 </IfModule>
