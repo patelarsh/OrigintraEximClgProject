@@ -367,7 +367,7 @@ export function updatePageSeo(config: SeoConfig) {
 
 export function getHomeSeo(): SeoConfig {
   return {
-    title: 'Origintra Exim | Spices Exporter in India | Wholesale Indian Agro Commodities',
+    title: 'Origintra Exim | Spices Exporter in India',
     description: 'Leading spices exporter in India offering bulk whole spices, sortex seeds, ground powders & agricultural staples with certified quality and reliable global B2B supply. Spices Board & APEDA registered exporter shipping containerized FCL orders worldwide. Get a quote today.',
     keywords: [
       'origintra exim',
