@@ -510,8 +510,8 @@ export const MailService = {
       }
     }
 
-    // Strategy 2: Nodemailer / Server Endpoint (/api/send-mail or /api/send-mail.php)
-    const endpoints = ['/api/send-mail', '/api/send-mail.php'];
+    // Strategy 2: Nodemailer / Server Endpoint (/api/send-mail.php or /api/send-mail)
+    const endpoints = ['/api/send-mail.php', '/api/send-mail'];
     let lastError = 'Delivery endpoint unreachable.';
 
     for (const endpoint of endpoints) {
@@ -545,7 +545,7 @@ export const MailService = {
           return {
             success: true,
             message: json.message || `Email sent successfully to ${options.to}`,
-            method: json.method || 'Nodemailer'
+            method: json.method || 'Hostinger Mailer'
           };
         }
 
@@ -567,30 +567,39 @@ export const MailService = {
   },
 
   /**
-   * Tests and verifies SMTP credentials via Nodemailer backend
+   * Tests and verifies SMTP credentials via Hostinger PHP backend
    */
   async verifySmtp(credsOverride?: Partial<EmailCredentials>): Promise<{ success: boolean; message: string }> {
     const creds = { ...this.getCredentials(), ...(credsOverride || {}) };
-    try {
-      const res = await fetch('/api/verify-smtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          host: creds.smtpHost,
-          port: creds.smtpPort,
-          secure: creds.smtpSecure,
-          user: creds.smtpUser,
-          pass: creds.smtpPassword
-        })
-      });
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.success) {
-        return { success: true, message: data.message || 'SMTP connection verified successfully!' };
+    const endpoints = ['/api/verify-smtp.php', '/api/verify-smtp'];
+    let lastError = 'Could not connect to SMTP verification endpoint.';
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            host: creds.smtpHost || 'smtp.hostinger.com',
+            port: Number(creds.smtpPort) || 465,
+            secure: creds.smtpSecure !== undefined ? creds.smtpSecure : (Number(creds.smtpPort) === 465),
+            user: creds.smtpUser || creds.senderEmail,
+            pass: creds.smtpPassword
+          })
+        });
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success) {
+          return { success: true, message: data.message || 'SMTP connection verified successfully!' };
+        }
+        if (data && !data.success) {
+          return { success: false, message: data.message || `Verification returned HTTP ${res.status}` };
+        }
+        lastError = `Server returned HTTP ${res.status}`;
+      } catch (e: any) {
+        lastError = e?.message || lastError;
       }
-      return { success: false, message: data?.message || `Verification returned HTTP ${res.status}` };
-    } catch (e: any) {
-      return { success: false, message: e?.message || 'Could not connect to SMTP verification endpoint.' };
     }
+    return { success: false, message: lastError };
   },
 
   /**

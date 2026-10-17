@@ -76,10 +76,18 @@ $smtp = $data['smtp'] ?? null;
  */
 function sendViaSocketSmtp($host, $port, $user, $pass, $from, $fromName, $to, $subject, $bodyText, $bodyHtml = null) {
     $timeout = 15;
-    $isSsl = ($port == 465 || $port == 587);
+    $isSsl = ($port == 465);
     $remoteHost = ($port == 465) ? "ssl://{$host}" : $host;
 
-    $socket = @stream_socket_client("{$remoteHost}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        ]
+    ]);
+
+    $socket = @stream_socket_client("{$remoteHost}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
     if (!$socket) {
         throw new Exception("Could not connect to SMTP server {$host}:{$port} - {$errstr} ({$errno})");
     }
@@ -95,11 +103,14 @@ function sendViaSocketSmtp($host, $port, $user, $pass, $from, $fromName, $to, $s
         return $response;
     };
 
-    $sendCommand = function($cmd, $expectedCode) use ($socket, $readResponse) {
+    $sendCommand = function($cmd, $expectedCode) use ($socket, $readResponse, $user) {
         fputs($socket, $cmd . "\r\n");
         $res = $readResponse();
         $code = (int)substr($res, 0, 3);
         if ($code !== $expectedCode && ($expectedCode === 250 && !in_array($code, [250, 251, 252]))) {
+            if ($code === 535) {
+                throw new Exception("SMTP Authentication failed (535): Incorrect username or password for {$user}. Please verify your Hostinger email password.");
+            }
             throw new Exception("SMTP command [{$cmd}] failed: {$res}");
         }
         return $res;

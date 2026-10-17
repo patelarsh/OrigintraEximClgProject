@@ -10,12 +10,16 @@
   RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
   RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
 
-  # 2. Existing physical files and directories: Serve directly without rewriting
+  # 2. API Endpoints: Route clean API URLs directly to PHP handlers
+  RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
+  RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
+
+  # 3. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 3. React Single Page Application (SPA) Fallback:
+  # 4. React Single Page Application (SPA) Fallback:
   # Rewrite all virtual routes (/schedule-meeting, /products, /about, etc.) to index.html
   RewriteRule ^ index.html [L]
 </IfModule>
