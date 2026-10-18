@@ -19,7 +19,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   {
     key: 'whole-spices',
     label: 'Whole Spices',
-    description: 'Sun-dried, hand-graded whole Indian spices — chilli, cardamom, pepper, cinnamon, clove, nutmeg, ginger and more — supplied to wholesale buyers, food processors and private-label brands worldwide.',
+    description: 'Sun-dried, hand-graded whole Indian spices — chilli, cardamom, pepper, cinnamon, clove, whole turmeric, ginger and more — supplied to wholesale buyers, food processors and private-label brands worldwide.',
     intro: 'Whole spices retain volatile oil, colour and pungency longer than ground material. Direct from contracted growing regions with documented grade, moisture and microbial profile on every lot.',
     count: 9
   },
@@ -534,80 +534,85 @@ export const PRODUCTS: Product[] = [
     ]
   },
   {
-    "id": "nutmeg",
-    "slug": "nutmeg",
-    "name": "Nutmeg and Mace",
-    "botanicalName": "Myristica fragrans",
-    "scientific": "Myristica fragrans",
+    "id": "whole-turmeric",
+    "slug": "whole-turmeric",
+    "name": "Whole Turmeric",
+    "botanicalName": "Curcuma longa",
+    "scientific": "Curcuma longa",
     "category": "Whole Spices",
     "categoryKey": "whole-spices",
-    "tagline": "Shell-free sound nutmeg kernels and whole crimson mace blades with export moisture control.",
+    "tagline": "Salem & Nizamabad polished whole turmeric fingers and bulbs with high natural curcumin.",
     "isFlagship": false,
-    "partUsed": "Dried seed kernel (nutmeg) and aril (mace)",
-    "shortDescription": "Shell-free sound nutmeg kernels and whole crimson mace blades with export moisture control.",
-    "fullDescription": "Origin Exim supplies sound shelled nutmeg (free of insect damage), BWP (broken, wormy and punctured) industrial grade, and bright red whole mace blades and broken. Aflatoxin testing is mandatory on every lot before despatch.",
-    "origin": "Kerala & Karnataka",
-    "grade": "Shelled · In-shell · Sound · BWP · Mace blade & broken",
+    "partUsed": "Boiled, sun-dried & polished whole rhizomes",
+    "shortDescription": "Premium double-polished Salem and Nizamabad whole turmeric fingers with high curcumin (3%–5%+) and certified low moisture.",
+    "fullDescription": "Origintra Exim exports export-grade whole turmeric fingers and bulbs directly sourced from India's premier growing regions in Salem and Erode (Tamil Nadu), Nizamabad (Telangana), and Sangli (Maharashtra). Our whole turmeric is thoroughly cleaned, boiled, sun-cured, and mechanically polished to achieve a vibrant golden-yellow appearance and concentrated curcumin levels (3.0% to 5.5%+). Each lot undergoes rigorous laboratory testing for moisture, volatile oil, total ash, and zero synthetic adulteration (guaranteed 100% free of lead chromate and Sudan dyes).",
+    "origin": "Salem & Erode (Tamil Nadu), Nizamabad (Telangana)",
+    "grade": "Salem Double Polished Finger · Nizamabad Finger · Erode Bulb · Rajapuri",
     "availableForms": [
-      "Whole Dried seed kernel (nutmeg) and aril (mace)",
-      "Ground Powder"
+      "Whole Polished Fingers",
+      "Whole Bulbs (Gatta)"
     ],
     "packagingOptions": [
       "25kg / 50kg Multi-Wall Kraft Paper Sacks with PE Inner Liner",
       "High-Density Polypropylene (PP) Woven Export Sacks",
-      "Custom Private Label Foodservice Pouches Available"
+      "50kg Jute Export Bags with Moisture Barrier Liner"
     ],
     "applications": [
-      "Bakery & dairy",
-      "Nutraceutical and Ayurvedic preparations",
-      "Sausage and ready-meal seasoning"
+      "Industrial Spice Grinding & Extraction",
+      "Nutraceutical Curcumin Processing",
+      "Ayurvedic & Herbal Preparations",
+      "Wholesale Repacking & Culinary Retail"
     ],
-    "loadability": "Approx. 12-14 MT per 20ft FCL / 24-26 MT per 40ft FCL",
-    "image": "/assets/products/nutmeg.jpg",
+    "loadability": "Approx. 18 MT per 20ft FCL / 26 MT per 40ft FCL",
+    "image": "/assets/products/turmeric.jpg",
     "specifications": [
       {
         "label": "Origin",
-        "value": "Kerala & Karnataka"
+        "value": "Salem & Erode (Tamil Nadu), Nizamabad (Telangana)"
       },
       {
         "label": "Botanical Name",
-        "value": "Myristica fragrans"
+        "value": "Curcuma longa"
       },
       {
-        "label": "Part Used",
-        "value": "Dried seed kernel (nutmeg) and aril (mace)"
+        "label": "Curcumin Content",
+        "value": "3.0% to 5.5%+ (HPLC Certified)"
+      },
+      {
+        "label": "Moisture",
+        "value": "Max 10.0% – 11.0%"
+      },
+      {
+        "label": "Total Ash",
+        "value": "Max 7.0%"
       },
       {
         "label": "Grade / Varieties",
-        "value": "Shelled · In-shell · Sound · BWP · Mace blade & broken"
-      },
-      {
-        "label": "Volatile Oil (VO)",
-        "value": "Volatile oil 6 – 16%"
+        "value": "Salem Finger (Double Polished), Nizamabad Finger, Erode Bulb (Gatta)"
       }
     ],
     "qualityProcess": [
-      "Multi-stage magnetic separation and pneumatic air-sifting to remove field extraneous matter",
-      "Optical color Sortex sorting for uniform seed/pod size, color, and density grading",
-      "Certified laboratory testing for pesticide MRLs, microbial limits, and heavy metals",
-      "Batch-wise moisture-controlled sealed packaging preventing mold and volatile oil oxidation"
+      "Mandi direct procurement with field grading for size uniformity and high rhizome density",
+      "Controlled traditional boiling and sun-curing to stabilize natural curcuminoid compounds",
+      "Mechanical rotary polishing to remove rootlets and deliver smooth golden-yellow surface finish",
+      "NABL laboratory screening for heavy metals, lead chromate, aflatoxins, and pesticide residues"
     ],
     "exportInfo": {
-      "minimumOrderQuantity": "1 x 20ft FCL (Mixed container options available for LCL/trial lots)",
-      "packagingStandard": "Food-Grade 25kg / 50kg export seaworthy seaworthy bags with inner liner",
-      "containerCapacity": "≈ 12-14 MT (20ft FCL) / 24-26 MT (40ft FCL)",
-      "sampleAvailability": "Complimentary commercial samples dispatched via DHL/FedEx upon request",
-      "leadTime": "10 to 14 business days from contract confirmation to Indian port loading",
-      "incoterms": "FOB (Mundra, Nhava Sheva, Cochin), CFR, CIF Destination Port"
+      "minimumOrderQuantity": "1 x 20ft FCL (≈ 18 Metric Tons; mixed containers available for trial orders)",
+      "packagingStandard": "Food-grade 25kg / 50kg seaworthy export bags with inner liner",
+      "containerCapacity": "≈ 18 MT (20ft FCL) / 26 MT (40ft FCL)",
+      "sampleAvailability": "Complimentary evaluation samples dispatched via DHL/FedEx upon request",
+      "leadTime": "7 to 12 business days from contract confirmation to loading at Mundra / Chennai port",
+      "incoterms": "FOB (Mundra, Nhava Sheva, Chennai), CFR, CIF Destination Port"
     },
     "faqs": [
       {
-        "question": "What quality certifications are supplied with Nutmeg and Mace shipments?",
-        "answer": "Every commercial consignment is accompanied by Phytosanitary Certificate, Certificate of Origin, Commercial Invoice, Packing List, and certified third-party laboratory analysis (SGS / Eurofins upon buyer request) verifying pesticide MRLs and physical purity."
+        "question": "What is the curcumin content of Origintra Exim's Whole Turmeric?",
+        "answer": "We export whole turmeric fingers across multiple verified curcumin tiers: Salem selection typically tests at 4.5% to 5.5%+ curcumin, while Nizamabad and Erode grades range from 3.0% to 4.0%. Every batch is accompanied by an accredited NABL / SGS laboratory Certificate of Analysis (COA)."
       },
       {
-        "question": "Can you customize the packaging and mesh size for Nutmeg and Mace?",
-        "answer": "Yes, we provide customizable packaging from 25kg multi-wall paper bags with barrier liners to bulk jumbo bags and private label retail pouch packaging. For ground products, mesh size and grind specification can be calibrated precisely to your processing line."
+        "question": "Are your whole turmeric consignments tested for lead chromate and adulteration?",
+        "answer": "Yes, absolutely. We enforce a zero-tolerance policy against artificial coloring and chemical polishing. Consignments are tested using HPLC and ICP-MS for lead chromate, Sudan dyes, and heavy metals before export dispatch."
       }
     ]
   },

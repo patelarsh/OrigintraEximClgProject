@@ -298,11 +298,11 @@ export const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
     tag: 'Whole Spices'
   },
   {
-    id: 'prod-nutmeg',
-    url: '/assets/products/nutmeg.jpg',
-    title: 'Whole Nutmeg (Jaiphal)',
+    id: 'prod-whole-turmeric',
+    url: '/assets/products/turmeric.jpg',
+    title: 'Whole Turmeric Fingers (Salem / Nizamabad)',
     category: 'products',
-    description: 'Shelled Kerala whole brown nutmeg kernels with rich aromatic oils',
+    description: 'Polished golden whole turmeric fingers with high 3%-5% curcumin',
     tag: 'Whole Spices'
   },
   {

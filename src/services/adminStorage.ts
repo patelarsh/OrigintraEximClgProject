@@ -798,7 +798,21 @@ export const AdminStorage = {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data) as Product[];
+        const hasNutmeg = parsed.some(p => p.id === 'nutmeg' || p.slug === 'nutmeg');
+        const hasWholeTurmeric = parsed.some(p => p.id === 'whole-turmeric' || p.slug === 'whole-turmeric');
+        if (hasNutmeg || !hasWholeTurmeric) {
+          const migrated = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+          if (!migrated.some(p => p.id === 'whole-turmeric')) {
+            const wholeTurmericDef = DEFAULT_PRODUCTS.find(p => p.id === 'whole-turmeric');
+            if (wholeTurmericDef) {
+              migrated.push(wholeTurmericDef);
+            }
+          }
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(migrated));
+          return migrated;
+        }
+        return parsed;
       }
     } catch (e) {
       console.error('Error reading products from storage:', e);

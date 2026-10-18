@@ -74,7 +74,7 @@ export const HOME_FAQS: FaqItem[] = [
   },
   {
     question: 'What spices does Origintra Exim export from India?',
-    answer: 'We export an extensive portfolio of 27+ Indian agricultural commodities across four main categories: Whole Spices (Dried Red Chilli, Green Cardamom, Malabar Black Pepper, Cinnamon, Clove, Nutmeg, Star Anise, Dry Ginger, Bay Leaf), Ground Spices (Red Chilli Powder, Turmeric Powder, Coriander Powder, Cumin Powder, Black Pepper Powder, Compounded Asafoetida), Seeds (Sortex Cumin Seeds, Coriander Seeds, Mustard Seeds, Fenugreek Seeds, Fennel Seeds), and Authentic Masala Blends (Garam Masala, Biryani Masala, Sambar, Rasam, Tandoori, Curry Powder, Chaat Masala).'
+    answer: 'We export an extensive portfolio of 27+ Indian agricultural commodities across four main categories: Whole Spices (Dried Red Chilli, Green Cardamom, Malabar Black Pepper, Cinnamon, Clove, Whole Turmeric, Star Anise, Dry Ginger, Bay Leaf), Ground Spices (Red Chilli Powder, Turmeric Powder, Coriander Powder, Cumin Powder, Black Pepper Powder, Compounded Asafoetida), Seeds (Sortex Cumin Seeds, Coriander Seeds, Mustard Seeds, Fenugreek Seeds, Fennel Seeds), and Authentic Masala Blends (Garam Masala, Biryani Masala, Sambar, Rasam, Tandoori, Curry Powder, Chaat Masala).'
   },
   {
     question: 'Are your spice exports certified by the Spices Board of India, APEDA, and FSSAI?',

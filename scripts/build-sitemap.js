@@ -29,6 +29,7 @@ const TODAY = new Date().toISOString().split('T')[0];
 const FLAGSHIP_SLUGS = new Set([
   'whole-red-chili',
   'turmeric',
+  'whole-turmeric',
   'green-cardamom',
   'black-pepper',
   'cumin-seeds',

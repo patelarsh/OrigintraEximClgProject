@@ -37,7 +37,7 @@ The entire design system is built to strictly reflect the maritime and trade ess
      - **Gujarat Cumin Seeds (Jeera)** (99.5% Sortex Machine Cleaned, EU MRL compliant)
      - **Madagascar Whole Cloves** (18%+ Volatile Oil)
      - **True Ceylon Cinnamon Quills** (Alba & C5 Special, ultra-low coumarin <0.004%)
-     - **Star Anise, Coriander Seeds, Dry Ginger, Nutmeg & Mace, Cryogenic Milled Organic Powders**.
+     - **Star Anise, Coriander Seeds, Dry Ginger, Whole Turmeric Fingers, Cryogenic Milled Organic Powders**.
    - Live category filtering, instant text search, and modal inspection with ASTA parameters and packing options.
 
 4. **Interactive FCL / LCL Container Cargo Calculator**
