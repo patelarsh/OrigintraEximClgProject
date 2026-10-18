@@ -832,12 +832,16 @@ export const AdminStorage = {
   // === IMAGE UPLOADS ===
   async uploadImageFile(file: File): Promise<string | null> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/upload.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         if (data && data.success && data.url) {
@@ -845,19 +849,23 @@ export const AdminStorage = {
         }
       }
     } catch (err) {
-      console.warn('Server file upload failed, falling back:', err);
+      console.warn('Server file upload failed or timed out, falling back:', err);
     }
     return null;
   },
 
   async uploadBase64Image(dataUrl: string, prefix = 'spice'): Promise<string | null> {
-    if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl;
+    if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl;
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
       const res = await fetch('/api/upload.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dataUrl, prefix })
+        body: JSON.stringify({ dataUrl, prefix }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         if (data && data.success && data.url) {
@@ -865,7 +873,7 @@ export const AdminStorage = {
         }
       }
     } catch (err) {
-      console.warn('Server base64 upload failed, falling back:', err);
+      console.warn('Server base64 upload failed or timed out, falling back:', err);
     }
     return null;
   },
@@ -915,12 +923,19 @@ export const AdminStorage = {
           const trimmed = gallery.filter((g: any) => !g.url?.startsWith('data:')).slice(0, 10);
           localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(trimmed));
         }
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+        const safeProducts = updated.map(p => {
+          if (p.image && p.image.startsWith('data:') && p.image.length > 20000) {
+            return { ...p, image: '/assets/products/turmeric.jpg' };
+          }
+          return p;
+        });
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(safeProducts));
       } catch (retryErr) {
-        console.warn('LocalStorage still exceeded, stripping large base64 image from local cache:', retryErr);
+        console.warn('LocalStorage still exceeded, removing custom gallery cache:', retryErr);
         try {
+          localStorage.removeItem(STORAGE_KEYS.CUSTOM_GALLERY);
           const safeList = updated.map(p => {
-            if (p.image && p.image.length > 20000 && p.image.startsWith('data:')) {
+            if (p.image && p.image.startsWith('data:') && p.image.length > 8000) {
               return { ...p, image: '/assets/products/turmeric.jpg' };
             }
             return p;

@@ -367,16 +367,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   };
 
   const handleSaveProduct = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     if (!editingProduct) return;
 
-    if (!editingProduct.name || !editingProduct.name.trim()) {
+    const trimmedName = (editingProduct.name || '').trim();
+    if (!trimmedName) {
       showToast('Product Name is required. Please enter a name.');
-      return;
-    }
-
-    if (!editingProduct.shortDescription || !editingProduct.shortDescription.trim()) {
-      showToast('Short Description is required. Please enter a description.');
       return;
     }
 
@@ -384,43 +382,52 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     setIsSavingProduct(true);
 
     try {
+      const prodToSave = { ...editingProduct };
+      prodToSave.name = trimmedName;
+
+      // Provide automatic fallback if short description is blank
+      if (!prodToSave.shortDescription || !prodToSave.shortDescription.trim()) {
+        prodToSave.shortDescription = prodToSave.tagline?.trim() || `${prodToSave.name} - Export grade agricultural commodity from Origintra Exim.`;
+      }
+
       // 1. Offload heavy base64 images to server /api/upload.php to protect LocalStorage quota
-      if (editingProduct.image && editingProduct.image.startsWith('data:image/')) {
+      if (prodToSave.image && prodToSave.image.startsWith('data:')) {
         try {
-          showToast('Saving & uploading spice photo...');
-          const serverUrl = await AdminStorage.uploadBase64Image(editingProduct.image, slugify(editingProduct.name) || 'spice');
+          showToast('Uploading & optimizing spice photo...');
+          const serverUrl = await AdminStorage.uploadBase64Image(prodToSave.image, slugify(prodToSave.name) || 'spice');
           if (serverUrl) {
-            editingProduct.image = serverUrl;
+            prodToSave.image = serverUrl;
           } else {
-            editingProduct.image = await compressDataUrl(editingProduct.image, 500, 0.65);
+            prodToSave.image = await compressDataUrl(prodToSave.image, 480, 0.65);
           }
         } catch (imgErr) {
           console.warn('Image upload fallback, compressing dataUrl:', imgErr);
           try {
-            editingProduct.image = await compressDataUrl(editingProduct.image, 500, 0.65);
+            prodToSave.image = await compressDataUrl(prodToSave.image, 480, 0.65);
           } catch {}
         }
       }
 
-      let finalSlug = editingProduct.slug?.trim();
+      let finalSlug = prodToSave.slug?.trim();
       if (!finalSlug || finalSlug.startsWith('new-spice-')) {
-        finalSlug = slugify(editingProduct.name);
+        finalSlug = slugify(prodToSave.name);
       } else {
         finalSlug = slugify(finalSlug);
       }
       if (!finalSlug) {
         finalSlug = `product-${Date.now()}`;
       }
-      editingProduct.slug = finalSlug;
+      prodToSave.slug = finalSlug;
 
-      if (!Array.isArray(editingProduct.availableForms)) {
-        editingProduct.availableForms = [];
+      if (!Array.isArray(prodToSave.availableForms)) {
+        prodToSave.availableForms = [];
       }
 
-      AdminStorage.saveProduct(editingProduct);
+      AdminStorage.saveProduct(prodToSave);
+      setProducts(AdminStorage.getProducts());
       setIsProductModalOpen(false);
       setEditingProduct(null);
-      showToast(`Product "${editingProduct.name}" saved successfully!`);
+      showToast(`Product "${prodToSave.name}" saved successfully!`);
     } catch (err: any) {
       console.error('Failed to save spice:', err);
       showToast(`Failed to save spice: ${err?.message || 'Storage error'}`);
@@ -978,7 +985,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#0A1C3E] text-white px-5 py-3 rounded-xl shadow-2xl border border-blue-500/40 flex items-center space-x-3 text-sm animate-in fade-in slide-in-from-bottom-5">
+        <div className="fixed bottom-6 right-6 z-[9999] bg-[#0A1C3E] text-white px-5 py-3 rounded-xl shadow-2xl border border-blue-500/40 flex items-center space-x-3 text-sm animate-in fade-in slide-in-from-bottom-5">
           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
@@ -3643,14 +3650,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+            <form noValidate onSubmit={handleSaveProduct} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Product Name *</label>
                   <input
                     type="text"
-                    required
                     value={editingProduct.name}
                     onChange={(e) => {
                       const newName = e.target.value;
@@ -3791,11 +3797,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Short Description *</label>
+                <label className="font-semibold text-slate-700 block mb-1">Short Description</label>
                 <textarea
                   rows={2}
-                  required
-                  value={editingProduct.shortDescription}
+                  value={editingProduct.shortDescription || ''}
                   onChange={(e) => setEditingProduct({ ...editingProduct, shortDescription: e.target.value })}
                   placeholder="Summary of product grade, aroma, and commercial applications..."
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
@@ -3841,11 +3846,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 <button
                   type="submit"
                   disabled={isSavingProduct}
-                  onClick={(e) => {
-                    if (!isSavingProduct) {
-                      handleSaveProduct(e);
-                    }
-                  }}
                   className={`px-5 py-2 rounded-lg font-semibold transition shadow-sm flex items-center gap-2 ${
                     isSavingProduct
                       ? 'bg-blue-400 text-white cursor-not-allowed'
