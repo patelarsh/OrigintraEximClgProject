@@ -32,6 +32,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
   const [leadershipVisible, setLeadershipVisible] = React.useState<boolean>(() => AdminStorage.getLeadershipVisibility());
 
   React.useEffect(() => {
+    AdminStorage.syncSettingsFromServer();
     const handleUpdate = () => setTeamMembers(AdminStorage.getTeamMembers());
     const handleVisUpdate = () => setLeadershipVisible(AdminStorage.getLeadershipVisibility());
     window.addEventListener('origintra_team_updated', handleUpdate);

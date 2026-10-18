@@ -58,6 +58,11 @@ export const App: React.FC = () => {
   const [activeLegalType, setActiveLegalType] = useState<'privacy' | 'terms' | 'shipping' | 'cookies'>('privacy');
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 
+  // Sync server-backed site settings on mount so all devices have current global state
+  useEffect(() => {
+    AdminStorage.syncSettingsFromServer();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 250);

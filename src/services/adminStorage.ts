@@ -1079,10 +1079,32 @@ export const AdminStorage = {
     } catch (e) {
       console.error('Error reading leadership visibility from storage:', e);
     }
-    return true; // Default is visible & indexed
+    return false; // Default is HIDDEN across all devices & Googlebot until explicitly enabled!
   },
 
-  setLeadershipVisibility(visible: boolean): boolean {
+  async syncSettingsFromServer(): Promise<boolean> {
+    try {
+      const res = await fetch('/api/settings.php', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.settings && typeof data.settings.leadershipVisible === 'boolean') {
+          const serverVal = data.settings.leadershipVisible;
+          const currentVal = this.getLeadershipVisibility();
+          if (serverVal !== currentVal) {
+            localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(serverVal));
+            window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
+            notifyCrossTab('origintra_leadership_visibility_updated');
+          }
+          return serverVal;
+        }
+      }
+    } catch (e) {
+      // offline / fallback
+    }
+    return this.getLeadershipVisibility();
+  },
+
+  async setLeadershipVisibility(visible: boolean): Promise<boolean> {
     try {
       localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(visible));
     } catch (e) {
@@ -1090,6 +1112,17 @@ export const AdminStorage = {
     }
     window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
     notifyCrossTab('origintra_leadership_visibility_updated');
+
+    // Persist to Hostinger server-side PHP so ALL DEVICES globally update immediately
+    try {
+      await fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadershipVisible: visible })
+      });
+    } catch (err) {
+      console.warn('Could not sync settings to /api/settings.php:', err);
+    }
 
     if (supabase.isConfigured()) {
       supabase.from('site_settings').upsert({

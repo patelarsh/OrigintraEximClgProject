@@ -599,13 +599,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   };
 
   // === TEAM MEMBER HANDLERS ===
-  const handleToggleLeadershipVisibility = (newVal: boolean) => {
-    AdminStorage.setLeadershipVisibility(newVal);
+  const handleToggleLeadershipVisibility = async (newVal: boolean) => {
     setLeadershipVisible(newVal);
+    await AdminStorage.setLeadershipVisibility(newVal);
     showToast(
       newVal
-        ? 'Leadership & Key People component is now VISIBLE on the website and indexed by Google.'
-        : 'Leadership & Key People component is now HIDDEN from the website and removed from Google indexing.'
+        ? 'Leadership & Key People component is now VISIBLE across all devices and indexed by Google.'
+        : 'Leadership & Key People component is now HIDDEN across all devices and removed from Google indexing.'
     );
   };
 

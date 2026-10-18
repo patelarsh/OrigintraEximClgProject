@@ -22,6 +22,7 @@
   RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
   RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
   RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
+  RewriteRule ^api/settings/?$ /api/settings.php [L]
 
   # 2.5 Set environment variable to trigger X-Robots-Tag noindex on legal, policy & admin pages
   RewriteRule ^(terms-of-service|terms-and-conditions|terms|privacy-policy|cookie-policy|shipping-policy|legal|admin)(/.*)?$ - [E=NOINDEX_PAGE:1]

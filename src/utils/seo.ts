@@ -471,8 +471,8 @@ export function getHomeSeo(): SeoConfig {
 
 export function getAboutSeo(): SeoConfig {
   const isLeadershipVisible = typeof window !== 'undefined'
-    ? (localStorage.getItem('origintra_admin_leadership_visibility_v1') !== 'false')
-    : true;
+    ? (localStorage.getItem('origintra_admin_leadership_visibility_v1') === 'true')
+    : false;
 
   const config: SeoConfig = {
     title: 'About Us | Origintra Exim - Indian Spices Exporter',
