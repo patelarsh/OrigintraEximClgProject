@@ -3,6 +3,7 @@ import { Search, ArrowUpRight, ArrowRight, MapPin, Sparkles, Layers, ShieldCheck
 import { PRODUCTS as DEFAULT_PRODUCTS, PRODUCT_CATEGORIES } from '../data/products';
 import { Product } from '../types';
 import { AdminStorage } from '../services/adminStorage';
+import { getProductImageSources, handleImageFallback } from '../utils/productImage';
 
 interface ProductsPageProps {
   onOpenProductDetail: (product: Product) => void;
@@ -20,6 +21,13 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
+    // Keep local state in sync with server catalog
+    AdminStorage.syncProductsFromServer().then((prods) => {
+      if (Array.isArray(prods) && prods.length > 0) {
+        setProducts(prods);
+      }
+    }).catch(() => {});
+
     const handleUpdate = () => {
       setProducts(AdminStorage.getProducts());
     };
@@ -181,55 +189,65 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    {/* Product Image Link to Specification Page */}
-                    <a
-                      href={`/products/${product.slug}`}
-                      onClick={(e) => {
-                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
-                          e.preventDefault();
-                          onOpenProductDetail(product);
-                        }
-                      }}
-                      className="block relative aspect-[4/5] overflow-hidden bg-slate-50 cursor-pointer group/image"
-                      title={`View ${product.name} specifications`}
-                      aria-label={`View ${product.name} specifications`}
-                    >
-                      <img
-                        src={product.image.replace(/\.(jpe?g|png)$/, '.webp')}
-                        srcSet={`${product.image.replace(/\.(jpe?g|png)$/, '-450.webp')} 450w, ${product.image.replace(/\.(jpe?g|png)$/, '.webp')} 800w`}
-                        sizes="(max-width: 640px) 380px, (max-width: 1024px) 45vw, 400px"
-                        alt={product.name}
-                        width="400"
-                        height="500"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.removeAttribute('srcset');
-                          if (e.currentTarget.src !== product.image) {
-                            e.currentTarget.src = product.image;
+              {filteredProducts.map((product, index) => {
+                const img = getProductImageSources(product.image);
+                return (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Product Image Link to Specification Page */}
+                      <a
+                        href={`/products/${product.slug}`}
+                        onClick={(e) => {
+                          if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                            e.preventDefault();
+                            onOpenProductDetail(product);
                           }
                         }}
-                      />
-                      
-                      {/* Category Tag on top right */}
-                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80 pointer-events-none">
-                        {product.category}
-                      </div>
-
-                      {/* Flagship Badge on top left if applicable */}
-                      {product.isFlagship && (
-                        <div className="absolute top-3.5 left-3.5 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider pointer-events-none">
-                          Flagship
+                        className="block relative aspect-[4/5] overflow-hidden bg-slate-100 cursor-pointer group/image"
+                        title={`View ${product.name} specifications`}
+                        aria-label={`View ${product.name} specifications`}
+                      >
+                        <picture className="w-full h-full block">
+                          {img.w450Src && (
+                            <source
+                              type="image/webp"
+                              media="(max-width: 640px)"
+                              srcSet={img.w450Src}
+                            />
+                          )}
+                          {img.webpSrc && (
+                            <source
+                              type="image/webp"
+                              srcSet={img.webpSrc}
+                            />
+                          )}
+                          <img
+                            src={img.src}
+                            alt={product.name}
+                            width="400"
+                            height="500"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading={index < 4 ? "eager" : "lazy"}
+                            decoding={index < 4 ? "sync" : "async"}
+                            onError={(e) => handleImageFallback(e, product.image || '/assets/products/cumin-seeds.jpg')}
+                          />
+                        </picture>
+                        
+                        {/* Category Tag on top right */}
+                        <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80 pointer-events-none">
+                          {product.category}
                         </div>
-                      )}
-                    </a>
+
+                        {/* Flagship Badge on top left if applicable */}
+                        {product.isFlagship && (
+                          <div className="absolute top-3.5 left-3.5 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider pointer-events-none">
+                            Flagship
+                          </div>
+                        )}
+                      </a>
 
                     {/* Product Info */}
                     <div className="p-5 sm:p-6 space-y-3.5">
@@ -315,7 +333,8 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                   </div>
 
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
 

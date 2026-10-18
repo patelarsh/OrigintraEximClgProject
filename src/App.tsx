@@ -258,6 +258,7 @@ export const App: React.FC = () => {
   // Synchronize on mount and handle HTML5 popstate, hash changes, and live DB updates
   useEffect(() => {
     syncRouteState();
+    AdminStorage.syncProductsFromServer().catch(() => {});
 
     const handlePopState = () => {
       syncRouteState();

@@ -798,30 +798,55 @@ export const AdminStorage = {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (data) {
-        const parsed = JSON.parse(data) as Product[];
+        let parsed = JSON.parse(data) as Product[];
         const hasNutmeg = parsed.some(p => p.id === 'nutmeg' || p.slug === 'nutmeg');
         const hasWholeTurmeric = parsed.some(p => p.id === 'whole-turmeric' || p.slug === 'whole-turmeric');
         const turmericItem = parsed.find(p => p.id === 'turmeric' || p.slug === 'turmeric');
         const needsTurmericPowderUpdate = turmericItem && turmericItem.name === 'Turmeric';
+        const hasMissingProducts = parsed.length < DEFAULT_PRODUCTS.length;
+        const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null');
 
-        if (hasNutmeg || !hasWholeTurmeric || needsTurmericPowderUpdate) {
+        if (hasNutmeg || !hasWholeTurmeric || needsTurmericPowderUpdate || hasMissingProducts || hasBrokenImages) {
           let migrated = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
-          if (!migrated.some(p => p.id === 'whole-turmeric')) {
-            const wholeTurmericDef = DEFAULT_PRODUCTS.find(p => p.id === 'whole-turmeric');
-            if (wholeTurmericDef) {
-              migrated.push(wholeTurmericDef);
+
+          // Ensure all default products are present
+          for (const defProd of DEFAULT_PRODUCTS) {
+            const exists = migrated.some(p => p.id === defProd.id);
+            if (!exists) {
+              migrated.push(defProd);
             }
           }
+
           if (needsTurmericPowderUpdate) {
             const turmericPowderDef = DEFAULT_PRODUCTS.find(p => p.id === 'turmeric');
             if (turmericPowderDef) {
               migrated = migrated.map(p => (p.id === 'turmeric' || p.slug === 'turmeric') ? turmericPowderDef : p);
             }
           }
-          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(migrated));
+
+          // Heal any missing or broken image references
+          migrated = migrated.map(p => {
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
+              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+              return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
+            }
+            return p;
+          });
+
+          try {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(migrated));
+          } catch {}
           return migrated;
         }
-        return parsed;
+
+        // Return parsed with guaranteed safe images
+        return parsed.map(p => {
+          if (!p.image || p.image.length < 5) {
+            const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+            return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
+          }
+          return p;
+        });
       }
     } catch (e) {
       console.error('Error reading products from storage:', e);
