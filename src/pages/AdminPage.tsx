@@ -55,7 +55,8 @@ import {
   Copy,
   Key,
   UserCheck,
-  Server
+  Server,
+  Loader2
 } from 'lucide-react';
 import { Product, BlogPost, Inquiry, TeamMember, User, UserRole, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
@@ -65,7 +66,7 @@ import { PRODUCT_CATEGORIES } from '../data/products';
 import { MediaGalleryModal } from '../components/MediaGalleryModal';
 import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
-import { compressImage } from '../utils/imageCompressor';
+import { compressImage, compressDataUrl } from '../utils/imageCompressor';
 import { slugify } from '../utils/slugify';
 
 interface AdminPageProps {
@@ -161,6 +162,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   // === MODAL STATES ===
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
 
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
@@ -186,6 +188,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   // Sync listener when data changes
   useEffect(() => {
     AdminStorage.fetchDatabaseStatus();
+    AdminStorage.syncProductsFromServer().catch(() => {});
 
     const handleProductsUpdated = () => setProducts(AdminStorage.getProducts());
     const handleBlogUpdated = () => setBlogPosts(AdminStorage.getBlogPosts());
@@ -363,25 +366,67 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     setIsProductModalOpen(true);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProduct || !editingProduct.name.trim()) return;
+  const handleSaveProduct = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!editingProduct) return;
 
-    let finalSlug = editingProduct.slug?.trim();
-    if (!finalSlug || finalSlug.startsWith('new-spice-')) {
-      finalSlug = slugify(editingProduct.name);
-    } else {
-      finalSlug = slugify(finalSlug);
+    if (!editingProduct.name || !editingProduct.name.trim()) {
+      showToast('Product Name is required. Please enter a name.');
+      return;
     }
-    if (!finalSlug) {
-      finalSlug = `product-${Date.now()}`;
-    }
-    editingProduct.slug = finalSlug;
 
-    AdminStorage.saveProduct(editingProduct);
-    setIsProductModalOpen(false);
-    setEditingProduct(null);
-    showToast(`Product "${editingProduct.name}" saved successfully!`);
+    if (!editingProduct.shortDescription || !editingProduct.shortDescription.trim()) {
+      showToast('Short Description is required. Please enter a description.');
+      return;
+    }
+
+    if (isSavingProduct) return;
+    setIsSavingProduct(true);
+
+    try {
+      // 1. Offload heavy base64 images to server /api/upload.php to protect LocalStorage quota
+      if (editingProduct.image && editingProduct.image.startsWith('data:image/')) {
+        try {
+          showToast('Saving & uploading spice photo...');
+          const serverUrl = await AdminStorage.uploadBase64Image(editingProduct.image, slugify(editingProduct.name) || 'spice');
+          if (serverUrl) {
+            editingProduct.image = serverUrl;
+          } else {
+            editingProduct.image = await compressDataUrl(editingProduct.image, 500, 0.65);
+          }
+        } catch (imgErr) {
+          console.warn('Image upload fallback, compressing dataUrl:', imgErr);
+          try {
+            editingProduct.image = await compressDataUrl(editingProduct.image, 500, 0.65);
+          } catch {}
+        }
+      }
+
+      let finalSlug = editingProduct.slug?.trim();
+      if (!finalSlug || finalSlug.startsWith('new-spice-')) {
+        finalSlug = slugify(editingProduct.name);
+      } else {
+        finalSlug = slugify(finalSlug);
+      }
+      if (!finalSlug) {
+        finalSlug = `product-${Date.now()}`;
+      }
+      editingProduct.slug = finalSlug;
+
+      if (!Array.isArray(editingProduct.availableForms)) {
+        editingProduct.availableForms = [];
+      }
+
+      AdminStorage.saveProduct(editingProduct);
+      setIsProductModalOpen(false);
+      setEditingProduct(null);
+      showToast(`Product "${editingProduct.name}" saved successfully!`);
+    } catch (err: any) {
+      console.error('Failed to save spice:', err);
+      showToast(`Failed to save spice: ${err?.message || 'Storage error'}`);
+    } finally {
+      setIsSavingProduct(false);
+    }
   };
 
   const handleDeleteProduct = (prod: Product) => {
@@ -752,11 +797,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       return;
     }
     try {
-      showToast('Processing photo...');
-      const compressedDataUrl = await compressImage(file, 1400, 0.84);
+      showToast('Processing & uploading photo...');
+      
+      // 1. Try real server upload to /api/upload.php first
+      let serverImageUrl: string | null = null;
+      try {
+        serverImageUrl = await AdminStorage.uploadImageFile(file);
+      } catch (uploadErr) {
+        console.warn('Server upload unavailable:', uploadErr);
+      }
+
+      // 2. If server upload failed, downscale image to lightweight base64
+      let finalImageUrl = serverImageUrl;
+      if (!finalImageUrl) {
+        finalImageUrl = await compressImage(file, 900, 0.76);
+      }
+
       const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
       const newImg = await AdminStorage.addCustomGalleryImage({
-        url: compressedDataUrl,
+        url: finalImageUrl,
         title: cleanName,
         category: target === 'team' ? 'team' : target === 'product' ? 'products' : 'uploads',
         tag: target === 'team' ? 'Leader' : target === 'testimonial' ? 'Buyer' : 'Upload'
@@ -3747,7 +3806,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 <label className="font-semibold text-slate-700 block mb-1">Available Forms (Comma-separated)</label>
                 <input
                   type="text"
-                  value={editingProduct.availableForms.join(', ')}
+                  value={(editingProduct.availableForms || []).join(', ')}
                   onChange={(e) => setEditingProduct({
                     ...editingProduct,
                     availableForms: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
@@ -3774,15 +3833,27 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 <button
                   type="button"
                   onClick={() => setIsProductModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition"
+                  disabled={isSavingProduct}
+                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#0070E0] hover:bg-blue-600 text-white font-semibold transition shadow-sm"
+                  disabled={isSavingProduct}
+                  onClick={(e) => {
+                    if (!isSavingProduct) {
+                      handleSaveProduct(e);
+                    }
+                  }}
+                  className={`px-5 py-2 rounded-lg font-semibold transition shadow-sm flex items-center gap-2 ${
+                    isSavingProduct
+                      ? 'bg-blue-400 text-white cursor-not-allowed'
+                      : 'bg-[#0070E0] hover:bg-blue-600 text-white cursor-pointer'
+                  }`}
                 >
-                  Save Spice
+                  {isSavingProduct && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isSavingProduct ? 'Saving Spice...' : 'Save Spice'}
                 </button>
               </div>
 

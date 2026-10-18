@@ -829,6 +829,69 @@ export const AdminStorage = {
     return DEFAULT_PRODUCTS;
   },
 
+  // === IMAGE UPLOADS ===
+  async uploadImageFile(file: File): Promise<string | null> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload.php', {
+        method: 'POST',
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.url) {
+          return data.url;
+        }
+      }
+    } catch (err) {
+      console.warn('Server file upload failed, falling back:', err);
+    }
+    return null;
+  },
+
+  async uploadBase64Image(dataUrl: string, prefix = 'spice'): Promise<string | null> {
+    if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl;
+    try {
+      const res = await fetch('/api/upload.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataUrl, prefix })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.url) {
+          return data.url;
+        }
+      }
+    } catch (err) {
+      console.warn('Server base64 upload failed, falling back:', err);
+    }
+    return null;
+  },
+
+  async syncProductsFromServer(): Promise<Product[]> {
+    try {
+      const res = await fetch('/api/products.php', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+          try {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data.products));
+            window.dispatchEvent(new Event('origintra_products_updated'));
+            notifyCrossTab('origintra_products_updated');
+          } catch (e) {
+            console.warn('Could not cache server products:', e);
+          }
+          return data.products;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return this.getProducts();
+  },
+
   saveProduct(product: Product): Product {
     const products = this.getProducts();
     const existingIndex = products.findIndex(p => p.id === product.id);
@@ -841,9 +904,47 @@ export const AdminStorage = {
       updated = [product, ...products];
     }
 
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+    } catch (quotaErr) {
+      console.warn('LocalStorage quota warning in saveProduct. Pruning gallery...', quotaErr);
+      try {
+        const customData = localStorage.getItem(STORAGE_KEYS.CUSTOM_GALLERY);
+        if (customData) {
+          const gallery = JSON.parse(customData) as any[];
+          const trimmed = gallery.filter((g: any) => !g.url?.startsWith('data:')).slice(0, 10);
+          localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(trimmed));
+        }
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+      } catch (retryErr) {
+        console.warn('LocalStorage still exceeded, stripping large base64 image from local cache:', retryErr);
+        try {
+          const safeList = updated.map(p => {
+            if (p.image && p.image.length > 20000 && p.image.startsWith('data:')) {
+              return { ...p, image: '/assets/products/turmeric.jpg' };
+            }
+            return p;
+          });
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(safeList));
+        } catch (finalErr) {
+          console.error('Final fallback failed to write products to storage:', finalErr);
+        }
+      }
+    }
+
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
+
+    // Sync to Hostinger server
+    try {
+      fetch('/api/products.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch(err => console.warn('Could not sync products to /api/products.php:', err));
+    } catch (e) {
+      // offline
+    }
 
     if (supabase.isConfigured()) {
       supabase.from('products').upsert({
@@ -868,9 +969,23 @@ export const AdminStorage = {
     const products = this.getProducts();
     const filtered = products.filter(p => p.id !== productId);
     if (filtered.length !== products.length) {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
+      try {
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
+      } catch (e) {
+        console.warn('Error saving filtered products to storage:', e);
+      }
       window.dispatchEvent(new Event('origintra_products_updated'));
       notifyCrossTab('origintra_products_updated');
+
+      try {
+        fetch('/api/products.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(filtered)
+        }).catch(err => console.warn('Could not sync products deletion to /api/products.php:', err));
+      } catch (e) {
+        // offline
+      }
 
       if (supabase.isConfigured()) {
         supabase.from('products').delete('id', productId).then(() => this.fetchDatabaseStatus());
