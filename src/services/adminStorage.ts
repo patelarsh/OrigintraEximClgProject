@@ -311,7 +311,16 @@ export const AdminStorage = {
             window.dispatchEvent(new Event('origintra_users_updated'));
           }
           if (Array.isArray(products) && products.length) {
-            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+            let sanitized = products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+            for (const def of DEFAULT_PRODUCTS) {
+              const existingIdx = sanitized.findIndex((p: Product) => p.id === def.id);
+              if (existingIdx === -1) {
+                sanitized.push(def);
+              } else if (!sanitized[existingIdx].image || sanitized[existingIdx].image.length < 5) {
+                sanitized[existingIdx].image = def.image;
+              }
+            }
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(sanitized));
             window.dispatchEvent(new Event('origintra_products_updated'));
           }
           if (Array.isArray(blogPosts) && blogPosts.length) {
@@ -921,14 +930,23 @@ export const AdminStorage = {
       if (res.ok) {
         const data = await res.json();
         if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+          let sanitized = data.products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+          for (const def of DEFAULT_PRODUCTS) {
+            const existingIdx = sanitized.findIndex((p: Product) => p.id === def.id);
+            if (existingIdx === -1) {
+              sanitized.push(def);
+            } else if (!sanitized[existingIdx].image || sanitized[existingIdx].image.length < 5) {
+              sanitized[existingIdx].image = def.image;
+            }
+          }
           try {
-            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data.products));
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(sanitized));
             window.dispatchEvent(new Event('origintra_products_updated'));
             notifyCrossTab('origintra_products_updated');
           } catch (e) {
             console.warn('Could not cache server products:', e);
           }
-          return data.products;
+          return sanitized;
         }
       }
     } catch (e) {
