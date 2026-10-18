@@ -21,6 +21,7 @@ $settingsFile = __DIR__ . '/site-settings.json';
 // Default configuration: Hidden per user requirement
 $defaultSettings = [
     'leadershipVisible' => false,
+    'deletedGalleryIds' => [],
     'updatedAt' => date('c')
 ];
 
@@ -49,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($input['leadershipVisible'])) {
         $currentSettings['leadershipVisible'] = (bool)$input['leadershipVisible'];
+    }
+
+    if (isset($input['deletedGalleryIds']) && is_array($input['deletedGalleryIds'])) {
+        $currentSettings['deletedGalleryIds'] = array_values(array_unique(array_filter($input['deletedGalleryIds'], 'is_string')));
     }
 
     $currentSettings['updatedAt'] = date('c');

@@ -53,6 +53,7 @@ const STORAGE_KEYS = {
   RATE_LIMIT: 'origintra_admin_rate_limit_v1',
   USERS: 'origintra_admin_users_v1',
   LEADERSHIP_VISIBILITY: 'origintra_admin_leadership_visibility_v1',
+  DELETED_GALLERY: 'origintra_admin_deleted_gallery_v1',
 };
 
 // Automatic cleanup of legacy storage snapshots across mobile and desktop clients
@@ -1295,15 +1296,28 @@ export const AdminStorage = {
       const res = await fetch('/api/settings.php', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.settings && typeof data.settings.leadershipVisible === 'boolean') {
-          const serverVal = data.settings.leadershipVisible;
-          const currentVal = this.getLeadershipVisibility();
-          if (serverVal !== currentVal) {
-            localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(serverVal));
-            window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
-            notifyCrossTab('origintra_leadership_visibility_updated');
+        if (data && data.settings) {
+          if (typeof data.settings.leadershipVisible === 'boolean') {
+            const serverVal = data.settings.leadershipVisible;
+            const currentVal = this.getLeadershipVisibility();
+            if (serverVal !== currentVal) {
+              localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(serverVal));
+              window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
+              notifyCrossTab('origintra_leadership_visibility_updated');
+            }
           }
-          return serverVal;
+
+          if (Array.isArray(data.settings.deletedGalleryIds)) {
+            const serverDeleted = data.settings.deletedGalleryIds.filter((id: unknown) => typeof id === 'string');
+            const localDeleted = this.getDeletedGalleryIds();
+            const serverStr = JSON.stringify([...serverDeleted].sort());
+            const localStr = JSON.stringify([...localDeleted].sort());
+            if (serverStr !== localStr) {
+              localStorage.setItem(STORAGE_KEYS.DELETED_GALLERY, JSON.stringify(serverDeleted));
+              window.dispatchEvent(new Event('origintra_gallery_updated'));
+              notifyCrossTab('origintra_gallery_updated');
+            }
+          }
         }
       }
     } catch (e) {
@@ -1513,11 +1527,32 @@ export const AdminStorage = {
   },
 
   // === MEDIA GALLERY ===
+  getDeletedGalleryIds(): string[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.DELETED_GALLERY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((id): id is string => typeof id === 'string');
+        }
+      }
+    } catch (e) {
+      console.error('Error reading deleted gallery IDs:', e);
+    }
+    return [];
+  },
+
   getGalleryImages(): GalleryImage[] {
     try {
       const customData = localStorage.getItem(STORAGE_KEYS.CUSTOM_GALLERY);
       const customImages: GalleryImage[] = customData ? JSON.parse(customData) : [];
-      return [...customImages, ...DEFAULT_GALLERY_IMAGES];
+      const deletedIds = this.getDeletedGalleryIds();
+      const combined = [...customImages, ...DEFAULT_GALLERY_IMAGES];
+      if (deletedIds.length === 0) {
+        return combined;
+      }
+      const deletedSet = new Set(deletedIds);
+      return combined.filter(img => !deletedSet.has(img.id) && !deletedSet.has(img.url));
     } catch (e) {
       console.error('Error reading gallery images:', e);
       return DEFAULT_GALLERY_IMAGES;
@@ -1569,30 +1604,77 @@ export const AdminStorage = {
     return newImage;
   },
 
-  deleteCustomGalleryImage(imageId: string): boolean {
+  deleteGalleryImage(imageId: string): boolean {
     try {
+      // 1. If it's a custom uploaded image, remove from custom gallery
       const customData = localStorage.getItem(STORAGE_KEYS.CUSTOM_GALLERY);
-      if (!customData) return false;
-      const customImages: GalleryImage[] = JSON.parse(customData);
-      const filtered = customImages.filter(img => img.id !== imageId);
-      if (filtered.length !== customImages.length) {
-        localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(filtered));
-        window.dispatchEvent(new Event('origintra_gallery_updated'));
-        notifyCrossTab('origintra_gallery_updated');
+      let targetImg: GalleryImage | undefined;
 
-        if (supabase.isConfigured()) {
-          supabase.from('custom_gallery').delete('id', imageId).then(() => this.fetchDatabaseStatus());
+      if (customData) {
+        const customImages: GalleryImage[] = JSON.parse(customData);
+        targetImg = customImages.find(img => img.id === imageId || img.url === imageId);
+        const filtered = customImages.filter(img => img.id !== imageId && img.url !== imageId);
+        if (filtered.length !== customImages.length) {
+          localStorage.setItem(STORAGE_KEYS.CUSTOM_GALLERY, JSON.stringify(filtered));
+          if (supabase.isConfigured()) {
+            supabase.from('custom_gallery').delete('id', imageId).then(() => this.fetchDatabaseStatus());
+          }
         }
-        return true;
       }
+
+      // If not in custom gallery, find in DEFAULT_GALLERY_IMAGES
+      if (!targetImg) {
+        targetImg = DEFAULT_GALLERY_IMAGES.find(img => img.id === imageId || img.url === imageId);
+      }
+
+      // 2. Register in deletedGalleryIds so default pre-added images stay deleted across sessions & devices
+      const deletedIds = this.getDeletedGalleryIds();
+      const idsToAdd: string[] = [imageId];
+      if (targetImg?.id && !idsToAdd.includes(targetImg.id)) idsToAdd.push(targetImg.id);
+      if (targetImg?.url && !idsToAdd.includes(targetImg.url)) idsToAdd.push(targetImg.url);
+
+      const updatedDeletedIds = Array.from(new Set([...deletedIds, ...idsToAdd]));
+      localStorage.setItem(STORAGE_KEYS.DELETED_GALLERY, JSON.stringify(updatedDeletedIds));
+
+      // 3. Persist deleted IDs to Hostinger server settings for multi-device sync
+      try {
+        fetch('/api/settings.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deletedGalleryIds: updatedDeletedIds })
+        }).catch(err => console.warn('Could not sync deleted gallery IDs:', err));
+      } catch (err) {
+        // offline / fallback
+      }
+
+      window.dispatchEvent(new Event('origintra_gallery_updated'));
+      notifyCrossTab('origintra_gallery_updated');
+      this.fetchDatabaseStatus();
+      return true;
     } catch (e) {
-      console.error('Error deleting custom gallery image:', e);
+      console.error('Error deleting gallery image:', e);
+      return false;
     }
-    return false;
+  },
+
+  deleteCustomGalleryImage(imageId: string): boolean {
+    return this.deleteGalleryImage(imageId);
   },
 
   resetCustomGallery(): void {
     localStorage.removeItem(STORAGE_KEYS.CUSTOM_GALLERY);
+    localStorage.removeItem(STORAGE_KEYS.DELETED_GALLERY);
+
+    try {
+      fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deletedGalleryIds: [] })
+      }).catch(err => console.warn('Could not reset deleted gallery IDs on server:', err));
+    } catch (err) {
+      // offline / fallback
+    }
+
     window.dispatchEvent(new Event('origintra_gallery_updated'));
     notifyCrossTab('origintra_gallery_updated');
     this.fetchDatabaseStatus();
@@ -1685,6 +1767,7 @@ export const AdminStorage = {
 if (typeof window !== 'undefined') {
   const initBackgroundSync = () => {
     AdminStorage.syncWithDatabase().catch(() => {});
+    AdminStorage.syncSettingsFromServer().catch(() => {});
     AdminStorage.connectLiveStream();
   };
 
@@ -1709,7 +1792,7 @@ if (typeof window !== 'undefined') {
     if (e.key === STORAGE_KEYS.TEAM_MEMBERS) window.dispatchEvent(new Event('origintra_team_updated'));
     if (e.key === STORAGE_KEYS.INQUIRIES) window.dispatchEvent(new Event('origintra_inquiries_updated'));
     if (e.key === STORAGE_KEYS.COMPANY) window.dispatchEvent(new Event('origintra_company_updated'));
-    if (e.key === STORAGE_KEYS.CUSTOM_GALLERY) window.dispatchEvent(new Event('origintra_gallery_updated'));
+    if (e.key === STORAGE_KEYS.CUSTOM_GALLERY || e.key === STORAGE_KEYS.DELETED_GALLERY) window.dispatchEvent(new Event('origintra_gallery_updated'));
     if (e.key === STORAGE_KEYS.TESTIMONIALS) window.dispatchEvent(new Event('origintra_testimonials_updated'));
     if (e.key === STORAGE_KEYS.USERS) window.dispatchEvent(new Event('origintra_users_updated'));
     if (e.key === STORAGE_KEYS.DB_STATUS) window.dispatchEvent(new Event('origintra_db_status_updated'));

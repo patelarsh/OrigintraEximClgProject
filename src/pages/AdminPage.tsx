@@ -189,6 +189,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   useEffect(() => {
     AdminStorage.fetchDatabaseStatus();
     AdminStorage.syncProductsFromServer().catch(() => {});
+    AdminStorage.syncSettingsFromServer().catch(() => {});
 
     const handleProductsUpdated = () => setProducts(AdminStorage.getProducts());
     const handleBlogUpdated = () => setBlogPosts(AdminStorage.getBlogPosts());
@@ -2500,9 +2501,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => {
-                      if (window.confirm('Reset custom media gallery uploads back to default asset library?')) {
+                      if (window.confirm('Reset media gallery back to default asset library (restores deleted default photos)?')) {
                         AdminStorage.resetCustomGallery();
-                        showToast('Custom uploaded media reset to defaults.');
+                        showToast('Media gallery reset to defaults.');
                       }
                     }}
                     className="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center space-x-1"
@@ -2627,20 +2628,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                           <span>{copiedGalleryUrl === img.url ? 'Copied' : 'Copy Path'}</span>
                         </button>
 
-                        {img.isUploaded && (
-                          <button
-                            onClick={() => {
-                              if (window.confirm('Delete this uploaded image from gallery?')) {
-                                AdminStorage.deleteCustomGalleryImage(img.id);
-                                showToast('Photo deleted.');
-                              }
-                            }}
-                            className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                            title="Delete image"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete "${img.title}" from gallery?`)) {
+                              AdminStorage.deleteGalleryImage(img.id);
+                              showToast('Photo removed from gallery.');
+                            }
+                          }}
+                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                          title="Delete image"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -5432,18 +5431,34 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </div>
             <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
               <span className="text-xs font-mono text-slate-600 truncate max-w-xs sm:max-w-md">{previewLightboxImage.url}</span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(previewLightboxImage.url);
-                  setCopiedGalleryUrl(previewLightboxImage.url);
-                  showToast('Image path copied to clipboard!');
-                  setTimeout(() => setCopiedGalleryUrl(null), 2000);
-                }}
-                className="px-3.5 py-1.5 rounded-xl bg-[#0070E0] text-white font-semibold text-xs hover:bg-[#005bb5] transition flex items-center gap-1.5 cursor-pointer"
-              >
-                {copiedGalleryUrl === previewLightboxImage.url ? <CheckCheck className="w-4 h-4" /> : <Layers className="w-4 h-4" />}
-                <span>{copiedGalleryUrl === previewLightboxImage.url ? 'Copied!' : 'Copy Path'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Delete "${previewLightboxImage.title}" from gallery?`)) {
+                      AdminStorage.deleteGalleryImage(previewLightboxImage.id);
+                      setPreviewLightboxImage(null);
+                      showToast('Photo removed from gallery.');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer"
+                  title="Delete image"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(previewLightboxImage.url);
+                    setCopiedGalleryUrl(previewLightboxImage.url);
+                    showToast('Image path copied to clipboard!');
+                    setTimeout(() => setCopiedGalleryUrl(null), 2000);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#0070E0] text-white font-semibold text-xs hover:bg-[#005bb5] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  {copiedGalleryUrl === previewLightboxImage.url ? <CheckCheck className="w-4 h-4" /> : <Layers className="w-4 h-4" />}
+                  <span>{copiedGalleryUrl === previewLightboxImage.url ? 'Copied!' : 'Copy Path'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

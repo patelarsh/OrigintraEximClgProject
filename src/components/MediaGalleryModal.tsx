@@ -50,6 +50,7 @@ export const MediaGalleryModal: React.FC<MediaGalleryModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setGalleryImages(AdminStorage.getGalleryImages());
+      AdminStorage.syncSettingsFromServer().catch(() => {});
       setActiveCategory(defaultCategory);
       setSearchQuery('');
       setCustomUrlInput(currentImage || '');
@@ -142,10 +143,10 @@ export const MediaGalleryModal: React.FC<MediaGalleryModalProps> = ({
     }
   };
 
-  const handleDeleteCustomImage = (e: React.MouseEvent, id: string) => {
+  const handleDeleteImage = (e: React.MouseEvent, id: string, name?: string) => {
     e.stopPropagation();
-    if (window.confirm('Delete this uploaded photo from your media gallery?')) {
-      AdminStorage.deleteCustomGalleryImage(id);
+    if (window.confirm(`Delete "${name || 'this photo'}" from your media gallery?`)) {
+      AdminStorage.deleteGalleryImage(id);
     }
   };
 
@@ -443,16 +444,14 @@ export const MediaGalleryModal: React.FC<MediaGalleryModalProps> = ({
                             {copiedUrl === img.url ? <CheckCheck className="w-3 h-3 text-emerald-300" /> : <Layers className="w-3 h-3" />}
                             <span>{copiedUrl === img.url ? 'Copied' : 'Copy'}</span>
                           </button>
-                          {img.isUploaded && (
-                            <button
-                              type="button"
-                              onClick={(e) => handleDeleteCustomImage(e, img.id)}
-                              className="p-1 rounded-md bg-rose-600/80 hover:bg-rose-700 text-white text-[10px] transition"
-                              title="Delete uploaded photo"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteImage(e, img.id, img.title)}
+                            className="p-1 rounded-md bg-rose-600/80 hover:bg-rose-700 text-white text-[10px] transition"
+                            title="Delete photo from gallery"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
                     </div>
