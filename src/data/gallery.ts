@@ -172,10 +172,10 @@ export const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
   {
     id: 'prod-turmeric',
     url: '/assets/products/turmeric.jpg',
-    title: 'Salem Turmeric Finger (High Curcumin)',
+    title: 'Pure Turmeric Powder (Salem / Nizamabad)',
     category: 'products',
-    description: 'Double polished whole turmeric fingers with 3.5% - 5.0% curcumin',
-    tag: 'Whole Spices'
+    description: 'Cryogenic micro-milled golden yellow turmeric powder with 2.5%-5.5% curcumin',
+    tag: 'Ground Spices'
   },
   {
     id: 'prod-red-chilli',

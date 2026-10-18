@@ -186,8 +186,10 @@ export const App: React.FC = () => {
       setBlogArticleSlug(null);
       applyRouteSeo(route);
     } else if (route.page === 'product-detail' && route.productSlug) {
+      const slug = route.productSlug;
       const allProducts = AdminStorage.getProducts();
-      const found = allProducts.find((p) => p.slug === route.productSlug) || PRODUCTS.find((p) => p.slug === route.productSlug);
+      const found = allProducts.find((p) => p.slug === slug || (slug === 'turmeric-powder' && (p.slug === 'turmeric' || p.id === 'turmeric'))) || 
+                    PRODUCTS.find((p) => p.slug === slug || (slug === 'turmeric-powder' && (p.slug === 'turmeric' || p.id === 'turmeric')));
       if (found) {
         setSelectedProduct(found);
         setCurrentPage('product-detail');

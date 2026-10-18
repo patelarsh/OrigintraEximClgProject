@@ -863,21 +863,21 @@ export const PRODUCTS: Product[] = [
   {
     "id": "turmeric",
     "slug": "turmeric",
-    "name": "Turmeric",
+    "name": "Turmeric Powder",
     "botanicalName": "Curcuma longa",
     "scientific": "Curcuma longa",
     "category": "Ground Spices",
     "categoryKey": "ground-spices",
-    "tagline": "Salem & Nizamabad polished fingers and high-curcumin powder with certified purity.",
+    "tagline": "Cryogenic micro-milled Salem & Nizamabad turmeric powder with certified high curcumin.",
     "isFlagship": false,
-    "partUsed": "Boiled, dried, polished and ground rhizome",
-    "shortDescription": "Salem & Nizamabad polished fingers and high-curcumin powder with certified purity.",
-    "fullDescription": "Origin Exim supplies turmeric powder and finger from the four principal Indian belts — Erode and Salem in Tamil Nadu, Sangli in Maharashtra and Nizamabad in Telangana. Each origin has its own curcumin range and colour profile. We supply standard 2% curcumin culinary grade and high-curcumin selection up to 5% for nutraceutical buyers, with documented heavy-metal and lead-chromate testing on every lot.",
-    "origin": "Erode, Salem (Tamil Nadu), Sangli (Maharashtra), Nizamabad (Telangana)",
-    "grade": "Erode finger · Salem finger · Rajapuri · Nizamabad bulb",
+    "partUsed": "Cryogenic-milled boiled & sun-cured rhizome powder",
+    "shortDescription": "Premium cryogenic-milled pure Indian turmeric powder with certified curcumin (2.5%–5.5%+), vibrant golden hue, and zero artificial dyes.",
+    "fullDescription": "Origintra Exim supplies export-grade pure Turmeric Powder micro-pulverized from sortex-cleaned, cured Salem, Erode, and Nizamabad rhizomes. Processed under low-temperature cryogenic milling to protect fragile curcuminoids and volatile aromatic oils, our turmeric powder is calibrated to mesh sizes 60 to 100 mesh. Every production batch undergoes rigorous HPLC testing for curcumin percentage (from culinary 2.5%–3.0% to high-curcumin 4.5%–5.5%+), heavy metals (lead, arsenic, cadmium), and guaranteed 100% absence of synthetic dyes (Sudan dyes and lead chromate).",
+    "origin": "Salem & Erode (Tamil Nadu), Nizamabad (Telangana), Sangli (Maharashtra)",
+    "grade": "Salem High Curcumin (4.5%–5.5%+) · Erode Standard Culinary · Nizamabad Golden · Organic Grade",
     "availableForms": [
-      "Whole Boiled, dried, polished and ground rhizome",
-      "Ground Powder"
+      "Cryogenic Milled Powder (60–80 Mesh)",
+      "Ultra-Fine Pulverized Powder (80–100 Mesh)"
     ],
     "packagingOptions": [
       "25kg / 50kg Multi-Wall Kraft Paper Sacks with PE Inner Liner",
@@ -885,17 +885,17 @@ export const PRODUCTS: Product[] = [
       "Custom Private Label Foodservice Pouches Available"
     ],
     "applications": [
-      "Curry powder and masala",
-      "Nutraceutical curcumin extraction",
-      "Cosmetic formulations",
-      "Natural food colouring"
+      "Curry Powder & Masala Formulations",
+      "Nutraceutical Curcumin Extraction & Tablets",
+      "Ready-to-Eat Food Processing & Snack Seasoning",
+      "Natural Food Coloring & Cosmetics"
     ],
     "loadability": "≈ 14 MT per 20ft FCL · 25 MT per 40ft FCL.",
     "image": "/assets/products/turmeric.jpg",
     "specifications": [
       {
         "label": "Origin",
-        "value": "Erode, Salem (Tamil Nadu), Sangli (Maharashtra), Nizamabad (Telangana)"
+        "value": "Salem & Erode (Tamil Nadu), Nizamabad (Telangana), Sangli (Maharashtra)"
       },
       {
         "label": "Botanical Name",
@@ -903,15 +903,31 @@ export const PRODUCTS: Product[] = [
       },
       {
         "label": "Part Used",
-        "value": "Boiled, dried, polished and ground rhizome"
+        "value": "Cryogenic-milled rhizome powder"
       },
       {
-        "label": "Grade / Varieties",
-        "value": "Erode finger · Salem finger · Rajapuri · Nizamabad bulb"
+        "label": "Curcumin Content",
+        "value": "2.5% to 5.5%+ (HPLC Certified, variety dependent)"
       },
       {
-        "label": "Volatile Oil (VO)",
-        "value": "Curcumin 2 – 5% (variety dependent)"
+        "label": "Fineness / Mesh",
+        "value": "60 to 100 Mesh (Customizable to buyer requirement)"
+      },
+      {
+        "label": "Moisture",
+        "value": "Max 8.0% – 10.0%"
+      },
+      {
+        "label": "Total Ash",
+        "value": "Max 7.0%"
+      },
+      {
+        "label": "Acid Insoluble Ash",
+        "value": "Max 1.0%"
+      },
+      {
+        "label": "Adulteration / Dyes",
+        "value": "Zero synthetic dyes, Lead Chromate Negative"
       },
       {
         "label": "Container Loadability",
@@ -934,11 +950,11 @@ export const PRODUCTS: Product[] = [
     },
     "faqs": [
       {
-        "question": "What quality certifications are supplied with Turmeric shipments?",
+        "question": "What quality certifications are supplied with Turmeric Powder shipments?",
         "answer": "Every commercial consignment is accompanied by Phytosanitary Certificate, Certificate of Origin, Commercial Invoice, Packing List, and certified third-party laboratory analysis (SGS / Eurofins upon buyer request) verifying pesticide MRLs and physical purity."
       },
       {
-        "question": "Can you customize the packaging and mesh size for Turmeric?",
+        "question": "Can you customize the packaging and mesh size for Turmeric Powder?",
         "answer": "Yes, we provide customizable packaging from 25kg multi-wall paper bags with barrier liners to bulk jumbo bags and private label retail pouch packaging. For ground products, mesh size and grind specification can be calibrated precisely to your processing line."
       }
     ]
