@@ -2747,8 +2747,64 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   Company Profile & Website Settings
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Update primary contact details, WhatsApp export hotline, and corporate credentials.
+                  Update primary contact details, page component visibility, and corporate credentials.
                 </p>
+              </div>
+
+              {/* Page Component Visibility & SEO Indexing Card */}
+              <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                leadershipVisible 
+                  ? 'bg-blue-50/70 border-blue-200 shadow-2xs' 
+                  : 'bg-amber-50/80 border-amber-200 shadow-2xs'
+              }`}>
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    leadershipVisible ? 'bg-[#0070E0] text-white shadow-sm' : 'bg-amber-500 text-white shadow-sm'
+                  }`}>
+                    {leadershipVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#0F172A]">
+                        About Us Page: "Leadership & Key People" Component
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                        leadershipVisible ? 'bg-blue-100 text-[#0070E0] border border-blue-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
+                      }`}>
+                        {leadershipVisible ? 'Visible & Google Indexed' : 'Hidden & Excluded from Indexing'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                      {leadershipVisible 
+                        ? 'Active Mode: The component is fully displayed on the About Us page, and Googlebot crawls the executive profiles, verified photos, credentials, and Person structured data.'
+                        : 'Hidden Mode: The component is completely removed from the page DOM. Googlebot and visitors cannot see or index any names, photos, or leadership details.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-auto bg-white/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLeadershipVisibility(!leadershipVisible)}
+                    className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                      leadershipVisible ? 'bg-[#0070E0]' : 'bg-slate-300'
+                    }`}
+                    role="switch"
+                    aria-checked={leadershipVisible}
+                    title={leadershipVisible ? 'Click to hide component from website & search engines' : 'Click to show component on website & allow search indexing'}
+                  >
+                    <span className="sr-only">Toggle leadership visibility</span>
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        leadershipVisible ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-bold ${leadershipVisible ? 'text-[#0070E0]' : 'text-slate-600'}`}>
+                    {leadershipVisible ? 'Show' : 'Hide'}
+                  </span>
+                </div>
               </div>
 
               <form onSubmit={handleSaveCompanyConfig} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
