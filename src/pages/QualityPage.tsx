@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  ShieldCheck, 
   CheckCircle2, 
   FileText, 
   Package, 
@@ -11,7 +10,7 @@ import {
   Layers,
   AlertCircle
 } from 'lucide-react';
-import { COMPANY_CONFIG, EXPORT_CERTIFICATIONS } from '../data/company';
+import { EXPORT_CERTIFICATIONS } from '../data/company';
 
 interface QualityPageProps {
   onNavigate: (page: string) => void;
@@ -108,36 +107,6 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
         </div>
       </section>
 
-      {/* Official Policy Statement (Section 13 Compliance) */}
-      <section className="bg-slate-50 border-b border-slate-200 py-8 sm:py-12">
-        <div className="container-x mx-auto max-w-[1440px]">
-          <div className="p-5 sm:p-8 rounded-2xl bg-white border border-blue-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
-            <div className="flex items-start space-x-3.5 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">
-                  Documentation & Certification Policy
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
-                  {COMPANY_CONFIG.complianceStatement}
-                </p>
-                <p className="text-[11px] sm:text-xs text-slate-500 pt-1">
-                  We believe in authentic commercial trade: certificates and laboratory test parameters are issued per actual product lot and verified destination import mandates.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={onOpenQuote}
-              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-semibold shrink-0 cursor-pointer self-start md:self-auto"
-            >
-              <span>Enquire Specifications</span>
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* Statutory Export Accreditations & Registrations (APEDA, FSSAI, GST, IEC, Spices Board) */}
       <section className="py-12 sm:py-20 md:py-24 bg-white border-b border-slate-200">
