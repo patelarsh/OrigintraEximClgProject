@@ -17,7 +17,6 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
 }) => {
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>('all');
-  const [selectedFormFilter, setSelectedFormFilter] = useState<'All' | 'Whole' | 'Powder'>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
@@ -44,22 +43,6 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
     return products.filter((product) => {
       // Category filter
       const matchesCategory = selectedCategoryKey === 'all' || product.categoryKey === selectedCategoryKey;
-      
-      // Form filter
-      const isPowderOrBlend = 
-        product.categoryKey === 'ground-spices' || 
-        product.categoryKey === 'blends' || 
-        (product.availableForms || []).some(f => f.toLowerCase().includes('powder') || f.toLowerCase().includes('ground') || f.toLowerCase().includes('masala'));
-      
-      const isWholeOrSeed = 
-        product.categoryKey === 'whole-spices' || 
-        product.categoryKey === 'seeds' || 
-        (product.availableForms || []).some(f => f.toLowerCase().includes('whole') || f.toLowerCase().includes('seeds') || f.toLowerCase().includes('pod'));
-
-      const matchesForm = 
-        selectedFormFilter === 'All' ||
-        (selectedFormFilter === 'Powder' && isPowderOrBlend) ||
-        (selectedFormFilter === 'Whole' && isWholeOrSeed);
 
       // Search query
       const q = searchQuery.toLowerCase().trim();
@@ -72,9 +55,9 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
         product.category.toLowerCase().includes(q) ||
         (product.grade && product.grade.toLowerCase().includes(q));
 
-      return matchesCategory && matchesForm && matchesSearch;
+      return matchesCategory && matchesSearch;
     });
-  }, [products, selectedCategoryKey, selectedFormFilter, searchQuery]);
+  }, [products, selectedCategoryKey, searchQuery]);
 
   return (
     <div className="bg-white text-[#0F172A] min-h-[70vh]">
@@ -146,41 +129,6 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
 
           </div>
 
-          {/* Sub-Filters: Form Filter + Results Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-slate-100">
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-500 font-medium">
-              <span className="hidden sm:inline">Form Filter:</span>
-              <button
-                onClick={() => setSelectedFormFilter('All')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
-                  selectedFormFilter === 'All' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                }`}
-              >
-                All Forms
-              </button>
-              <button
-                onClick={() => setSelectedFormFilter('Whole')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
-                  selectedFormFilter === 'Whole' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                }`}
-              >
-                Whole Spices & Seeds
-              </button>
-              <button
-                onClick={() => setSelectedFormFilter('Powder')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer text-xs ${
-                  selectedFormFilter === 'Powder' ? 'bg-[#0A1C3E] text-white font-semibold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                }`}
-              >
-                Ground Powders & Blends
-              </button>
-            </div>
-
-            <div className="text-xs text-slate-500 shrink-0">
-              Showing <span className="font-bold text-slate-800">{filteredProducts.length}</span> of {products.length} products
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -207,11 +155,25 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
       <section className="py-12 sm:py-16">
         <div className="container-x mx-auto max-w-[1440px]">
           
+          <div className="flex items-center justify-between mb-6 text-xs text-slate-500">
+            <span>
+              Showing <span className="font-bold text-slate-800">{filteredProducts.length}</span> of {products.length} export products
+            </span>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-[#0070E0] hover:underline font-semibold cursor-pointer"
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+
           {filteredProducts.length === 0 ? (
             <div className="text-center py-20 text-slate-500 space-y-3">
               <p className="text-lg font-medium">No export products match your selected criteria.</p>
               <button
-                onClick={() => { setSelectedCategoryKey('all'); setSelectedFormFilter('All'); setSearchQuery(''); }}
+                onClick={() => { setSelectedCategoryKey('all'); setSearchQuery(''); }}
                 className="text-xs font-semibold text-[#0070E0] hover:underline cursor-pointer"
               >
                 Reset All Filters
