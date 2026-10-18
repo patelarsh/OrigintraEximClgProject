@@ -195,8 +195,7 @@ export const App: React.FC = () => {
     } else if (route.page === 'product-detail' && route.productSlug) {
       const slug = route.productSlug;
       const allProducts = AdminStorage.getProducts();
-      const found = allProducts.find((p) => p.slug === slug || (slug === 'turmeric-powder' && (p.slug === 'turmeric' || p.id === 'turmeric'))) || 
-                    PRODUCTS.find((p) => p.slug === slug || (slug === 'turmeric-powder' && (p.slug === 'turmeric' || p.id === 'turmeric')));
+      const found = allProducts.find((p) => p.slug === slug || (slug === 'turmeric-powder' && (p.slug === 'turmeric' || p.id === 'turmeric')));
       if (found) {
         setSelectedProduct(found);
         setCurrentPage('product-detail');

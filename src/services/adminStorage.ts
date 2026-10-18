@@ -54,6 +54,7 @@ const STORAGE_KEYS = {
   USERS: 'origintra_admin_users_v1',
   LEADERSHIP_VISIBILITY: 'origintra_admin_leadership_visibility_v1',
   DELETED_GALLERY: 'origintra_admin_deleted_gallery_v1',
+  DELETED_PRODUCTS: 'origintra_admin_deleted_products_v1',
 };
 
 // Automatic cleanup of legacy storage snapshots across mobile and desktop clients
@@ -312,15 +313,16 @@ export const AdminStorage = {
             window.dispatchEvent(new Event('origintra_users_updated'));
           }
           if (Array.isArray(products) && products.length) {
-            let sanitized = products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
-            for (const def of DEFAULT_PRODUCTS) {
-              const existingIdx = sanitized.findIndex((p: Product) => p.id === def.id);
-              if (existingIdx === -1) {
-                sanitized.push(def);
-              } else if (!sanitized[existingIdx].image || sanitized[existingIdx].image.length < 5) {
-                sanitized[existingIdx].image = def.image;
+            const deletedIds = this.getDeletedProductIds();
+            const deletedSet = new Set(deletedIds);
+            let sanitized = products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+            sanitized = sanitized.map((p: Product) => {
+              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
+                const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+                return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
               }
-            }
+              return p;
+            });
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(sanitized));
             window.dispatchEvent(new Event('origintra_products_updated'));
           }
@@ -813,67 +815,92 @@ export const AdminStorage = {
   },
 
   // === PRODUCTS ===
+  getDeletedProductIds(): string[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.DELETED_PRODUCTS);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((id): id is string => typeof id === 'string');
+        }
+      }
+    } catch (e) {
+      console.error('Error reading deleted product IDs:', e);
+    }
+    return [];
+  },
+
   getProducts(): Product[] {
+    const deletedIds = this.getDeletedProductIds();
+    const deletedSet = new Set(deletedIds);
+
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (data) {
         let parsed = JSON.parse(data) as Product[];
-        const hasNutmeg = parsed.some(p => p.id === 'nutmeg' || p.slug === 'nutmeg');
+
+        // Always purge nutmeg
+        parsed = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+
+        // Always filter out any explicitly deleted product
+        if (deletedSet.size > 0) {
+          parsed = parsed.filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+        }
+
         const hasWholeTurmeric = parsed.some(p => p.id === 'whole-turmeric' || p.slug === 'whole-turmeric');
         const turmericItem = parsed.find(p => p.id === 'turmeric' || p.slug === 'turmeric');
         const needsTurmericPowderUpdate = turmericItem && turmericItem.name === 'Turmeric';
-        const hasMissingProducts = parsed.length < DEFAULT_PRODUCTS.length;
         const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null');
 
-        if (hasNutmeg || !hasWholeTurmeric || needsTurmericPowderUpdate || hasMissingProducts || hasBrokenImages) {
-          let migrated = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+        let needsMigrationSave = false;
 
-          // Ensure all default products are present
-          for (const defProd of DEFAULT_PRODUCTS) {
-            const exists = migrated.some(p => p.id === defProd.id);
-            if (!exists) {
-              migrated.push(defProd);
-            }
+        // Only add whole-turmeric if it has not been deleted by the user!
+        if (!hasWholeTurmeric && !deletedSet.has('whole-turmeric')) {
+          const wholeTurmericDef = DEFAULT_PRODUCTS.find(p => p.id === 'whole-turmeric');
+          if (wholeTurmericDef) {
+            parsed.push(wholeTurmericDef);
+            needsMigrationSave = true;
           }
+        }
 
-          if (needsTurmericPowderUpdate) {
-            const turmericPowderDef = DEFAULT_PRODUCTS.find(p => p.id === 'turmeric');
-            if (turmericPowderDef) {
-              migrated = migrated.map(p => (p.id === 'turmeric' || p.slug === 'turmeric') ? turmericPowderDef : p);
-            }
+        if (needsTurmericPowderUpdate && !deletedSet.has('turmeric')) {
+          const turmericPowderDef = DEFAULT_PRODUCTS.find(p => p.id === 'turmeric');
+          if (turmericPowderDef) {
+            parsed = parsed.map(p => (p.id === 'turmeric' || p.slug === 'turmeric') ? turmericPowderDef : p);
+            needsMigrationSave = true;
           }
+        }
 
-          // Heal any missing or broken image references
-          migrated = migrated.map(p => {
+        // Heal any missing or broken image references
+        if (hasBrokenImages) {
+          parsed = parsed.map(p => {
             if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
               const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
               return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
             return p;
           });
-
-          try {
-            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(migrated));
-          } catch {}
-          return migrated;
+          needsMigrationSave = true;
         }
 
-        // Return parsed with guaranteed safe images
-        return parsed.map(p => {
-          if (!p.image || p.image.length < 5) {
-            const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
-            return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
-          }
-          return p;
-        });
+        if (needsMigrationSave) {
+          try {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(parsed));
+          } catch {}
+        }
+
+        return parsed;
       }
     } catch (e) {
       console.error('Error reading products from storage:', e);
     }
+
+    // Default initialization (excluding deleted products)
+    const initialProducts = DEFAULT_PRODUCTS.filter(p => p.id !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
     try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialProducts));
     } catch {}
-    return DEFAULT_PRODUCTS;
+    return initialProducts;
   },
 
   // === IMAGE UPLOADS ===
@@ -930,16 +957,19 @@ export const AdminStorage = {
       const res = await fetch('/api/products.php', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
-          let sanitized = data.products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
-          for (const def of DEFAULT_PRODUCTS) {
-            const existingIdx = sanitized.findIndex((p: Product) => p.id === def.id);
-            if (existingIdx === -1) {
-              sanitized.push(def);
-            } else if (!sanitized[existingIdx].image || sanitized[existingIdx].image.length < 5) {
-              sanitized[existingIdx].image = def.image;
+        if (data && data.success && Array.isArray(data.products)) {
+          const deletedIds = this.getDeletedProductIds();
+          const deletedSet = new Set(deletedIds);
+          let sanitized = data.products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+
+          sanitized = sanitized.map((p: Product) => {
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
+              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+              return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
-          }
+            return p;
+          });
+
           try {
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(sanitized));
             window.dispatchEvent(new Event('origintra_products_updated'));
@@ -966,6 +996,20 @@ export const AdminStorage = {
       updated[existingIndex] = product;
     } else {
       updated = [product, ...products];
+    }
+
+    // If re-saving a previously deleted product, un-delete it
+    const deletedIds = this.getDeletedProductIds();
+    if (deletedIds.includes(product.id) || (product.slug && deletedIds.includes(product.slug))) {
+      const updatedDeleted = deletedIds.filter(id => id !== product.id && id !== product.slug);
+      try {
+        localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(updatedDeleted));
+        fetch('/api/settings.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deletedProductIds: updatedDeleted })
+        }).catch(() => {});
+      } catch {}
     }
 
     try {
@@ -1038,36 +1082,76 @@ export const AdminStorage = {
 
   deleteProduct(productId: string): boolean {
     const products = this.getProducts();
-    const filtered = products.filter(p => p.id !== productId);
-    if (filtered.length !== products.length) {
-      try {
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
-      } catch (e) {
-        console.warn('Error saving filtered products to storage:', e);
-      }
-      window.dispatchEvent(new Event('origintra_products_updated'));
-      notifyCrossTab('origintra_products_updated');
+    const target = products.find(p => p.id === productId || p.slug === productId);
+    const filtered = products.filter(p => p.id !== productId && p.slug !== productId);
 
-      try {
-        fetch('/api/products.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(filtered)
-        }).catch(err => console.warn('Could not sync products deletion to /api/products.php:', err));
-      } catch (e) {
-        // offline
-      }
+    // 1. Add both id and slug to deletedProductIds so it is NEVER restored by any sync or fallback
+    const deletedIds = this.getDeletedProductIds();
+    const idsToAdd: string[] = [productId];
+    if (target?.id && !idsToAdd.includes(target.id)) idsToAdd.push(target.id);
+    if (target?.slug && !idsToAdd.includes(target.slug)) idsToAdd.push(target.slug);
 
-      if (supabase.isConfigured()) {
-        supabase.from('products').delete('id', productId).then(() => this.fetchDatabaseStatus());
-      }
-      return true;
+    const updatedDeletedIds = Array.from(new Set([...deletedIds, ...idsToAdd]));
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(updatedDeletedIds));
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
+    } catch (e) {
+      console.warn('Error saving filtered products to storage:', e);
     }
-    return false;
+
+    window.dispatchEvent(new Event('origintra_products_updated'));
+    notifyCrossTab('origintra_products_updated');
+
+    // 2. Persist updated products list to Hostinger server
+    try {
+      fetch('/api/products.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filtered)
+      }).catch(err => console.warn('Could not sync products deletion to /api/products.php:', err));
+    } catch (e) {
+      // offline
+    }
+
+    // 3. Persist deleted IDs to /api/settings.php for multi-device sync
+    try {
+      fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deletedProductIds: updatedDeletedIds })
+      }).catch(err => console.warn('Could not sync deleted product IDs to /api/settings.php:', err));
+    } catch (e) {
+      // offline
+    }
+
+    // 4. Delete from Supabase PostgreSQL
+    if (supabase.isConfigured()) {
+      supabase.from('products').delete('id', productId).then(() => this.fetchDatabaseStatus());
+      if (target?.slug && target.slug !== productId) {
+        supabase.from('products').delete('slug', target.slug).catch(() => {});
+      }
+    }
+    return true;
   },
 
   resetProductsToDefault(): void {
+    localStorage.removeItem(STORAGE_KEYS.DELETED_PRODUCTS);
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+
+    try {
+      fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deletedProductIds: [] })
+      }).catch(() => {});
+      fetch('/api/products.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(DEFAULT_PRODUCTS)
+      }).catch(() => {});
+    } catch {}
+
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
 
@@ -1316,6 +1400,30 @@ export const AdminStorage = {
               localStorage.setItem(STORAGE_KEYS.DELETED_GALLERY, JSON.stringify(serverDeleted));
               window.dispatchEvent(new Event('origintra_gallery_updated'));
               notifyCrossTab('origintra_gallery_updated');
+            }
+          }
+
+          if (Array.isArray(data.settings.deletedProductIds)) {
+            const serverDeleted = data.settings.deletedProductIds.filter((id: unknown) => typeof id === 'string');
+            const localDeleted = this.getDeletedProductIds();
+            const serverStr = JSON.stringify([...serverDeleted].sort());
+            const localStr = JSON.stringify([...localDeleted].sort());
+            if (serverStr !== localStr) {
+              localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(serverDeleted));
+              try {
+                const prodsRaw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+                if (prodsRaw) {
+                  const prods = JSON.parse(prodsRaw);
+                  if (Array.isArray(prods)) {
+                    const pruned = prods.filter((p: any) => !serverDeleted.includes(p.id) && !serverDeleted.includes(p.slug));
+                    if (pruned.length !== prods.length) {
+                      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(pruned));
+                    }
+                  }
+                }
+              } catch {}
+              window.dispatchEvent(new Event('origintra_products_updated'));
+              notifyCrossTab('origintra_products_updated');
             }
           }
         }
@@ -1787,7 +1895,7 @@ if (typeof window !== 'undefined') {
 
   window.addEventListener('storage', (e) => {
     if (!e.key) return;
-    if (e.key === STORAGE_KEYS.PRODUCTS) window.dispatchEvent(new Event('origintra_products_updated'));
+    if (e.key === STORAGE_KEYS.PRODUCTS || e.key === STORAGE_KEYS.DELETED_PRODUCTS) window.dispatchEvent(new Event('origintra_products_updated'));
     if (e.key === STORAGE_KEYS.BLOG_POSTS) window.dispatchEvent(new Event('origintra_blog_updated'));
     if (e.key === STORAGE_KEYS.TEAM_MEMBERS) window.dispatchEvent(new Event('origintra_team_updated'));
     if (e.key === STORAGE_KEYS.INQUIRIES) window.dispatchEvent(new Event('origintra_inquiries_updated'));

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ArrowUpRight, ArrowRight, MapPin, Sparkles, Layers, ShieldCheck, Check } from 'lucide-react';
-import { PRODUCTS as DEFAULT_PRODUCTS, PRODUCT_CATEGORIES } from '../data/products';
+import { PRODUCT_CATEGORIES } from '../data/products';
 import { Product } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 import { ProductImage } from '../components/ProductImage';

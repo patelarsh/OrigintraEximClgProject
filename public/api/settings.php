@@ -22,6 +22,7 @@ $settingsFile = __DIR__ . '/site-settings.json';
 $defaultSettings = [
     'leadershipVisible' => false,
     'deletedGalleryIds' => [],
+    'deletedProductIds' => [],
     'updatedAt' => date('c')
 ];
 
@@ -54,6 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($input['deletedGalleryIds']) && is_array($input['deletedGalleryIds'])) {
         $currentSettings['deletedGalleryIds'] = array_values(array_unique(array_filter($input['deletedGalleryIds'], 'is_string')));
+    }
+
+    if (isset($input['deletedProductIds']) && is_array($input['deletedProductIds'])) {
+        $currentSettings['deletedProductIds'] = array_values(array_unique(array_filter($input['deletedProductIds'], 'is_string')));
     }
 
     $currentSettings['updatedAt'] = date('c');

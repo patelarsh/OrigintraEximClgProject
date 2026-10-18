@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle, ArrowUpRight, Lock, Loader2, Sparkles, Layers } from 'lucide-react';
-import { PRODUCTS } from '../data/products';
 import { QuoteFormData } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 
@@ -226,7 +225,7 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
                     onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 bg-white focus:outline-none focus:border-[#0070E0] focus:ring-1 focus:ring-[#0070E0]"
                   >
-                    {PRODUCTS.map((prod) => (
+                    {AdminStorage.getProducts().map((prod) => (
                       <option key={prod.id} value={prod.name}>
                         {prod.name}
                       </option>

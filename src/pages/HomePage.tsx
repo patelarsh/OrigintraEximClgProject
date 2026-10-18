@@ -24,7 +24,6 @@ import {
   CheckCircle2,
   Calendar
 } from 'lucide-react';
-import { PRODUCTS as DEFAULT_PRODUCTS } from '../data/products';
 import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../data/blog';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { Product, BlogPost, Testimonial } from '../types';
