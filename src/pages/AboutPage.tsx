@@ -29,11 +29,17 @@ interface AboutPageProps {
 export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote }) => {
   const COMPANY_CONFIG = useCompanyConfig();
   const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>(() => AdminStorage.getTeamMembers());
+  const [leadershipVisible, setLeadershipVisible] = React.useState<boolean>(() => AdminStorage.getLeadershipVisibility());
 
   React.useEffect(() => {
     const handleUpdate = () => setTeamMembers(AdminStorage.getTeamMembers());
+    const handleVisUpdate = () => setLeadershipVisible(AdminStorage.getLeadershipVisibility());
     window.addEventListener('origintra_team_updated', handleUpdate);
-    return () => window.removeEventListener('origintra_team_updated', handleUpdate);
+    window.addEventListener('origintra_leadership_visibility_updated', handleVisUpdate);
+    return () => {
+      window.removeEventListener('origintra_team_updated', handleUpdate);
+      window.removeEventListener('origintra_leadership_visibility_updated', handleVisUpdate);
+    };
   }, []);
   return (
     <div className="bg-white text-[#0F172A]">
@@ -115,8 +121,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
         </div>
       </section>
 
-      {/* Leadership & Executive Team Section */}
-      <section className="py-12 sm:py-20 md:py-28 bg-white border-b border-slate-200">
+      {/* Leadership & Executive Team Section (Controlled via Admin Panel) */}
+      {leadershipVisible && (
+        <section className="py-12 sm:py-20 md:py-28 bg-white border-b border-slate-200">
         <div className="container-x mx-auto max-w-[1440px]">
           
           <div className="max-w-3xl mb-10 sm:mb-16">
@@ -193,6 +200,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
 
         </div>
       </section>
+      )}
 
       {/* =========================================================================
           SECTION: Purpose & Direction (Our Mission & Our Vision)

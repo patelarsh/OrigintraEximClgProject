@@ -470,7 +470,11 @@ export function getHomeSeo(): SeoConfig {
 }
 
 export function getAboutSeo(): SeoConfig {
-  return {
+  const isLeadershipVisible = typeof window !== 'undefined'
+    ? (localStorage.getItem('origintra_admin_leadership_visibility_v1') !== 'false')
+    : true;
+
+  const config: SeoConfig = {
     title: 'About Us | Origintra Exim - Indian Spices Exporter',
     description: "Discover Origintra Exim, India's trusted merchant spices exporter. Direct farmgate sourcing networks across Gujarat, Andhra Pradesh, Rajasthan and Kerala supplying export-grade agricultural commodities worldwide.",
     keywords: [
@@ -490,6 +494,25 @@ export function getAboutSeo(): SeoConfig {
       { name: 'About Us', item: '/about' }
     ]
   };
+
+  if (isLeadershipVisible) {
+    config.jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      'mainEntity': {
+        '@type': 'Corporation',
+        'name': 'Origintra Exim',
+        'founder': {
+          '@type': 'Person',
+          'name': 'Patel Arsh',
+          'jobTitle': 'Founder & Managing Director',
+          'knowsAbout': 'Agri-Commodity Exports & Global Commercial Partnerships'
+        }
+      }
+    };
+  }
+
+  return config;
 }
 
 export function getProductsCatalogSeo(category?: string): SeoConfig {

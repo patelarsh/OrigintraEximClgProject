@@ -225,8 +225,19 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                   className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Product Image */}
-                    <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
+                    {/* Product Image Link to Specification Page */}
+                    <a
+                      href={`/products/${product.slug}`}
+                      onClick={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                          e.preventDefault();
+                          onOpenProductDetail(product);
+                        }
+                      }}
+                      className="block relative aspect-[4/5] overflow-hidden bg-slate-50 cursor-pointer group/image"
+                      title={`View ${product.name} specifications`}
+                      aria-label={`View ${product.name} specifications`}
+                    >
                       <img
                         src={product.image.replace(/\.(jpe?g|png)$/, '.webp')}
                         srcSet={`${product.image.replace(/\.(jpe?g|png)$/, '-450.webp')} 450w, ${product.image.replace(/\.(jpe?g|png)$/, '.webp')} 800w`}
@@ -234,7 +245,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                         alt={product.name}
                         width="400"
                         height="500"
-                        className="w-full h-full object-cover transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
@@ -246,17 +257,17 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                       />
                       
                       {/* Category Tag on top right */}
-                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80">
+                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80 pointer-events-none">
                         {product.category}
                       </div>
 
                       {/* Flagship Badge on top left if applicable */}
                       {product.isFlagship && (
-                        <div className="absolute top-3.5 left-3.5 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">
+                        <div className="absolute top-3.5 left-3.5 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider pointer-events-none">
                           Flagship
                         </div>
                       )}
-                    </div>
+                    </a>
 
                     {/* Product Info */}
                     <div className="p-5 sm:p-6 space-y-3.5">

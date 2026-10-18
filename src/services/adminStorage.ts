@@ -52,6 +52,7 @@ const STORAGE_KEYS = {
   AUTH_TOKEN: 'origintra_admin_auth_token_v1',
   RATE_LIMIT: 'origintra_admin_rate_limit_v1',
   USERS: 'origintra_admin_users_v1',
+  LEADERSHIP_VISIBILITY: 'origintra_admin_leadership_visibility_v1',
 };
 
 const DEFAULT_USERS: User[] = [
@@ -1066,6 +1067,39 @@ export const AdminStorage = {
       }));
       supabase.from('team_members').upsert(rows, 'id').then(() => this.fetchDatabaseStatus());
     }
+  },
+
+  // === LEADERSHIP VISIBILITY & SEO INDEXING CONTROLS ===
+  getLeadershipVisibility(): boolean {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY);
+      if (data !== null) {
+        return JSON.parse(data);
+      }
+    } catch (e) {
+      console.error('Error reading leadership visibility from storage:', e);
+    }
+    return true; // Default is visible & indexed
+  },
+
+  setLeadershipVisibility(visible: boolean): boolean {
+    try {
+      localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(visible));
+    } catch (e) {
+      console.error('Error saving leadership visibility to storage:', e);
+    }
+    window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
+    notifyCrossTab('origintra_leadership_visibility_updated');
+
+    if (supabase.isConfigured()) {
+      supabase.from('site_settings').upsert({
+        key: 'leadership_visibility',
+        value: { visible },
+        updated_at: new Date().toISOString()
+      }, 'key').catch(err => console.warn('Supabase site_settings sync optional:', err));
+    }
+
+    return visible;
   },
 
   // === INQUIRIES & LEADS ===

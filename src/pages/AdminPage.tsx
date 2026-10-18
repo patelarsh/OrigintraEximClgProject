@@ -121,6 +121,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => AdminStorage.getBlogPosts());
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => AdminStorage.getTeamMembers());
+  const [leadershipVisible, setLeadershipVisible] = useState(() => AdminStorage.getLeadershipVisibility());
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => AdminStorage.getTestimonials());
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => AdminStorage.getInquiries());
   const [companyConfig, setCompanyConfig] = useState(() => AdminStorage.getCompanyConfig());
@@ -189,6 +190,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     const handleProductsUpdated = () => setProducts(AdminStorage.getProducts());
     const handleBlogUpdated = () => setBlogPosts(AdminStorage.getBlogPosts());
     const handleTeamUpdated = () => setTeamMembers(AdminStorage.getTeamMembers());
+    const handleLeadershipVisUpdated = () => setLeadershipVisible(AdminStorage.getLeadershipVisibility());
     const handleTestimonialsUpdated = () => setTestimonials(AdminStorage.getTestimonials());
     const handleInquiriesUpdated = () => setInquiries(AdminStorage.getInquiries());
     const handleCompanyUpdated = () => setCompanyConfig(AdminStorage.getCompanyConfig());
@@ -203,6 +205,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     window.addEventListener('origintra_products_updated', handleProductsUpdated);
     window.addEventListener('origintra_blog_updated', handleBlogUpdated);
     window.addEventListener('origintra_team_updated', handleTeamUpdated);
+    window.addEventListener('origintra_leadership_visibility_updated', handleLeadershipVisUpdated);
     window.addEventListener('origintra_testimonials_updated', handleTestimonialsUpdated);
     window.addEventListener('origintra_inquiries_updated', handleInquiriesUpdated);
     window.addEventListener('origintra_company_updated', handleCompanyUpdated);
@@ -215,6 +218,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       window.removeEventListener('origintra_products_updated', handleProductsUpdated);
       window.removeEventListener('origintra_blog_updated', handleBlogUpdated);
       window.removeEventListener('origintra_team_updated', handleTeamUpdated);
+      window.removeEventListener('origintra_leadership_visibility_updated', handleLeadershipVisUpdated);
       window.removeEventListener('origintra_testimonials_updated', handleTestimonialsUpdated);
       window.removeEventListener('origintra_inquiries_updated', handleInquiriesUpdated);
       window.removeEventListener('origintra_company_updated', handleCompanyUpdated);
@@ -595,6 +599,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   };
 
   // === TEAM MEMBER HANDLERS ===
+  const handleToggleLeadershipVisibility = (newVal: boolean) => {
+    AdminStorage.setLeadershipVisibility(newVal);
+    setLeadershipVisible(newVal);
+    showToast(
+      newVal
+        ? 'Leadership & Key People component is now VISIBLE on the website and indexed by Google.'
+        : 'Leadership & Key People component is now HIDDEN from the website and removed from Google indexing.'
+    );
+  };
+
   const handleOpenAddTeamMember = () => {
     setEditingTeamMember({
       id: `team-${Date.now()}`,
@@ -2043,6 +2057,62 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     <Plus className="w-4 h-4" />
                     <span>Add New Leader</span>
                   </button>
+                </div>
+              </div>
+
+              {/* Master Visibility & Search Indexing Toggle Card */}
+              <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                leadershipVisible 
+                  ? 'bg-blue-50/70 border-blue-200 shadow-2xs' 
+                  : 'bg-amber-50/80 border-amber-200 shadow-2xs'
+              }`}>
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    leadershipVisible ? 'bg-[#0070E0] text-white shadow-sm' : 'bg-amber-500 text-white shadow-sm'
+                  }`}>
+                    {leadershipVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#0F172A]">
+                        About Us Page: "Leadership & Key People" Component
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                        leadershipVisible ? 'bg-blue-100 text-[#0070E0] border border-blue-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
+                      }`}>
+                        {leadershipVisible ? 'Visible & Google Indexed' : 'Hidden & Excluded from Indexing'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                      {leadershipVisible 
+                        ? 'Active Mode: The component is fully displayed on the About Us page, and Googlebot crawls the executive profiles, verified photos, credentials, and Person structured data.'
+                        : 'Hidden Mode: The component is completely removed from the page DOM. Googlebot and visitors cannot see or index any names, photos, or leadership details.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-auto bg-white/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLeadershipVisibility(!leadershipVisible)}
+                    className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                      leadershipVisible ? 'bg-[#0070E0]' : 'bg-slate-300'
+                    }`}
+                    role="switch"
+                    aria-checked={leadershipVisible}
+                    title={leadershipVisible ? 'Click to hide component from website & search engines' : 'Click to show component on website & allow search indexing'}
+                  >
+                    <span className="sr-only">Toggle leadership visibility</span>
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        leadershipVisible ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-bold ${leadershipVisible ? 'text-[#0070E0]' : 'text-slate-600'}`}>
+                    {leadershipVisible ? 'Show' : 'Hide'}
+                  </span>
                 </div>
               </div>
 
