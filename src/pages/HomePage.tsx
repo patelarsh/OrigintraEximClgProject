@@ -30,7 +30,7 @@ import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { Product, BlogPost, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 import { HOME_FAQS } from '../utils/seo';
-import { getProductImageSources, handleImageFallback } from '../utils/productImage';
+import { ProductImage } from '../components/ProductImage';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -780,7 +780,6 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Product Cards Grid - Concise 3-product showcase */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {featuredProducts.map((product, index) => {
-              const img = getProductImageSources(product.image);
               return (
                 <div
                   key={product.id}
@@ -800,31 +799,13 @@ export const HomePage: React.FC<HomePageProps> = ({
                       title={`View ${product.name} specifications`}
                       aria-label={`View ${product.name} specifications`}
                     >
-                      <picture className="w-full h-full block">
-                        {img.w450Src && (
-                          <source
-                            type="image/webp"
-                            media="(max-width: 640px)"
-                            srcSet={img.w450Src}
-                          />
-                        )}
-                        {img.webpSrc && (
-                          <source
-                            type="image/webp"
-                            srcSet={img.webpSrc}
-                          />
-                        )}
-                        <img
-                          src={img.src}
-                          alt={product.name}
-                          width="400"
-                          height="500"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading={index < 3 ? "eager" : "lazy"}
-                          decoding={index < 3 ? "sync" : "async"}
-                          onError={(e) => handleImageFallback(e, product.image || '/assets/products/cumin-seeds.jpg')}
-                        />
-                      </picture>
+                      <ProductImage
+                        src={product.image}
+                        alt={product.name}
+                        productName={product.name}
+                        category={product.category || 'Export Spice'}
+                        eager={index < 3}
+                      />
                       
                       {/* Category Tag on top right */}
                       <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80 pointer-events-none">

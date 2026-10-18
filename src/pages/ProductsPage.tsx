@@ -3,7 +3,7 @@ import { Search, ArrowUpRight, ArrowRight, MapPin, Sparkles, Layers, ShieldCheck
 import { PRODUCTS as DEFAULT_PRODUCTS, PRODUCT_CATEGORIES } from '../data/products';
 import { Product } from '../types';
 import { AdminStorage } from '../services/adminStorage';
-import { getProductImageSources, handleImageFallback } from '../utils/productImage';
+import { ProductImage } from '../components/ProductImage';
 
 interface ProductsPageProps {
   onOpenProductDetail: (product: Product) => void;
@@ -190,7 +190,6 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {filteredProducts.map((product, index) => {
-                const img = getProductImageSources(product.image);
                 return (
                   <div
                     key={product.id}
@@ -210,31 +209,13 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                         title={`View ${product.name} specifications`}
                         aria-label={`View ${product.name} specifications`}
                       >
-                        <picture className="w-full h-full block">
-                          {img.w450Src && (
-                            <source
-                              type="image/webp"
-                              media="(max-width: 640px)"
-                              srcSet={img.w450Src}
-                            />
-                          )}
-                          {img.webpSrc && (
-                            <source
-                              type="image/webp"
-                              srcSet={img.webpSrc}
-                            />
-                          )}
-                          <img
-                            src={img.src}
-                            alt={product.name}
-                            width="400"
-                            height="500"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading={index < 4 ? "eager" : "lazy"}
-                            decoding={index < 4 ? "sync" : "async"}
-                            onError={(e) => handleImageFallback(e, product.image || '/assets/products/cumin-seeds.jpg')}
-                          />
-                        </picture>
+                        <ProductImage
+                          src={product.image}
+                          alt={product.name}
+                          productName={product.name}
+                          category={product.category}
+                          eager={index < 6}
+                        />
                         
                         {/* Category Tag on top right */}
                         <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-md text-[#0A1C3E] text-[11px] font-bold uppercase tracking-wider shadow-xs border border-white/80 pointer-events-none">

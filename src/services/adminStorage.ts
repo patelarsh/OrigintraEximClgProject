@@ -38,7 +38,7 @@ export interface DatabaseStatusInfo {
 
 // LocalStorage Keys (used as fast local cache synced with Supabase PostgreSQL)
 const STORAGE_KEYS = {
-  PRODUCTS: 'origintra_admin_products_v1',
+  PRODUCTS: 'origintra_admin_products_v2',
   BLOG_POSTS: 'origintra_admin_blog_posts_v1',
   TEAM_MEMBERS: 'origintra_admin_team_members_v1',
   INQUIRIES: 'origintra_admin_inquiries_v1',
@@ -54,6 +54,15 @@ const STORAGE_KEYS = {
   USERS: 'origintra_admin_users_v1',
   LEADERSHIP_VISIBILITY: 'origintra_admin_leadership_visibility_v1',
 };
+
+// Automatic cleanup of legacy storage snapshots across mobile and desktop clients
+if (typeof window !== 'undefined') {
+  try {
+    if (localStorage.getItem('origintra_admin_products_v1')) {
+      localStorage.removeItem('origintra_admin_products_v1');
+    }
+  } catch {}
+}
 
 const DEFAULT_USERS: User[] = [
   {
@@ -851,6 +860,9 @@ export const AdminStorage = {
     } catch (e) {
       console.error('Error reading products from storage:', e);
     }
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+    } catch {}
     return DEFAULT_PRODUCTS;
   },
 

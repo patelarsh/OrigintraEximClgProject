@@ -58,9 +58,16 @@ export const App: React.FC = () => {
   const [activeLegalType, setActiveLegalType] = useState<'privacy' | 'terms' | 'shipping' | 'cookies'>('privacy');
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 
-  // Sync server-backed site settings on mount so all devices have current global state
+  // Sync server-backed site settings & products on mount so all devices have current global state
   useEffect(() => {
+    try {
+      if (localStorage.getItem('origintra_admin_products_v1')) {
+        localStorage.removeItem('origintra_admin_products_v1');
+      }
+    } catch {}
+
     AdminStorage.syncSettingsFromServer();
+    AdminStorage.syncProductsFromServer().catch(() => {});
   }, []);
 
   useEffect(() => {

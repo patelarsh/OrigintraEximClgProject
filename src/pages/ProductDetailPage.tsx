@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
-import { getProductImageSources, handleImageFallback } from '../utils/productImage';
+import { ProductImage } from '../components/ProductImage';
 
 interface ProductDetailPageProps {
   product: Product;
@@ -78,36 +78,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             {/* Visual Hero */}
             <div className="lg:col-span-6">
               <div className="relative aspect-[4/5] max-h-[560px] mx-auto rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-md">
-                {(() => {
-                  const img = getProductImageSources(product.image);
-                  return (
-                    <picture className="w-full h-full block">
-                      {img.w450Src && (
-                        <source
-                          type="image/webp"
-                          media="(max-width: 640px)"
-                          srcSet={img.w450Src}
-                        />
-                      )}
-                      {img.webpSrc && (
-                        <source
-                          type="image/webp"
-                          srcSet={img.webpSrc}
-                        />
-                      )}
-                      <img
-                        src={img.src}
-                        alt={product.name}
-                        width="560"
-                        height="700"
-                        className="w-full h-full object-cover"
-                        loading="eager"
-                        decoding="sync"
-                        onError={(e) => handleImageFallback(e, product.image || '/assets/products/cumin-seeds.jpg')}
-                      />
-                    </picture>
-                  );
-                })()}
+                <ProductImage
+                  src={product.image}
+                  alt={product.name}
+                  productName={product.name}
+                  category={product.category}
+                  eager={true}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute top-4 left-4 bg-[#0A1C3E]/85 backdrop-blur-xs text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 pointer-events-none">
                   <MapPin className="w-3.5 h-3.5 text-[#38BDF8]" />
                   <span>{product.origin}</span>
