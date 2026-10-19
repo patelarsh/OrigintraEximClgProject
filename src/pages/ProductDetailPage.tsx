@@ -35,8 +35,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [specsExpanded, setSpecsExpanded] = useState<boolean>(true);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
 
+  // Pre-filled WhatsApp inquiry link for current commodity
+  const whatsappNumber = (COMPANY_CONFIG.whatsapp || '+917069182990').replace(/[^0-9]/g, '');
+  const whatsappMessage = encodeURIComponent(
+    `Hello Origintra Exim, I am interested in bulk export inquiry for ${product.name}. Please share technical specifications, export pricing, and MOQ.`
+  );
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
   return (
-    <div className="bg-white text-[#0F172A]">
+    <div className="bg-white text-[#0F172A] pb-20 sm:pb-24 lg:pb-0">
       
       {/* 1. PRODUCT HERO & NAVIGATION */}
       <section className="bg-slate-50 border-b border-slate-200 pt-8 pb-16">
@@ -466,6 +473,37 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
         </div>
       </section>
+
+      {/* 7. STICKY ACTION BAR FOR MOBILE & TABLET */}
+      <aside 
+        aria-label="Product quick action bar"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] px-3.5 py-2.5 sm:px-6 sm:py-3 pb-[calc(0.625rem+env(safe-area-inset-bottom,0px))]"
+      >
+        <div className="max-w-2xl mx-auto flex items-center gap-2.5 sm:gap-3.5">
+          {/* WhatsApp Direct Action Button */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 min-h-[46px] py-2.5 px-3 sm:py-3 sm:px-4 rounded-xl bg-gradient-to-r from-[#20ba59] to-[#25D366] hover:from-[#1da850] hover:to-[#22bf5b] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            aria-label={`Inquire about ${product.name} on WhatsApp`}
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-white shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12.031 2C6.496 2 2 6.496 2 12.031c0 1.767.46 3.49 1.332 5.006L2 22l5.105-1.339a9.98 9.98 0 004.926 1.282h.005c5.535 0 10.03-4.496 10.03-10.031A10.024 10.024 0 0012.031 2zm0 18.369c-1.503 0-2.977-.404-4.264-1.168l-.306-.182-3.17.832.846-3.09-.199-.317A8.344 8.344 0 013.662 12.03c0-4.614 3.755-8.369 8.369-8.369 2.235 0 4.337.871 5.918 2.452a8.324 8.324 0 012.451 5.918c0 4.615-3.755 8.37-8.369 8.37zm4.588-6.265c-.252-.126-1.488-.734-1.719-.818-.231-.084-.399-.126-.567.126-.168.252-.651.818-.798.986-.147.168-.294.189-.546.063-.252-.126-1.063-.392-2.025-1.25-.749-.668-1.255-1.493-1.402-1.745-.147-.252-.016-.388.11-.514.113-.113.252-.294.378-.441.126-.147.168-.252.252-.42.084-.168.042-.315-.021-.441-.063-.126-.567-1.365-.777-1.869-.205-.491-.413-.424-.567-.432l-.483-.008c-.168 0-.441.063-.672.315-.231.252-.882.861-.882 2.1 0 1.239.903 2.436 1.029 2.604.126.168 1.777 2.713 4.305 3.805.602.26 1.072.415 1.439.532.605.192 1.155.165 1.59.1.485-.072 1.488-.609 1.698-1.197.21-.588.21-1.092.147-1.197-.063-.105-.231-.168-.483-.294z" />
+            </svg>
+            <span className="truncate">WhatsApp</span>
+          </a>
+
+          {/* Request Quote Action Button */}
+          <button
+            onClick={() => onOpenQuoteWithProduct(product.name)}
+            className="flex-1 min-h-[46px] py-2.5 px-3 sm:py-3 sm:px-4 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 sm:gap-2 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <span className="truncate">Request Quote</span>
+            <ArrowUpRight className="w-4 h-4 shrink-0" />
+          </button>
+        </div>
+      </aside>
 
     </div>
   );

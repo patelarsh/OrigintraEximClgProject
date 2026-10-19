@@ -436,11 +436,13 @@ export const App: React.FC = () => {
 
       {/* Multi-column Corporate Footer (hidden on admin page) */}
       {currentPage !== 'admin' && (
-        <Footer
-          onNavigate={handleNavigate}
-          onOpenQuote={handleOpenGeneralQuote}
-          onOpenLegal={handleOpenLegal}
-        />
+        <div className={currentPage === 'product-detail' ? 'pb-20 sm:pb-24 lg:pb-0' : ''}>
+          <Footer
+            onNavigate={handleNavigate}
+            onOpenQuote={handleOpenGeneralQuote}
+            onOpenLegal={handleOpenLegal}
+          />
+        </div>
       )}
 
       {/* Commercial Quotation (RFQ) Modal */}
@@ -465,9 +467,11 @@ export const App: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Professional Floating WhatsApp Action Button (Left Side - hidden on admin page) */}
+      {/* Professional Floating WhatsApp Action Button (Left Side - hidden on admin page and hidden on mobile/tablet on product-detail page where sticky bar is active) */}
       {currentPage !== 'admin' && (
-        <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40">
+        <div className={`fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40 ${
+          currentPage === 'product-detail' ? 'hidden lg:block' : ''
+        }`}>
           <a
             href={companyConfig.whatsappUrl}
             target="_blank"
@@ -496,9 +500,11 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Scroll to Top Action Button (Right Side - hidden on admin page) */}
+      {/* Floating Scroll to Top Action Button (Right Side - hidden on admin page, raised above sticky footer on product-detail) */}
       {currentPage !== 'admin' && (
-        <div className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-40 transition-all duration-300 ${
+        <div className={`fixed ${
+          currentPage === 'product-detail' ? 'bottom-20 sm:bottom-24 lg:bottom-6' : 'bottom-4 sm:bottom-6'
+        } right-4 sm:right-6 z-40 transition-all duration-300 ${
           showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}>
           <button
