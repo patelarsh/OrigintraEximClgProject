@@ -164,11 +164,11 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               </div>
 
-              {/* Statutory Licenses & Certifications HD Banner (Below Social Media Icons) */}
-              <div className="pt-2">
+              {/* Statutory Licenses & Certifications HD Banner (Exactly Below Social Media Icons) */}
+              <div className="pt-1">
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50/95 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(0,0,0,0.15)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_6px_20px_rgba(56,189,248,0.25)] hover:scale-[1.02] transition-all duration-200 cursor-pointer group inline-block max-w-sm w-full"
+                  className="block w-full max-w-[270px] sm:max-w-[290px] hover:scale-[1.03] transition-all duration-200 cursor-pointer group"
                   title="Origintra Exim — Statutory Export Accreditations & Licenses (FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST Registered)"
                   aria-label="Statutory Export Accreditations & Licenses"
                 >
@@ -177,9 +177,9 @@ export const Footer: React.FC<FooterProps> = ({
                     <img
                       src="/assets/certificates/statutory-licenses-hd.png"
                       alt="Statutory Export Accreditations and Licenses — FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST"
-                      width="3927"
-                      height="578"
-                      className="w-full h-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
+                      width="3993"
+                      height="638"
+                      className="w-full h-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.22)] transition-all duration-200 group-hover:drop-shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                       loading="lazy"
                     />
                   </picture>
