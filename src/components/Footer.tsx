@@ -163,6 +163,28 @@ export const Footer: React.FC<FooterProps> = ({
                   <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
               </div>
+
+              {/* Statutory Licenses & Certifications HD Banner (Below Social Media Icons) */}
+              <div className="pt-2">
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50/95 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-[0_2px_10px_rgba(0,0,0,0.15)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_6px_20px_rgba(56,189,248,0.25)] hover:scale-[1.02] transition-all duration-200 cursor-pointer group inline-block max-w-sm w-full"
+                  title="Origintra Exim — Statutory Export Accreditations & Licenses (FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST Registered)"
+                  aria-label="Statutory Export Accreditations & Licenses"
+                >
+                  <picture>
+                    <source srcSet="/assets/certificates/statutory-licenses-hd.webp" type="image/webp" />
+                    <img
+                      src="/assets/certificates/statutory-licenses-hd.png"
+                      alt="Statutory Export Accreditations and Licenses — FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST"
+                      width="3927"
+                      height="578"
+                      className="w-full h-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+              </div>
             </div>
 
             {/* Column 2: Quick Links (lg:col-span-2) */}
@@ -418,29 +440,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           </div>
 
-          {/* 3.3 Statutory Trust & Accreditation Badges Bar */}
-          <div className="border-t border-white/10 pt-7 pb-6">
-            <div className="flex justify-center">
-              <div
-                onClick={() => handleNav('quality')}
-                className="bg-white hover:bg-slate-50/95 rounded-2xl px-5 sm:px-8 py-3 sm:py-4 shadow-[0_2px_12px_rgba(0,0,0,0.15)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_24px_rgba(56,189,248,0.22)] hover:scale-[1.01] transition-all duration-200 cursor-pointer group inline-flex items-center justify-center max-w-full"
-                title="Origintra Exim — Statutory Export Accreditations & Licenses (FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST Registered)"
-                aria-label="Statutory Export Accreditations & Licenses"
-              >
-                <picture>
-                  <source srcSet="/assets/certificates/statutory-licenses-strip.webp" type="image/webp" />
-                  <img
-                    src="/assets/certificates/statutory-licenses-strip.png"
-                    alt="Statutory Export Accreditations and Licenses — FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST"
-                    width="1024"
-                    height="163"
-                    className="h-10 sm:h-12 md:h-16 lg:h-18 w-auto max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.01]"
-                    loading="lazy"
-                  />
-                </picture>
-              </div>
-            </div>
-          </div>
+
 
         </div>
 
