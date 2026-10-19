@@ -14,7 +14,14 @@ import {
   MessageSquareText,
   Ship,
   Handshake,
-  Building2
+  Building2,
+  Leaf,
+  Package,
+  FileText,
+  ClipboardList,
+  MapPin,
+  Clock,
+  Boxes
 } from 'lucide-react';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { TEAM_EXPANSION_NOTICE, TEAM_MEMBERS as DEFAULT_TEAM_MEMBERS } from '../data/team';
@@ -561,48 +568,129 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
       </section>
 
       {/* =========================================================================
-          SECTION: Let's Build a Global Business Relationship
+          SECTION: Let's Build a Global Business Relationship (Mockup Redesign)
       ========================================================================= */}
-      <section className="py-16 sm:py-24 bg-white">
+      <section className="py-16 sm:py-24 bg-[#F8FAFC]">
         <div className="container-x mx-auto max-w-[1440px]">
           
-          <div className="bg-[#0A1C3E] rounded-2xl sm:rounded-3xl text-white p-5 sm:p-10 lg:p-16 border border-slate-800 shadow-xl">
+          {/* Main Elevated Light Container */}
+          <div className="relative bg-white rounded-3xl sm:rounded-[32px] p-6 sm:p-10 lg:p-12 xl:p-14 border border-slate-100 shadow-[0_12px_45px_rgba(0,0,0,0.06)] overflow-hidden">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+            {/* Background Dotted World Map & Shipping Routes */}
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden z-0 opacity-25">
+              <img
+                src="/assets/dotted-world-map.svg"
+                alt=""
+                aria-hidden="true"
+                className="absolute -right-20 -top-10 w-[950px] max-w-none h-[115%] object-contain"
+              />
+            </div>
+
+            {/* Indian Spices Cluster Image (exact placement matching user mockup) */}
+            <div className="hidden lg:block absolute left-[54%] xl:left-[53%] bottom-0 -translate-x-1/2 w-[270px] xl:w-[310px] pointer-events-none select-none z-10">
+              <picture>
+                <source srcSet="/assets/about/indian-spices-cluster.webp" type="image/webp" />
+                <img
+                  src="/assets/about/indian-spices-cluster.png"
+                  alt="Premium Indian Spices"
+                  width="250"
+                  height="260"
+                  className="w-full h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               
-              {/* Left Column: Narrative & Action CTAs */}
-              <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+              {/* Left Column: Narrative, 4 Features & Action CTAs (lg:col-span-7) */}
+              <div className="lg:col-span-7 space-y-6">
                 
-                <div className="space-y-2 sm:space-y-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                {/* Eyebrow Header flanked by blue accent lines */}
+                <div className="inline-flex items-center gap-3">
+                  <span className="w-8 h-[2px] bg-[#0070E0] rounded-full" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#0070E0]">
                     Global Trade Inquiries
                   </span>
-                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-semibold text-white tracking-tight leading-tight">
-                    Let's Build a Global Business Relationship<span className="text-[#0070E0]">.</span>
-                  </h2>
+                  <span className="w-8 h-[2px] bg-[#0070E0] rounded-full" />
                 </div>
 
-                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-slate-200 font-normal leading-relaxed">
-                  <p>
-                    Looking for an Indian spice supplier or export partner? Share your product requirements, destination country, required quantity, and packaging preferences. Our team will review your enquiry and discuss the next steps.
-                  </p>
-                  <p className="text-white font-semibold text-base sm:text-lg md:text-xl">
-                    Contact Origintra Exim today to discuss your sourcing requirements.
-                  </p>
+                {/* Main Heading */}
+                <h2 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-5xl font-display font-extrabold text-[#06152F] tracking-tight leading-[1.15]">
+                  Let's Build a Global <br className="hidden sm:inline" />
+                  Business <span className="text-[#0070E0]">Relationship.</span>
+                </h2>
+
+                {/* Body Paragraph */}
+                <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
+                  Looking for an Indian spice supplier or export partner? Share your product requirements, destination country, required quantity, and packaging preferences. Our team will review your enquiry and discuss the next steps.
+                </p>
+
+                {/* 4 Feature Badges in a Row */}
+                <div className="pt-2 pb-2">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-1">
+                    
+                    {/* Feature 1: Premium Quality */}
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Leaf className="w-5 h-5 text-[#0070E0]" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                        Premium<br />Quality
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+
+                    {/* Feature 2: Custom Packaging */}
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Package className="w-5 h-5 text-[#0070E0]" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                        Custom<br />Packaging
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+
+                    {/* Feature 3: Global Shipping */}
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Ship className="w-5 h-5 text-[#0070E0]" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                        Global<br />Shipping
+                      </div>
+                    </div>
+
+                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+
+                    {/* Feature 4: Complete Documentation */}
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <FileText className="w-5 h-5 text-[#0070E0]" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                        Complete<br />Documentation
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
 
-                {/* Primary CTAs */}
+                {/* Action Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <button
                     onClick={onOpenQuote}
-                    className="btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-md shadow-[#0070E0]/20 cursor-pointer w-full sm:w-auto"
+                    className="px-7 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg shadow-blue-500/25 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Submit Sourcing Enquiry</span>
-                    <ArrowUpRight className="w-4 h-4 ml-1" />
+                    <ArrowRight className="w-4 h-4 ml-1" />
                   </button>
                   <button
                     onClick={() => onNavigate('contact')}
-                    className="btn-pill border border-white/30 hover:border-white text-white hover:bg-white/10 px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 cursor-pointer w-full sm:w-auto"
+                    className="px-7 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 active:scale-[0.98] text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-xs hover:border-slate-400 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Contact Trade Desk</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
@@ -611,101 +699,156 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
 
               </div>
 
-              {/* Right Column: Commercial Desk Checklist */}
-              <div className="lg:col-span-5 bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-700/80 space-y-5">
-                <div className="space-y-1">
-                  <span className="text-[11px] font-mono uppercase font-semibold text-sky-400 tracking-wider">
-                    Commercial Desk Checklist
-                  </span>
-                  <h3 className="text-lg font-display font-bold text-white">
-                    What to Include in Your Enquiry
-                  </h3>
-                </div>
-
-                <div className="space-y-4 pt-1">
+              {/* Right Column: Commercial Desk Checklist (lg:col-span-5) */}
+              <div className="lg:col-span-5">
+                <div className="bg-white rounded-3xl p-6 sm:p-7 md:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.08)] border border-slate-100 space-y-5">
                   
-                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
-                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      1
-                    </span>
-                    <div className="space-y-0.5">
-                      <h4 className="text-sm font-semibold text-white">Product Requirements</h4>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Spice type, whole or ground form, purity %, moisture limits, and target grade.
-                      </p>
+                  {/* Checklist Header */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-[#0070E0]">
+                      <ClipboardList className="w-4 h-4 text-[#0070E0]" />
+                      <span className="text-xs font-bold uppercase tracking-wider">
+                        Commercial Desk Checklist
+                      </span>
                     </div>
+                    <h3 className="text-lg sm:text-xl font-display font-bold text-slate-900 tracking-tight">
+                      What to Include in Your Enquiry
+                    </h3>
                   </div>
 
-                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
-                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      2
-                    </span>
-                    <div className="space-y-0.5">
-                      <h4 className="text-sm font-semibold text-white">Destination Country</h4>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Port of discharge and preferred shipping terms (FOB, CFR, or CIF).
-                      </p>
+                  {/* Checklist Items */}
+                  <div className="space-y-4 pt-1">
+                    
+                    {/* Item 1 */}
+                    <div className="flex items-start space-x-3.5">
+                      <span className="w-7 h-7 rounded-full bg-sky-100/70 text-[#0070E0] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        1
+                      </span>
+                      <div className="w-7 h-7 flex items-center justify-center text-slate-700 shrink-0 mt-0.5">
+                        <Package className="w-5 h-5 text-slate-700" />
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="text-sm font-bold text-slate-900">Product Requirements</h4>
+                        <p className="text-xs text-slate-500 leading-normal">
+                          Spice type, whole or ground form, purity %, moisture limits, and target grade.
+                        </p>
+                      </div>
                     </div>
+
+                    {/* Item 2 */}
+                    <div className="flex items-start space-x-3.5">
+                      <span className="w-7 h-7 rounded-full bg-sky-100/70 text-[#0070E0] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        2
+                      </span>
+                      <div className="w-7 h-7 flex items-center justify-center text-slate-700 shrink-0 mt-0.5">
+                        <MapPin className="w-5 h-5 text-slate-700" />
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="text-sm font-bold text-slate-900">Destination Country</h4>
+                        <p className="text-xs text-slate-500 leading-normal">
+                          Port of discharge and preferred shipping terms (FOB, CFR, or CIF).
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Item 3 */}
+                    <div className="flex items-start space-x-3.5">
+                      <span className="w-7 h-7 rounded-full bg-sky-100/70 text-[#0070E0] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        3
+                      </span>
+                      <div className="w-7 h-7 flex items-center justify-center text-slate-700 shrink-0 mt-0.5">
+                        <Boxes className="w-5 h-5 text-slate-700" />
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="text-sm font-bold text-slate-900">Required Quantity</h4>
+                        <p className="text-xs text-slate-500 leading-normal">
+                          Sample order, partial container, or full 20ft / 40ft FCL volume.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Item 4 */}
+                    <div className="flex items-start space-x-3.5">
+                      <span className="w-7 h-7 rounded-full bg-sky-100/70 text-[#0070E0] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        4
+                      </span>
+                      <div className="w-7 h-7 flex items-center justify-center text-slate-700 shrink-0 mt-0.5">
+                        <Package className="w-5 h-5 text-slate-700" />
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="text-sm font-bold text-slate-900">Packaging Preferences</h4>
+                        <p className="text-xs text-slate-500 leading-normal">
+                          Bulk PP bags, vacuum bags, jute sacks, or custom brand packaging.
+                        </p>
+                      </div>
+                    </div>
+
                   </div>
 
-                  <div className="flex items-start space-x-3.5 pb-3 border-b border-slate-800">
-                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      3
-                    </span>
-                    <div className="space-y-0.5">
-                      <h4 className="text-sm font-semibold text-white">Required Quantity</h4>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Sample order, partial container, or full 20ft / 40ft FCL volume.
-                      </p>
-                    </div>
+                  {/* Checklist Guarantee Pill */}
+                  <div className="bg-sky-50/80 border border-sky-100 rounded-xl p-3 flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-[#0070E0] shrink-0" />
+                    <p className="text-xs text-slate-700 leading-relaxed">
+                      Reviewed by commercial trade desk with specification feasibility and formal proforma quote <strong className="text-slate-900 font-semibold">within 24 hours.</strong>
+                    </p>
                   </div>
 
-                  <div className="flex items-start space-x-3.5">
-                    <span className="w-6 h-6 rounded-md bg-[#0070E0]/20 text-sky-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      4
-                    </span>
-                    <div className="space-y-0.5">
-                      <h4 className="text-sm font-semibold text-white">Packaging Preferences</h4>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Bulk PP bags, vacuum bags, jute sacks, or custom brand packaging.
-                      </p>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-800/80">
-                  Reviewed by commercial trade desk with specification feasibility and formal proforma quote within 24 hours.
                 </div>
               </div>
 
             </div>
+          </div>
 
-            {/* Direct Communication Badges */}
-            <div className="mt-10 sm:mt-12 pt-6 border-t border-slate-800 flex flex-wrap items-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-300">
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4 text-[#0070E0]" />
-                <span>Email:</span>
-                <a href={`mailto:${COMPANY_CONFIG.primaryEmail}`} className="text-white hover:underline font-medium">
-                  {COMPANY_CONFIG.primaryEmail}
-                </a>
+          {/* Bottom Quick Contact Bar */}
+          <div className="mt-5 bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
+              
+              {/* Email */}
+              <div className="flex items-center space-x-3.5">
+                <div className="w-10 h-10 rounded-full bg-sky-100/70 text-[#0070E0] flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 text-[#0070E0]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs text-slate-400 block font-medium">Email Us</span>
+                  <a
+                    href={`mailto:${COMPANY_CONFIG.primaryEmail}`}
+                    className="text-sm font-bold text-slate-900 hover:text-[#0070E0] transition truncate block"
+                  >
+                    {COMPANY_CONFIG.primaryEmail}
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-[#0070E0]" />
-                <span>Trade Desk:</span>
-                <a href={`tel:${COMPANY_CONFIG.phone}`} className="text-white hover:underline font-medium">
-                  {COMPANY_CONFIG.phoneDisplay}
-                </a>
+
+              {/* Trade Desk Phone */}
+              <div className="flex items-center space-x-3.5 md:border-l md:border-slate-200 md:pl-6">
+                <div className="w-10 h-10 rounded-full bg-sky-100/70 text-[#0070E0] flex items-center justify-center shrink-0">
+                  <Phone className="w-5 h-5 text-[#0070E0]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs text-slate-400 block font-medium">Trade Desk</span>
+                  <a
+                    href={`tel:${COMPANY_CONFIG.phone}`}
+                    className="text-sm font-bold text-slate-900 hover:text-[#0070E0] transition font-mono truncate block"
+                  >
+                    {COMPANY_CONFIG.phoneDisplay}
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Globe2 className="w-4 h-4 text-[#0070E0]" />
-                <span>Head Office:</span>
-                <span className="text-white font-medium">
-                  Sabarkantha / Ahmedabad Hubs, Gujarat, India
-                </span>
+
+              {/* Head Office Location */}
+              <div className="flex items-center space-x-3.5 md:border-l md:border-slate-200 md:pl-6">
+                <div className="w-10 h-10 rounded-full bg-sky-100/70 text-[#0070E0] flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-[#0070E0]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs text-slate-400 block font-medium">Head Office</span>
+                  <span className="text-sm font-bold text-slate-900 truncate block">
+                    {COMPANY_CONFIG.headOffice.city} / Ahmedabad Hubs, {COMPANY_CONFIG.headOffice.state}, India
+                  </span>
+                </div>
               </div>
+
             </div>
-
           </div>
 
         </div>
