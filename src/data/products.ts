@@ -12,9 +12,9 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   {
     key: 'all',
     label: 'All Spices',
-    description: 'Explore our complete export portfolio of 27 premium Indian spices, whole pods, sortex seeds, pure powders, and authentic masala blends.',
+    description: 'Explore our complete export portfolio of 26 premium Indian spices, whole pods, sortex seeds, pure powders, and authentic masala blends.',
     intro: 'Direct farmgate sourcing across India\'s prime agro-climatic belts with certified laboratory quality assurance.',
-    count: 27
+    count: 26
   },
   {
     key: 'whole-spices',
@@ -33,9 +33,9 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
   {
     key: 'seeds',
     label: 'Seeds',
-    description: 'Indian spice seeds — cumin, coriander, mustard, fenugreek and fennel — sortex-cleaned to 99% purity for wholesale buyers and spice mill operators worldwide.',
+    description: 'Indian spice seeds — cumin, coriander, fenugreek and fennel — sortex-cleaned to 99% purity for wholesale buyers and spice mill operators worldwide.',
     intro: 'Seed spices are the backbone of the global spice trade. Supplied from the principal Indian seed-growing belts (Unjha, Gujarat and Rajasthan) with full residue compliance for destination market MRLs.',
-    count: 5
+    count: 4
   },
   {
     key: 'blends',
@@ -144,7 +144,7 @@ export const PRODUCTS: Product[] = [
     "category": "Whole Spices",
     "categoryKey": "whole-spices",
     "tagline": "High-altitude Western Ghats bold green pods (6.5mm–8mm) with high essential oil content.",
-    "isFlagship": false,
+    "isFlagship": true,
     "partUsed": "Dried whole pod",
     "shortDescription": "High-altitude Western Ghats bold green pods (6.5mm–8mm) with high essential oil content.",
     "fullDescription": "Our Indian green cardamom is harvested from the high-elevation plantations of the Western Ghats, where cool nights concentrate the essential oils that buyers in the Gulf and Europe pay a premium for. Pods are dried under controlled heat to retain the bright green husk, then graded by mechanical sieve into 6.5mm, 7mm, 7.5mm and 8mm bold counts. Origin Exim supplies hand-picked, single-origin lots with documented volatile oil content and zero pesticide residue beyond destination MRLs.",
@@ -1272,7 +1272,7 @@ export const PRODUCTS: Product[] = [
     "category": "Seeds",
     "categoryKey": "seeds",
     "tagline": "Unjha trade hub sortex-cleaned cumin seeds (99.5% purity) complying with strict EU/US MRLs.",
-    "isFlagship": false,
+    "isFlagship": true,
     "partUsed": "Dried fruit",
     "shortDescription": "Unjha trade hub sortex-cleaned cumin seeds (99.5% purity) complying with strict EU/US MRLs.",
     "fullDescription": "Origin Exim sources cumin from the Unjha mandi — the world's largest cumin trading hub — and supplies machine-cleaned, sortex-cleaned and Europe-quality material with documented purity and pesticide residue compliance for EU MRL.",
@@ -1416,81 +1416,6 @@ export const PRODUCTS: Product[] = [
       },
       {
         "question": "Can you customize the packaging and mesh size for Coriander Seeds?",
-        "answer": "Yes, we provide customizable packaging from 25kg multi-wall paper bags with barrier liners to bulk jumbo bags and private label retail pouch packaging. For ground products, mesh size and grind specification can be calibrated precisely to your processing line."
-      }
-    ]
-  },
-  {
-    "id": "mustard-seeds",
-    "slug": "mustard-seeds",
-    "name": "Mustard Seeds",
-    "botanicalName": "Brassica juncea",
-    "scientific": "Brassica juncea",
-    "category": "Seeds",
-    "categoryKey": "seeds",
-    "tagline": "Sortex-cleaned yellow and bold black mustard seeds with 99.5% purity and high oil yield.",
-    "isFlagship": false,
-    "partUsed": "Dried seed",
-    "shortDescription": "Sortex-cleaned yellow and bold black mustard seeds with 99.5% purity and high oil yield.",
-    "fullDescription": "Origin Exim supplies yellow, brown and black mustard seed sortex-cleaned to 99.95% purity, with documented allyl isothiocyanate content for industrial pickle and mayonnaise buyers.",
-    "origin": "Rajasthan & Uttar Pradesh",
-    "grade": "Yellow · Brown · Black · Sortex cleaned",
-    "availableForms": [
-      "Whole Dried seed",
-      "Ground Powder"
-    ],
-    "packagingOptions": [
-      "25kg / 50kg Multi-Wall Kraft Paper Sacks with PE Inner Liner",
-      "High-Density Polypropylene (PP) Woven Export Sacks",
-      "Custom Private Label Foodservice Pouches Available"
-    ],
-    "applications": [
-      "Pickling and condiment manufacturing",
-      "Oil pressing",
-      "South Indian tempering",
-      "Mayonnaise and sauce industry"
-    ],
-    "loadability": "Approx. 12-14 MT per 20ft FCL / 24-26 MT per 40ft FCL",
-    "image": "/assets/products/mustard-seeds.jpg",
-    "specifications": [
-      {
-        "label": "Origin",
-        "value": "Rajasthan & Uttar Pradesh"
-      },
-      {
-        "label": "Botanical Name",
-        "value": "Brassica juncea"
-      },
-      {
-        "label": "Part Used",
-        "value": "Dried seed"
-      },
-      {
-        "label": "Grade / Varieties",
-        "value": "Yellow · Brown · Black · Sortex cleaned"
-      }
-    ],
-    "qualityProcess": [
-      "Multi-stage magnetic separation and pneumatic air-sifting to remove field extraneous matter",
-      "Optical color Sortex sorting for uniform seed/pod size, color, and density grading",
-      "Certified laboratory testing for pesticide MRLs, microbial limits, and heavy metals",
-      "Batch-wise moisture-controlled sealed packaging preventing mold and volatile oil oxidation"
-    ],
-    "exportInfo": {
-      "minimumOrderQuantity": "1 x 20ft FCL (Mixed container options available for LCL/trial lots)",
-      "packagingStandard": "Food-Grade 25kg / 50kg export seaworthy seaworthy bags with inner liner",
-      "containerCapacity": "≈ 12-14 MT (20ft FCL) / 24-26 MT (40ft FCL)",
-      "sampleAvailability": "Complimentary commercial samples dispatched via DHL/FedEx upon request",
-      "leadTime": "10 to 14 business days from contract confirmation to Indian port loading",
-      "incoterms": "FOB (Mundra, Nhava Sheva, Cochin), CFR, CIF Destination Port"
-    },
-    "faqs": [
-      {
-        "question": "What quality certifications are supplied with Mustard Seeds shipments?",
-        "answer": "Every commercial consignment is accompanied by Phytosanitary Certificate, Certificate of Origin, Commercial Invoice, Packing List, and certified third-party laboratory analysis (SGS / Eurofins upon buyer request) verifying pesticide MRLs and physical purity."
-      },
-      {
-        "question": "Can you customize the packaging and mesh size for Mustard Seeds?",
         "answer": "Yes, we provide customizable packaging from 25kg multi-wall paper bags with barrier liners to bulk jumbo bags and private label retail pouch packaging. For ground products, mesh size and grind specification can be calibrated precisely to your processing line."
       }
     ]

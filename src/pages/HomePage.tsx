@@ -340,13 +340,24 @@ export const HomePage: React.FC<HomePageProps> = ({
     { name: 'Poland', code: 'pl' }
   ];
 
-  // Curated flagship commodities for homepage - clean, compact showcase of 3 iconic products (or flagged flagship products)
-  const defaultFlagshipIds = ['whole-red-chili', 'cumin-seeds', 'turmeric'];
+  // Curated flagship commodities for homepage - always showcase exactly 3 iconic products without exception
+  const defaultFlagshipOrder = ['whole-red-chili', 'cumin-seeds', 'green-cardamom', 'turmeric', 'black-pepper', 'cinnamon'];
   const flagships = products.filter(p => p.isFlagship);
-  const featuredProducts = flagships.length > 0
-    ? flagships.slice(0, 3)
-    : products.filter(p => defaultFlagshipIds.includes(p.id))
-        .sort((a, b) => defaultFlagshipIds.indexOf(a.id) - defaultFlagshipIds.indexOf(b.id));
+  const remainingNeeded = Math.max(0, 3 - flagships.length);
+  const backfills = remainingNeeded > 0
+    ? products
+        .filter(p => !flagships.some(f => f.id === p.id || f.slug === p.id))
+        .sort((a, b) => {
+          const idxA = defaultFlagshipOrder.indexOf(a.id);
+          const idxB = defaultFlagshipOrder.indexOf(b.id);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          if (idxA !== -1) return -1;
+          if (idxB !== -1) return 1;
+          return 0;
+        })
+        .slice(0, remainingNeeded)
+    : [];
+  const featuredProducts = [...flagships, ...backfills].slice(0, 3);
 
   return (
     <div className="bg-white text-[#0F172A]">

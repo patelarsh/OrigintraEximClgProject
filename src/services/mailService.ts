@@ -539,8 +539,8 @@ export const MailService = {
       }
     }
 
-    // Strategy 2: Nodemailer / Server Endpoint (/api/send-mail.php or /api/send-mail)
-    const endpoints = ['/api/send-mail.php', '/api/send-mail'];
+    // Strategy 2: Nodemailer / Node.js Express Endpoint (/api/send-mail or /api/send-mail.php)
+    const endpoints = ['/api/send-mail', '/api/send-mail.php'];
     let lastError = 'Delivery endpoint unreachable.';
 
     for (const endpoint of endpoints) {
@@ -574,7 +574,7 @@ export const MailService = {
           return {
             success: true,
             message: json.message || `Email sent successfully to ${options.to}`,
-            method: json.method || 'Hostinger Mailer'
+            method: json.method || 'Node.js Express Mailer'
           };
         }
 
@@ -596,11 +596,11 @@ export const MailService = {
   },
 
   /**
-   * Tests and verifies SMTP credentials via Hostinger PHP backend
+   * Tests and verifies SMTP credentials via Node.js Express or server backend
    */
   async verifySmtp(credsOverride?: Partial<EmailCredentials>): Promise<{ success: boolean; message: string }> {
     const creds = { ...this.getCredentials(), ...(credsOverride || {}) };
-    const endpoints = ['/api/verify-smtp.php', '/api/verify-smtp'];
+    const endpoints = ['/api/verify-smtp', '/api/verify-smtp.php'];
     let lastError = 'Could not connect to SMTP verification endpoint.';
 
     for (const endpoint of endpoints) {

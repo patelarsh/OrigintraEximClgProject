@@ -314,10 +314,10 @@ export const AdminStorage = {
           }
           if (Array.isArray(products) && products.length) {
             const deletedIds = this.getDeletedProductIds();
-            const deletedSet = new Set(deletedIds);
-            let sanitized = products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+            const deletedSet = new Set([...deletedIds, 'mustard-seeds', 'nutmeg']);
+            let sanitized = products.filter((p: Product) => !deletedSet.has(p.id) && !deletedSet.has(p.slug));
             sanitized = sanitized.map((p: Product) => {
-              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds')))) {
                 const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
                 return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
               }
@@ -839,8 +839,8 @@ export const AdminStorage = {
       if (data) {
         let parsed = JSON.parse(data) as Product[];
 
-        // Always purge nutmeg
-        parsed = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg');
+        // Always purge nutmeg and mustard-seeds
+        parsed = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && p.id !== 'mustard-seeds' && p.slug !== 'mustard-seeds');
 
         // Always filter out any explicitly deleted product
         if (deletedSet.size > 0) {
@@ -850,7 +850,7 @@ export const AdminStorage = {
         const hasWholeTurmeric = parsed.some(p => p.id === 'whole-turmeric' || p.slug === 'whole-turmeric');
         const turmericItem = parsed.find(p => p.id === 'turmeric' || p.slug === 'turmeric');
         const needsTurmericPowderUpdate = turmericItem && turmericItem.name === 'Turmeric';
-        const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319')));
+        const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds'))));
 
         let needsMigrationSave = false;
 
@@ -874,7 +874,7 @@ export const AdminStorage = {
         // Heal any missing or broken image references
         if (hasBrokenImages) {
           parsed = parsed.map(p => {
-            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds')))) {
               const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
               return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
@@ -896,7 +896,7 @@ export const AdminStorage = {
     }
 
     // Default initialization (excluding deleted products)
-    const initialProducts = DEFAULT_PRODUCTS.filter(p => p.id !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+    const initialProducts = DEFAULT_PRODUCTS.filter(p => p.id !== 'nutmeg' && p.id !== 'mustard-seeds' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
     try {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialProducts));
     } catch {}
@@ -907,16 +907,27 @@ export const AdminStorage = {
   async uploadImageFile(file: File): Promise<string | null> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload.php', {
+
+      // Try Node.js Express upload first, fallback to PHP endpoint
+      let res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
         signal: controller.signal
-      });
+      }).catch(() => null);
+
+      if (!res || !res.ok) {
+        res = await fetch('/api/upload.php', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        }).catch(() => null);
+      }
+
       clearTimeout(timeoutId);
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json();
         if (data && data.success && data.url) {
           return data.url;
@@ -932,15 +943,27 @@ export const AdminStorage = {
     if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch('/api/upload.php', {
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      // Try Node.js Express upload first, fallback to PHP endpoint
+      let res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dataUrl, prefix }),
         signal: controller.signal
-      });
+      }).catch(() => null);
+
+      if (!res || !res.ok) {
+        res = await fetch('/api/upload.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl, prefix }),
+          signal: controller.signal
+        }).catch(() => null);
+      }
+
       clearTimeout(timeoutId);
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json();
         if (data && data.success && data.url) {
           return data.url;
@@ -954,16 +977,27 @@ export const AdminStorage = {
 
   async syncProductsFromServer(): Promise<Product[]> {
     try {
-      const res = await fetch('/api/products.php', { cache: 'no-store' });
-      if (res.ok) {
+      // 1. Try Node.js Express API first
+      let res = await fetch('/api/products', { cache: 'no-store' }).catch(() => null);
+      // 2. Fallback to PHP endpoint if Node server not on same port
+      if (!res || !res.ok) {
+        res = await fetch('/api/products.php', { cache: 'no-store' }).catch(() => null);
+      }
+      // 3. Fallback to static JSON file
+      if (!res || !res.ok) {
+        res = await fetch('/api/products-data.json', { cache: 'no-store' }).catch(() => null);
+      }
+
+      if (res && res.ok) {
         const data = await res.json();
-        if (data && data.success && Array.isArray(data.products)) {
+        const rawList = Array.isArray(data) ? data : (data.products || []);
+        if (Array.isArray(rawList) && rawList.length > 0) {
           const deletedIds = this.getDeletedProductIds();
-          const deletedSet = new Set(deletedIds);
-          let sanitized = data.products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
+          const deletedSet = new Set([...deletedIds, 'mustard-seeds', 'nutmeg']);
+          let sanitized = rawList.filter((p: Product) => !deletedSet.has(p.id) && !deletedSet.has(p.slug));
 
           sanitized = sanitized.map((p: Product) => {
-            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds')))) {
               const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
               return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
@@ -1050,13 +1084,17 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
 
-    // Sync to Hostinger server
+    // Sync to Node.js Express server with fallback to PHP
     try {
-      fetch('/api/products.php', {
+      fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
-      }).catch(err => console.warn('Could not sync products to /api/products.php:', err));
+      }).catch(() => fetch('/api/products.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      })).catch(err => console.warn('Could not sync products:', err));
     } catch (e) {
       // offline
     }
@@ -1103,24 +1141,30 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
 
-    // 2. Persist updated products list to Hostinger server
+    // 2. Persist updated products list to backend server (DELETE /api/products/:id or POST)
     try {
-      fetch('/api/products.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filtered)
-      }).catch(err => console.warn('Could not sync products deletion to /api/products.php:', err));
+      fetch(`/api/products/${encodeURIComponent(productId)}`, { method: 'DELETE' })
+        .catch(() => fetch('/api/products.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(filtered)
+        }))
+        .catch(() => {});
     } catch (e) {
       // offline
     }
 
-    // 3. Persist deleted IDs to /api/settings.php for multi-device sync
+    // 3. Persist deleted IDs to /api/settings for multi-device sync
     try {
-      fetch('/api/settings.php', {
+      fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deletedProductIds: updatedDeletedIds })
-      }).catch(err => console.warn('Could not sync deleted product IDs to /api/settings.php:', err));
+      }).catch(() => fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deletedProductIds: updatedDeletedIds })
+      })).catch(() => {});
     } catch (e) {
       // offline
     }
@@ -1377,12 +1421,19 @@ export const AdminStorage = {
 
   async syncSettingsFromServer(): Promise<boolean> {
     try {
-      const res = await fetch('/api/settings.php', { cache: 'no-store' });
-      if (res.ok) {
+      let res = await fetch('/api/settings', { cache: 'no-store' }).catch(() => null);
+      if (!res || !res.ok) {
+        res = await fetch('/api/settings.php', { cache: 'no-store' }).catch(() => null);
+      }
+      if (!res || !res.ok) {
+        res = await fetch('/api/site-settings.json', { cache: 'no-store' }).catch(() => null);
+      }
+      if (res && res.ok) {
         const data = await res.json();
-        if (data && data.settings) {
-          if (typeof data.settings.leadershipVisible === 'boolean') {
-            const serverVal = data.settings.leadershipVisible;
+        const settings = data?.settings || (data?.leadershipVisible !== undefined ? data : null);
+        if (settings) {
+          if (typeof settings.leadershipVisible === 'boolean') {
+            const serverVal = settings.leadershipVisible;
             const currentVal = this.getLeadershipVisibility();
             if (serverVal !== currentVal) {
               localStorage.setItem(STORAGE_KEYS.LEADERSHIP_VISIBILITY, JSON.stringify(serverVal));
@@ -1391,8 +1442,8 @@ export const AdminStorage = {
             }
           }
 
-          if (Array.isArray(data.settings.deletedGalleryIds)) {
-            const serverDeleted = data.settings.deletedGalleryIds.filter((id: unknown) => typeof id === 'string');
+          if (Array.isArray(settings.deletedGalleryIds)) {
+            const serverDeleted = settings.deletedGalleryIds.filter((id: unknown) => typeof id === 'string');
             const localDeleted = this.getDeletedGalleryIds();
             const serverStr = JSON.stringify([...serverDeleted].sort());
             const localStr = JSON.stringify([...localDeleted].sort());
@@ -1403,8 +1454,8 @@ export const AdminStorage = {
             }
           }
 
-          if (Array.isArray(data.settings.deletedProductIds)) {
-            const serverDeleted = data.settings.deletedProductIds.filter((id: unknown) => typeof id === 'string');
+          if (Array.isArray(settings.deletedProductIds)) {
+            const serverDeleted = settings.deletedProductIds.filter((id: unknown) => typeof id === 'string');
             const localDeleted = this.getDeletedProductIds();
             const serverStr = JSON.stringify([...serverDeleted].sort());
             const localStr = JSON.stringify([...localDeleted].sort());
@@ -1442,6 +1493,17 @@ export const AdminStorage = {
     }
     window.dispatchEvent(new Event('origintra_leadership_visibility_updated'));
     notifyCrossTab('origintra_leadership_visibility_updated');
+
+    // Persist to Node.js Express server & fallback
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadershipVisible: visible })
+    }).catch(() => fetch('/api/settings.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadershipVisible: visible })
+    })).catch(() => {});
 
     // Persist to Hostinger server-side PHP so ALL DEVICES globally update immediately
     try {
@@ -1873,9 +1935,13 @@ export const AdminStorage = {
 
 // Non-blocking initialization: allows instant 0ms first render from cache, then syncs with Supabase in background
 if (typeof window !== 'undefined') {
-  const initBackgroundSync = () => {
-    AdminStorage.syncWithDatabase().catch(() => {});
-    AdminStorage.syncSettingsFromServer().catch(() => {});
+  const initBackgroundSync = async () => {
+    // 1. Fetch server settings first so deleted product/gallery IDs are known immediately
+    await AdminStorage.syncSettingsFromServer().catch(() => {});
+    // 2. Fetch authoritative products from Node.js Express server
+    await AdminStorage.syncProductsFromServer().catch(() => {});
+    // 3. Sync Supabase Cloud PostgreSQL with sanitized IDs
+    await AdminStorage.syncWithDatabase().catch(() => {});
     AdminStorage.connectLiveStream();
   };
 

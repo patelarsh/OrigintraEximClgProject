@@ -66,8 +66,11 @@ export const App: React.FC = () => {
       }
     } catch {}
 
-    AdminStorage.syncSettingsFromServer();
-    AdminStorage.syncProductsFromServer().catch(() => {});
+    const initGlobalSync = async () => {
+      await AdminStorage.syncSettingsFromServer().catch(() => {});
+      await AdminStorage.syncProductsFromServer().catch(() => {});
+    };
+    initGlobalSync();
   }, []);
 
   useEffect(() => {
