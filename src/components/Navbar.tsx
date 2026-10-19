@@ -42,8 +42,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const y = window.scrollY;
+          setIsScrolled((prev) => {
+            // Hysteresis deadband:
+            // Only collapse when scrolled well down (> 80px).
+            // Only expand when scrolled back near top (< 20px).
+            // This 60px deadband completely eliminates scroll jitter/vibration loops.
+            if (!prev && y > 80) return true;
+            if (prev && y < 20) return false;
+            return prev;
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     handleScroll();
@@ -79,12 +95,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full transform-gpu">
       {/* Top Utility Information Bar (Collapses smoothly on scroll to maximize viewport) */}
       <div 
-        className={`w-full bg-[#0A1C3E] text-slate-300 border-b border-blue-900/50 text-[11px] sm:text-xs transition-all duration-300 ease-in-out ${
+        className={`w-full bg-[#0A1C3E] text-slate-300 border-b border-blue-900/50 text-[11px] sm:text-xs overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-in-out transform-gpu ${
           isScrolled 
-            ? 'max-h-0 opacity-0 overflow-hidden py-0 border-b-0 pointer-events-none' 
+            ? 'max-h-0 opacity-0 py-0 border-b-0 pointer-events-none' 
             : 'max-h-12 opacity-100 py-1.5 sm:py-2'
         }`}
       >
@@ -185,18 +201,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main Corporate Header */}
       <div 
-        className={`w-full bg-white/95 backdrop-blur-md border-b transition-all duration-300 ease-in-out ${
+        className={`w-full bg-white/95 backdrop-blur-md border-b transition-shadow duration-300 ease-in-out ${
           isScrolled 
             ? 'shadow-[0_4px_20px_rgba(0,0,0,0.06)] border-slate-200/90' 
             : 'shadow-xs border-slate-200'
         }`}
       >
         <div className="container-x mx-auto max-w-[1440px]">
-          <div 
-            className={`flex items-center justify-between transition-all duration-300 ease-in-out ${
-              isScrolled ? 'h-16' : 'h-20'
-            }`}
-          >
+          <div className="flex items-center justify-between h-16 sm:h-[72px]">
 
           {/* Nav bar button fix: keep the header actions and menu controls aligned and clickable in mobile layouts. */}
           {/* Logo with strict proportion preservation and SEO clean URL */}
@@ -217,9 +229,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               width="144"
               height="48"
               fetchPriority="high"
-              className={`w-auto object-contain transition-all duration-300 group-hover:opacity-90 ${
-                isScrolled ? 'h-9 sm:h-10 max-h-10' : 'h-11 sm:h-12 max-h-12'
-              }`}
+              className="w-auto h-10 sm:h-11 max-h-11 object-contain transition-opacity duration-200 group-hover:opacity-90"
             />
           </a>
 
