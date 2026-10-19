@@ -453,18 +453,19 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       </section>
 
       {/* 6. BOTTOM RFQ CALLOUT */}
-      <section className="py-16 bg-[#0A1C3E] text-white">
-        <div className="container-x mx-auto max-w-[1440px] text-center space-y-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-white tracking-tight">
+      <section className="py-16 sm:py-20 bg-slate-50 text-[#0F172A] border-t border-slate-200">
+        <div className="container-x mx-auto max-w-[1440px] text-center space-y-5">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">Commercial RFQ Desk</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-[#0A1C3E] tracking-tight">
             Order Evaluation or Commercial Quote for {product.name}
           </h2>
-          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
             Contact our export trade desk with your target specifications, container quantity, and destination discharge port.
           </p>
           <div className="pt-2">
             <button
               onClick={() => onOpenQuoteWithProduct(product.name)}
-              className="btn-pill btn-pill-dark bg-[#0070E0] hover:bg-[#005bb5] text-white px-5 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold shadow-md flex items-center space-x-1.5 sm:space-x-2 mx-auto cursor-pointer"
+              className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-5 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold shadow-md flex items-center space-x-1.5 sm:space-x-2 mx-auto cursor-pointer"
             >
               <span className="hidden sm:inline">Request Quote for {product.name}</span>
               <span className="sm:hidden">Request Quote</span>
