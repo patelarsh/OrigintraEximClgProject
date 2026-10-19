@@ -17,6 +17,7 @@ import {
 import { Product } from '../types';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { ProductImage } from '../components/ProductImage';
+import { formatCardOrigin } from '../utils/productHelpers';
 
 interface ProductDetailPageProps {
   product: Product;
@@ -94,9 +95,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   eager={true}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-4 left-4 bg-[#0A1C3E]/85 backdrop-blur-xs text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 pointer-events-none">
-                  <MapPin className="w-3.5 h-3.5 text-[#38BDF8]" />
-                  <span>{product.origin}</span>
+                <div 
+                  title={product.origin}
+                  className="absolute top-3 sm:top-4 left-3 sm:left-4 max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-2rem)] bg-[#0A1C3E]/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 pointer-events-none shadow-md border border-white/10"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
+                  <span className="truncate">{formatCardOrigin(product.origin)}</span>
                 </div>
               </div>
             </div>
