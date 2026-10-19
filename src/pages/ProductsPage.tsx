@@ -4,6 +4,7 @@ import { PRODUCT_CATEGORIES } from '../data/products';
 import { Product } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 import { ProductImage } from '../components/ProductImage';
+import { formatCardOrigin, getDisplayExportForms, formatSupplyGrade } from '../utils/productHelpers';
 
 interface ProductsPageProps {
   onOpenProductDetail: (product: Product) => void;
@@ -232,14 +233,17 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                       </a>
 
                     {/* Product Info */}
-                    <div className="p-5 sm:p-6 space-y-3.5">
+                    <div className="p-4 sm:p-6 space-y-3.5">
                       {/* Origin Belt Eyebrow & Quality Status */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100/90 border border-slate-200/80 text-[11px] font-semibold text-slate-700">
+                      <div className="flex items-center justify-between gap-2 min-w-0">
+                        <div 
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100/90 border border-slate-200/80 text-[11px] font-semibold text-slate-700 min-w-0 flex-1 overflow-hidden"
+                          title={product.origin}
+                        >
                           <MapPin className="w-3.5 h-3.5 text-[#0070E0] shrink-0" />
-                          <span className="truncate max-w-[190px]">{product.origin.split('—')[0].trim()}</span>
+                          <span className="truncate">{formatCardOrigin(product.origin)}</span>
                         </div>
-                        <span className="inline-flex items-center text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-blue-50 text-[#0070E0] border border-blue-200/60 shrink-0 font-mono">
+                        <span className="inline-flex items-center text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-blue-50 text-[#0070E0] border border-blue-200/60 shrink-0 font-mono whitespace-nowrap">
                           Export Grade
                         </span>
                       </div>
@@ -261,7 +265,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                           </h3>
                         </a>
                         {product.botanicalName && (
-                          <p className="text-[11px] text-slate-400 mt-0.5 font-sans font-medium italic tracking-wide">
+                          <p className="text-[11px] text-slate-500 mt-0.5 font-sans font-medium italic tracking-wide">
                             Botanical: <span>{product.botanicalName}</span>
                           </p>
                         )}
@@ -275,19 +279,19 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                       {/* Trade Specifications Panel */}
                       <div className="rounded-xl bg-slate-50/90 border border-slate-200/80 p-3 grid grid-cols-2 gap-3 text-xs">
                         <div className="min-w-0">
-                          <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider font-sans">
+                          <span className="text-slate-500 font-semibold block text-[10px] uppercase tracking-wider font-sans">
                             Export Forms
                           </span>
-                          <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs">
-                            {product.availableForms.slice(0, 2).map(f => f.toLowerCase().includes('powder') ? 'Powder' : 'Whole').join(' & ') || 'Whole & Ground'}
+                          <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs" title={product.availableForms?.join(', ')}>
+                            {getDisplayExportForms(product)}
                           </span>
                         </div>
                         <div className="min-w-0 border-l border-slate-200/80 pl-3">
-                          <span className="text-slate-400 font-semibold block text-[10px] uppercase tracking-wider font-sans">
+                          <span className="text-slate-500 font-semibold block text-[10px] uppercase tracking-wider font-sans">
                             Supply Grade
                           </span>
-                          <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs">
-                            {product.grade ? product.grade.split('·')[0].trim() : 'Export Standard'}
+                          <span className="text-slate-900 font-bold mt-0.5 block truncate text-xs" title={product.grade}>
+                            {formatSupplyGrade(product.grade)}
                           </span>
                         </div>
                       </div>
@@ -296,10 +300,10 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                   </div>
 
                   {/* Symmetrical Executive Action Pair */}
-                  <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 mt-2 flex items-center gap-2.5">
+                  <div className="p-4 sm:p-6 pt-0 border-t border-slate-100 mt-2 flex items-center gap-2.5">
                     <button
                       onClick={() => onOpenProductDetail(product)}
-                      className="flex-1 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                      className="flex-1 py-2.5 px-3 min-h-[44px] rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
                     >
                       <span>Specifications</span>
                       <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
@@ -307,7 +311,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
 
                     <button
                       onClick={() => onOpenQuoteWithProduct(product.name)}
-                      className="flex-1 py-2.5 px-3 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-sm hover:shadow"
+                      className="flex-1 py-2.5 px-3 min-h-[44px] rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-sm hover:shadow"
                     >
                       <span>Request Quote</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
