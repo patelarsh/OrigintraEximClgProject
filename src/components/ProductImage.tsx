@@ -5,6 +5,7 @@ interface ProductImageProps {
   src: string;
   alt: string;
   productName: string;
+  productId?: string;
   category?: string;
   className?: string;
   eager?: boolean;
@@ -14,6 +15,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
   src,
   alt,
   productName,
+  productId,
   category = 'Indian Spices',
   className = 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-105',
   eager = false
@@ -53,7 +55,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
           onLoad={() => setIsLoaded(true)}
           onError={(e) => {
             setIsLoaded(true);
-            handleImageFallback(e, productName, category);
+            handleImageFallback(e, productName, category, productId);
           }}
           className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
         />

@@ -82,6 +82,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   src={product.image}
                   alt={product.name}
                   productName={product.name}
+                  productId={product.id || product.slug}
                   category={product.category}
                   eager={true}
                   className="w-full h-full object-cover"

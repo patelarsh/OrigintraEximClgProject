@@ -90,10 +90,63 @@ export function getProductImageSources(imagePath?: string | null): ProductImageS
   };
 }
 
+export const DEFAULT_PRODUCT_IMAGE_MAP: Record<string, string> = {
+  'cinnamon': '/assets/products/cinnamon.jpg',
+  'coriander-seeds': '/assets/products/coriander-seeds.jpg',
+  'clove': '/assets/products/clove.jpg',
+  'cloves': '/assets/products/clove.jpg',
+  'cumin-seeds': '/assets/products/cumin-seeds.jpg',
+  'whole-turmeric': '/assets/products/turmeric.jpg',
+  'turmeric': '/assets/products/turmeric.jpg',
+  'turmeric-powder': '/assets/products/turmeric.jpg',
+  'black-pepper': '/assets/products/black-pepper.jpg',
+  'fenugreek-seeds': '/assets/products/fenugreek-seeds.jpg',
+  'fennel': '/assets/products/fennel.jpg',
+  'fennel-seeds': '/assets/products/fennel.jpg',
+  'dry-ginger': '/assets/products/dry-ginger.jpg',
+  'ginger': '/assets/products/dry-ginger.jpg',
+  'bay-leaf': '/assets/products/bay-leaf.jpg',
+  'star-anise': '/assets/products/star-anise.jpg',
+  'whole-red-chili': '/assets/products/whole-red-chili.jpg',
+  'red-chilli': '/assets/products/whole-red-chili.jpg',
+  'green-cardamom': '/assets/products/green-cardamom.jpg',
+  'cardamom': '/assets/products/green-cardamom.jpg',
+  'asafoetida': '/assets/products/asafoetida.jpg',
+  'red-chili-powder': '/assets/products/red-chili-powder.jpg',
+  'red-chilli-powder': '/assets/products/red-chili-powder.jpg',
+  'coriander-powder': '/assets/products/coriander-powder.jpg',
+  'cumin-powder': '/assets/products/cumin-powder.jpg',
+  'black-pepper-powder': '/assets/products/black-pepper-powder.jpg',
+  'mustard-seeds': '/assets/products/mustard-seeds.jpg',
+  'garam-masala': '/assets/products/garam-masala.jpg',
+  'sambar-masala': '/assets/products/sambar-masala.jpg',
+  'rasam-powder': '/assets/products/rasam-powder.jpg',
+  'biryani-masala': '/assets/products/biryani-masala.jpg',
+  'tandoori-masala': '/assets/products/tandoori-masala.jpg',
+  'curry-powder': '/assets/products/curry-powder.jpg',
+  'chaat-masala': '/assets/products/chaat-masala.jpg'
+};
+
+export function getProductDefaultImage(productId?: string, productName?: string): string {
+  if (productId) {
+    const cleanId = productId.toLowerCase().trim();
+    if (DEFAULT_PRODUCT_IMAGE_MAP[cleanId]) return DEFAULT_PRODUCT_IMAGE_MAP[cleanId];
+  }
+  if (productName) {
+    const slug = productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    if (DEFAULT_PRODUCT_IMAGE_MAP[slug]) return DEFAULT_PRODUCT_IMAGE_MAP[slug];
+    for (const [key, val] of Object.entries(DEFAULT_PRODUCT_IMAGE_MAP)) {
+      if (slug.includes(key) || key.includes(slug)) return val;
+    }
+  }
+  return DEFAULT_FALLBACK_IMAGE;
+}
+
 export function handleImageFallback(
   event: React.SyntheticEvent<HTMLImageElement, Event>,
   productName = 'Export Spice',
-  category = 'Indian Spices'
+  category = 'Indian Spices',
+  productId?: string
 ) {
   const img = event.currentTarget;
   const currentSrc = img.src || '';
@@ -114,15 +167,23 @@ export function handleImageFallback(
 
   img.removeAttribute('srcset');
 
+  const defaultPhoto = getProductDefaultImage(productId, productName);
+
   if (retryCount === 0) {
-    // First fallback: Try base JPEG fallback
+    // First fallback: If current image failed, try the real catalog photograph!
     img.setAttribute('data-error-count', '1');
-    const baseJpg = img.getAttribute('data-base-jpg') || DEFAULT_FALLBACK_IMAGE;
-    img.src = baseJpg;
-  } else {
-    // Second fallback: Instant SVG data URI that never fails over network
-    img.onerror = null;
-    img.setAttribute('data-error-count', '2');
-    img.src = createProductSvgFallback(productName, category);
+    if (!currentSrc.includes(defaultPhoto)) {
+      img.src = defaultPhoto;
+      return;
+    }
+    if (!currentSrc.includes(DEFAULT_FALLBACK_IMAGE)) {
+      img.src = DEFAULT_FALLBACK_IMAGE;
+      return;
+    }
   }
+
+  // Second fallback: Only if even the official photography files fail, show the vector SVG
+  img.onerror = null;
+  img.setAttribute('data-error-count', '2');
+  img.src = createProductSvgFallback(productName, category);
 }

@@ -213,6 +213,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({
                           src={product.image}
                           alt={product.name}
                           productName={product.name}
+                          productId={product.id || product.slug}
                           category={product.category}
                           eager={index < 6}
                         />

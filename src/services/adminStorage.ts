@@ -317,8 +317,8 @@ export const AdminStorage = {
             const deletedSet = new Set(deletedIds);
             let sanitized = products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
             sanitized = sanitized.map((p: Product) => {
-              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
-                const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+                const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
                 return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
               }
               return p;
@@ -850,7 +850,7 @@ export const AdminStorage = {
         const hasWholeTurmeric = parsed.some(p => p.id === 'whole-turmeric' || p.slug === 'whole-turmeric');
         const turmericItem = parsed.find(p => p.id === 'turmeric' || p.slug === 'turmeric');
         const needsTurmericPowderUpdate = turmericItem && turmericItem.name === 'Turmeric';
-        const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null');
+        const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319')));
 
         let needsMigrationSave = false;
 
@@ -874,8 +874,8 @@ export const AdminStorage = {
         // Heal any missing or broken image references
         if (hasBrokenImages) {
           parsed = parsed.map(p => {
-            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
-              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
               return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
             return p;
@@ -963,8 +963,8 @@ export const AdminStorage = {
           let sanitized = data.products.filter((p: Product) => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && !deletedSet.has(p.id) && !deletedSet.has(p.slug));
 
           sanitized = sanitized.map((p: Product) => {
-            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null') {
-              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id);
+            if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && p.image.includes('_1792319'))) {
+              const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
               return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
             }
             return p;

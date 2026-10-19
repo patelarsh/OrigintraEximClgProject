@@ -1,6 +1,13 @@
 {
   "leadershipVisible": false,
-  "deletedGalleryIds": [],
-  "deletedProductIds": [],
-  "updatedAt": "2026-10-18T16:25:00+05:30"
+  "deletedGalleryIds": [
+    "prod-whole-red-chili",
+    "/assets/products/whole-red-chili.jpg",
+    "prod-red-chilli",
+    "/assets/products/red-chilli.jpg"
+  ],
+  "deletedProductIds": [
+    "mustard-seeds"
+  ],
+  "updatedAt": "2026-10-19T10:41:00+05:30"
 }

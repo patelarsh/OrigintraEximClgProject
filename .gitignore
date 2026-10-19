@@ -35,4 +35,10 @@ data/*.sqlite-wal
 data/backups/
 lighthouse-*-report.json
 test-lh.json
-
+# User uploads (protect dynamically uploaded files from git clean)
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/avatar_*
+!public/uploads/gallery_*
+!public/uploads/team_*
+!public/uploads/upload_*

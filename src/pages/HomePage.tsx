@@ -802,6 +802,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                         src={product.image}
                         alt={product.name}
                         productName={product.name}
+                        productId={product.id || product.slug}
                         category={product.category || 'Export Spice'}
                         eager={index < 3}
                       />
