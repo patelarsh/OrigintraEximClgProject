@@ -20,7 +20,8 @@ import {
   getGlobalReachSeo, 
   getBlogIndexSeo, 
   getContactSeo,
-  getScheduleMeetingSeo 
+  getScheduleMeetingSeo,
+  getLegalSeo
 } from './utils/seo';
 
 // Route-based Code Splitting: Lazy-load secondary pages & heavy modals
@@ -33,6 +34,7 @@ const BlogPage = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.B
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const MeetingPage = lazy(() => import('./pages/MeetingPage').then(m => ({ default: m.MeetingPage })));
 const AdminPage = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
+const LegalPage = lazy(() => import('./pages/LegalPage').then(m => ({ default: m.LegalPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const QuoteModal = lazy(() => import('./components/QuoteModal').then(m => ({ default: m.QuoteModal })));
 const LegalModal = lazy(() => import('./components/LegalModal').then(m => ({ default: m.LegalModal })));
@@ -155,16 +157,7 @@ export const App: React.FC = () => {
         });
         break;
       case 'legal':
-        updatePageSeo({
-          title: `${route.legalType ? route.legalType.charAt(0).toUpperCase() + route.legalType.slice(1) : 'Legal'} Policy | Origintra Exim`,
-          description: 'Legal notices, commercial compliance, and trade terms for Origintra Exim.',
-          canonicalPath: route.path,
-          noIndex: true,
-          breadcrumbs: [
-            { name: 'Home', item: '/' },
-            { name: 'Legal Policy', item: route.path }
-          ]
-        });
+        updatePageSeo(getLegalSeo(route.legalType || 'privacy'));
         break;
       case 'not-found':
         updatePageSeo({
@@ -251,10 +244,15 @@ export const App: React.FC = () => {
       setCurrentPage('admin');
       applyRouteSeo(route);
     } else if (route.page === 'legal') {
+      setCurrentPage('legal');
+      setSelectedProduct(null);
+      setBlogArticleSlug(null);
       if (route.legalType) {
         setActiveLegalType(route.legalType);
+      } else {
+        setActiveLegalType('privacy');
       }
-      setLegalModalOpen(true);
+      setLegalModalOpen(false);
       applyRouteSeo(route);
     } else if (route.page === 'not-found') {
       setCurrentPage('not-found');
@@ -316,12 +314,8 @@ export const App: React.FC = () => {
   };
 
   const handleOpenLegal = (type: 'privacy' | 'terms' | 'shipping' | 'cookies') => {
-    setActiveLegalType(type);
-    setLegalModalOpen(true);
     const cleanPath = getHref(`legal-${type}`);
-    if (window.location.pathname !== cleanPath || window.location.hash) {
-      window.history.pushState(null, '', cleanPath);
-    }
+    handleNavigate(cleanPath);
   };
 
   const handleCloseLegal = () => {
@@ -421,6 +415,14 @@ export const App: React.FC = () => {
               <AdminPage
                 onNavigate={handleNavigate}
                 onOpenProductDetail={handleOpenProductDetail}
+              />
+            )}
+
+            {currentPage === 'legal' && (
+              <LegalPage
+                policyType={activeLegalType}
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
               />
             )}
 

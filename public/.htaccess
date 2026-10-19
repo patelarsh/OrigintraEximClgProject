@@ -27,8 +27,8 @@
   # 2.3 Redirect friendly /sitemap and /site-map directly to /sitemap.xml
   RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
 
-  # 2.5 Set environment variable to trigger X-Robots-Tag noindex on legal, policy & admin pages
-  RewriteRule ^(terms-of-service|terms-and-conditions|terms|privacy-policy|cookie-policy|shipping-policy|legal|admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
+  # 2.5 Set environment variable to trigger X-Robots-Tag noindex on admin portal only
+  RewriteRule ^(admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
 
   # 3. Existing physical files and directories: Serve directly without rewriting
   RewriteCond %{REQUEST_FILENAME} -f [OR]

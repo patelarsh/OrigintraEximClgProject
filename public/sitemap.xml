@@ -433,4 +433,32 @@
       <image:title>A Practical Guide to Importing Spices from India</image:title>
     </image:image>
   </url>
+
+  <!-- ============================================================= -->
+  <!-- 6. STATUTORY LEGAL & COMMERCIAL GOVERNANCE POLICIES -->
+  <!-- ============================================================= -->
+  <url>
+    <loc>https://www.origintra.com/privacy-policy</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>https://www.origintra.com/terms-of-service</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>https://www.origintra.com/shipping-policy</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>https://www.origintra.com/cookie-policy</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
 </urlset>

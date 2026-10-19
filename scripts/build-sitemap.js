@@ -185,7 +185,34 @@ for (const match of blogMatches) {
   </url>\n`;
 }
 
-xml += `</urlset>
+xml += `\n  <!-- ============================================================= -->
+  <!-- 6. STATUTORY LEGAL & COMMERCIAL GOVERNANCE POLICIES -->
+  <!-- ============================================================= -->
+  <url>
+    <loc>${BASE_URL}/privacy-policy</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/terms-of-service</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/shipping-policy</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/cookie-policy</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+</urlset>
 `;
 
 fs.writeFileSync('public/sitemap.xml', xml, 'utf8');

@@ -769,3 +769,45 @@ export function getScheduleMeetingSeo(): SeoConfig {
   };
 }
 
+export function getLegalSeo(legalType: 'privacy' | 'terms' | 'shipping' | 'cookies'): SeoConfig {
+  const configs: Record<string, { title: string; description: string; canonicalPath: string; name: string }> = {
+    privacy: {
+      title: 'Privacy Policy | Origintra Exim — Commercial Data Governance',
+      description: 'Commercial privacy policy, B2B data confidentiality, and international export trade data protection standards for Origintra Exim.',
+      canonicalPath: '/privacy-policy',
+      name: 'Privacy Policy'
+    },
+    terms: {
+      title: 'Terms & Conditions | Origintra Exim — International Trade Terms',
+      description: 'Commercial sales contract framework, Incoterms® 2020 rules (FOB/CFR/CIF), and export terms of service for Origintra Exim.',
+      canonicalPath: '/terms-of-service',
+      name: 'Terms & Conditions'
+    },
+    shipping: {
+      title: 'Shipping Policy | Origintra Exim — Container Port Operations',
+      description: 'Commercial export shipping policy, Indian gateway ports (Mundra, Nhava Sheva, Cochin), container stuffing, and maritime documentation.',
+      canonicalPath: '/shipping-policy',
+      name: 'Shipping Policy'
+    },
+    cookies: {
+      title: 'Cookie Policy | Origintra Exim — Digital Compliance',
+      description: 'Digital cookie policy, technical session preservation, and zero third-party tracking standards on the Origintra Exim export portal.',
+      canonicalPath: '/cookie-policy',
+      name: 'Cookie Policy'
+    }
+  };
+
+  const active = configs[legalType] || configs.privacy;
+  return {
+    title: active.title,
+    description: active.description,
+    canonicalPath: active.canonicalPath,
+    ogType: 'website',
+    breadcrumbs: [
+      { name: 'Home', item: '/' },
+      { name: 'Legal Governance', item: '/privacy-policy' },
+      { name: active.name, item: active.canonicalPath }
+    ]
+  };
+}
+
