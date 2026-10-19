@@ -167,6 +167,13 @@ export function parseCurrentRoute(): ParsedRoute {
     return { page: 'legal', legalType: 'cookies', path: '/cookie-policy' };
   }
 
+  if (pathname === '/sitemap' || pathname === '/site-map' || pathname === '/sitemap.xml') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/sitemap.xml';
+    }
+    return { page: 'home', path: '/sitemap.xml' };
+  }
+
   if (pathname === '/404' || pathname === '/not-found') {
     return { page: 'not-found', path: '/404' };
   }

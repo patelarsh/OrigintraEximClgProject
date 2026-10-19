@@ -7,7 +7,7 @@
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
   
   <xsl:template match="/">
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+    <html lang="en">
       <head>
         <title>XML Sitemap | Origintra Exim - Indian Spices Exporter</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -279,23 +279,23 @@
           </header>
 
           <!-- Featured Home Page Highlight Card -->
-          <xsl:for-each select="sitemap:urlset/sitemap:url[position() = 1]">
+          <xsl:for-each select="//*[local-name()='url'][1]">
             <div class="featured-home-card">
               <span class="featured-tag">Primary Landing &amp; Commercial Gateway</span>
               <div class="featured-title">Home Page — Highest Priority (1.00)</div>
               <div>
                 <a class="featured-url">
                   <xsl:attribute name="href">
-                    <xsl:value-of select="sitemap:loc"/>
+                    <xsl:value-of select="*[local-name()='loc']"/>
                   </xsl:attribute>
-                  <xsl:value-of select="sitemap:loc"/>
+                  <xsl:value-of select="*[local-name()='loc']"/>
                 </a>
               </div>
               <div class="featured-meta">
                 <div>Priority: <strong>1.00 (Maximum)</strong></div>
-                <div>Change Frequency: <strong><xsl:value-of select="sitemap:changefreq"/></strong></div>
-                <div>Last Updated: <strong><xsl:value-of select="sitemap:lastmod"/></strong></div>
-                <div>Indexed Images: <strong><xsl:value-of select="count(image:image)"/> Rich Visuals</strong></div>
+                <div>Change Frequency: <strong><xsl:value-of select="*[local-name()='changefreq']"/></strong></div>
+                <div>Last Updated: <strong><xsl:value-of select="*[local-name()='lastmod']"/></strong></div>
+                <div>Indexed Images: <strong><xsl:value-of select="count(*[local-name()='image'])"/> Rich Visuals</strong></div>
               </div>
             </div>
           </xsl:for-each>
@@ -304,15 +304,15 @@
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-label">Total Indexed URLs</div>
-              <div class="stat-value"><xsl:value-of select="count(sitemap:urlset/sitemap:url)"/></div>
+              <div class="stat-value"><xsl:value-of select="count(//*[local-name()='url'])"/></div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Total Indexed Images</div>
-              <div class="stat-value"><xsl:value-of select="count(sitemap:urlset/sitemap:url/image:image)"/></div>
+              <div class="stat-value"><xsl:value-of select="count(//*[local-name()='image'])"/></div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Top Priority URLs (≥ 0.90)</div>
-              <div class="stat-value"><xsl:value-of select="count(sitemap:urlset/sitemap:url[sitemap:priority &gt;= 0.90])"/></div>
+              <div class="stat-value"><xsl:value-of select="count(//*[local-name()='url'][*[local-name()='priority'] &gt;= 0.90])"/></div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Primary Canonical Host</div>
@@ -333,7 +333,7 @@
                 </tr>
               </thead>
               <tbody>
-                <xsl:for-each select="sitemap:urlset/sitemap:url">
+                <xsl:for-each select="//*[local-name()='url']">
                   <tr>
                     <xsl:if test="position() = 1">
                       <xsl:attribute name="class">home-row</xsl:attribute>
@@ -341,9 +341,9 @@
                     <td>
                       <a>
                         <xsl:attribute name="href">
-                          <xsl:value-of select="sitemap:loc"/>
+                          <xsl:value-of select="*[local-name()='loc']"/>
                         </xsl:attribute>
-                        <xsl:value-of select="sitemap:loc"/>
+                        <xsl:value-of select="*[local-name()='loc']"/>
                       </a>
                       <xsl:if test="position() = 1">
                         <span style="margin-left: 0.5rem; font-size: 0.7rem; background: #059669; color: #fff; padding: 0.15rem 0.45rem; border-radius: 9999px; text-transform: uppercase;">Home</span>
@@ -351,27 +351,27 @@
                     </td>
                     <td style="text-align: center;">
                       <xsl:choose>
-                        <xsl:when test="sitemap:priority = '1.0' or sitemap:priority = '1.00'">
+                        <xsl:when test="*[local-name()='priority'] = '1.0' or *[local-name()='priority'] = '1.00'">
                           <span class="priority-pill priority-10">1.00 Highest</span>
                         </xsl:when>
-                        <xsl:when test="sitemap:priority &gt;= 0.90">
-                          <span class="priority-pill priority-09"><xsl:value-of select="sitemap:priority"/></span>
+                        <xsl:when test="*[local-name()='priority'] &gt;= 0.90">
+                          <span class="priority-pill priority-09"><xsl:value-of select="*[local-name()='priority']"/></span>
                         </xsl:when>
-                        <xsl:when test="sitemap:priority &gt;= 0.80">
-                          <span class="priority-pill priority-08"><xsl:value-of select="sitemap:priority"/></span>
+                        <xsl:when test="*[local-name()='priority'] &gt;= 0.80">
+                          <span class="priority-pill priority-08"><xsl:value-of select="*[local-name()='priority']"/></span>
                         </xsl:when>
                         <xsl:otherwise>
-                          <span class="priority-pill priority-low"><xsl:value-of select="sitemap:priority"/></span>
+                          <span class="priority-pill priority-low"><xsl:value-of select="*[local-name()='priority']"/></span>
                         </xsl:otherwise>
                       </xsl:choose>
                     </td>
-                    <td class="changefreq"><xsl:value-of select="sitemap:changefreq"/></td>
-                    <td class="lastmod"><xsl:value-of select="sitemap:lastmod"/></td>
+                    <td class="changefreq"><xsl:value-of select="*[local-name()='changefreq']"/></td>
+                    <td class="lastmod"><xsl:value-of select="*[local-name()='lastmod']"/></td>
                     <td style="text-align: center;">
                       <xsl:choose>
-                        <xsl:when test="count(image:image) &gt; 0">
+                        <xsl:when test="count(*[local-name()='image']) &gt; 0">
                           <span class="image-count">
-                            <xsl:value-of select="count(image:image)"/>
+                            <xsl:value-of select="count(*[local-name()='image'])"/>
                           </span>
                         </xsl:when>
                         <xsl:otherwise>

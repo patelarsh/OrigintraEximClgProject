@@ -603,6 +603,33 @@ if (fs.existsSync(DIST_DIR)) {
   app.use(express.static(DIST_DIR));
 }
 
+// Explicitly serve sitemap and SEO assets with proper XML MIME types and CORS
+app.get('/sitemap.xml', (req, res) => {
+  const filePath = fs.existsSync(path.join(DIST_DIR, 'sitemap.xml'))
+    ? path.join(DIST_DIR, 'sitemap.xml')
+    : path.join(PUBLIC_DIR, 'sitemap.xml');
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.sendFile(filePath);
+});
+
+app.get('/sitemap.xsl', (req, res) => {
+  const filePath = fs.existsSync(path.join(DIST_DIR, 'sitemap.xsl'))
+    ? path.join(DIST_DIR, 'sitemap.xsl')
+    : path.join(PUBLIC_DIR, 'sitemap.xsl');
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.sendFile(filePath);
+});
+
+app.get('/robots.txt', (req, res) => {
+  const filePath = fs.existsSync(path.join(DIST_DIR, 'robots.txt'))
+    ? path.join(DIST_DIR, 'robots.txt')
+    : path.join(PUBLIC_DIR, 'robots.txt');
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.sendFile(filePath);
+});
+
 // 404 for unmatched API routes
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found', path: req.originalUrl });
