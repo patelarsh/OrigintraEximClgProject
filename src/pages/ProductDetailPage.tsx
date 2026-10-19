@@ -158,10 +158,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
                 <button
                   onClick={onBack}
-                  className="btn-pill btn-pill-outline border-slate-300 text-slate-700 hover:text-[#0A1C3E] px-5 py-3 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer w-full sm:w-auto"
+                  className="btn-pill border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-100 text-slate-800 hover:text-[#0A1C3E] px-5 sm:px-6 py-3 text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer w-full sm:w-auto shadow-2xs transition-all"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-0.5" />
-                  <span>Back to Catalog</span>
+                  <ArrowLeft className="w-4 h-4 mr-0.5 text-slate-700" />
+                  <span className="text-slate-800 font-semibold">Back to Catalog</span>
                 </button>
               </div>
 

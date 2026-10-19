@@ -191,14 +191,11 @@
 }
 
 .btn-pill-outline {
-  color: #FFFFFF;
+  color: inherit;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid currentColor;
 }
 .btn-pill-outline:hover {
-  color: #0F172A;
-  background: #FFFFFF;
-  border-color: #FFFFFF;
   transform: translateY(-1px);
 }
 

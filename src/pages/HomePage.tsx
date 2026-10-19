@@ -781,10 +781,10 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate('products')}
-              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-5 py-2.5 sm:px-6 sm:py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer self-start md:self-auto inline-flex items-center"
+              className="btn-pill border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-100 text-slate-800 hover:text-[#0A1C3E] px-5 py-2.5 sm:px-6 sm:py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer self-start md:self-auto inline-flex items-center shadow-2xs transition-all"
             >
-              <span>View All 27 Products</span>
-              <ArrowUpRight className="w-4 h-4 ml-1" />
+              <span className="text-slate-800 font-semibold">View All 27 Products</span>
+              <ArrowUpRight className="w-4 h-4 ml-1 text-slate-700" />
             </button>
           </div>
 
@@ -1250,10 +1250,10 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate('blog')}
-              className="btn-pill btn-pill-outline border-slate-300 text-slate-800 hover:border-[#0A1C3E] hover:text-[#0A1C3E] px-6 py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer"
+              className="btn-pill border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-100 text-slate-800 hover:text-[#0A1C3E] px-6 py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer shadow-2xs transition-all"
             >
-              <span>View All Articles</span>
-              <ArrowUpRight className="w-4 h-4 ml-1" />
+              <span className="text-slate-800 font-semibold">View All Articles</span>
+              <ArrowUpRight className="w-4 h-4 ml-1 text-slate-700" />
             </button>
           </div>
 

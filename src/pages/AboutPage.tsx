@@ -95,10 +95,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
                 </button>
                 <button
                   onClick={() => onNavigate('products')}
-                  className="btn-pill btn-pill-outline border-slate-300 text-slate-700 hover:text-[#0A1C3E] px-6 py-3 text-xs sm:text-sm font-semibold flex items-center space-x-2 cursor-pointer"
+                  className="btn-pill border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-100 text-slate-800 hover:text-[#0A1C3E] px-6 py-3 text-xs sm:text-sm font-semibold flex items-center space-x-2 cursor-pointer shadow-2xs transition-all"
                 >
-                  <span>Explore Products</span>
-                  <ArrowRight className="w-4 h-4 ml-0.5" />
+                  <span className="text-slate-800 font-semibold">Explore Products</span>
+                  <ArrowRight className="w-4 h-4 ml-0.5 text-slate-700" />
                 </button>
               </div>
             </div>
