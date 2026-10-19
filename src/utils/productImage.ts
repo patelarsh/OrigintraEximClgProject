@@ -96,7 +96,7 @@ export const DEFAULT_PRODUCT_IMAGE_MAP: Record<string, string> = {
   'clove': '/assets/products/clove.jpg',
   'cloves': '/assets/products/clove.jpg',
   'cumin-seeds': '/assets/products/cumin-seeds.jpg',
-  'whole-turmeric': '/assets/products/turmeric.jpg',
+  'whole-turmeric': '/assets/products/whole-turmeric.jpg',
   'turmeric': '/assets/products/turmeric.jpg',
   'turmeric-powder': '/assets/products/turmeric.jpg',
   'black-pepper': '/assets/products/black-pepper.jpg',

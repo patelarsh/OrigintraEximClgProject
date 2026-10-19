@@ -564,7 +564,7 @@ export const PRODUCTS: Product[] = [
       "Wholesale Repacking & Culinary Retail"
     ],
     "loadability": "Approx. 18 MT per 20ft FCL / 26 MT per 40ft FCL",
-    "image": "/assets/products/turmeric.jpg",
+    "image": "/assets/products/whole-turmeric.jpg",
     "specifications": [
       {
         "label": "Origin",
