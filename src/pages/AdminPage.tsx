@@ -1853,9 +1853,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                           <td className="py-3 px-4">
                             <div className="flex items-center space-x-3">
                               <img
-                                src={prod.image}
+                                src={prod.image?.startsWith('/assets/products/') ? `${prod.image.split('?')[0]}?v=20261019_drive` : prod.image}
                                 alt={prod.name}
                                 className="w-12 h-14 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-50"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = '/assets/products/cumin-seeds.jpg?v=20261019_drive';
+                                }}
                               />
                               <div>
                                 <div className="font-semibold text-slate-800 text-sm">{prod.name}</div>
@@ -3771,7 +3774,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                       className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0070E0] transition bg-slate-100"
                       title="Click to select different photo from gallery"
                     >
-                      <img src={editingProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={editingProduct.image?.startsWith('/assets/products/') ? `${editingProduct.image.split('?')[0]}?v=20261019_drive` : editingProduct.image}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/assets/products/cumin-seeds.jpg?v=20261019_drive';
+                        }}
+                      />
                     </div>
                   )}
                   <input

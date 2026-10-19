@@ -203,7 +203,7 @@ export const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'prod-cumin',
-    url: '/assets/products/cumin.jpg',
+    url: '/assets/products/cumin-seeds.jpg',
     title: 'Cumin Seeds (Whole)',
     category: 'products',
     description: 'Machine cleaned Unjha cumin seeds with 99.5% purity',
@@ -227,7 +227,7 @@ export const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'prod-coriander',
-    url: '/assets/products/coriander.jpg',
+    url: '/assets/products/coriander-seeds.jpg',
     title: 'Coriander Seeds (Whole)',
     category: 'products',
     description: 'Eagle & Scooter quality whole coriander seeds from Rajasthan',
@@ -299,19 +299,11 @@ export const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'prod-whole-turmeric',
-    url: '/assets/products/turmeric.jpg',
+    url: '/assets/products/whole-turmeric.jpg',
     title: 'Whole Turmeric Fingers (Salem / Nizamabad)',
     category: 'products',
     description: 'Polished golden whole turmeric fingers with high 3%-5% curcumin',
     tag: 'Whole Spices'
-  },
-  {
-    id: 'prod-mustard-seeds',
-    url: '/assets/products/mustard-seeds.jpg',
-    title: 'Mustard Seeds (Bold Black/Brown)',
-    category: 'products',
-    description: 'Recleaned bold mustard seeds for pickling, oil extraction, and seasonings',
-    tag: 'Oilseeds'
   },
   {
     id: 'prod-fennel',

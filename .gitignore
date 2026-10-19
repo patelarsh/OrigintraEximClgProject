@@ -42,4 +42,6 @@ public/uploads/*
 !public/uploads/gallery_*
 !public/uploads/team_*
 !public/uploads/upload_*
+!public/uploads/spice_*
+!public/uploads/product_*
 downloaded_spices/

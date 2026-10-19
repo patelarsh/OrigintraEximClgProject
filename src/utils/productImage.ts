@@ -46,16 +46,28 @@ export function createProductSvgFallback(productName = 'Export Spice', category 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+export const ASSET_CACHE_VERSION = 'v=20261019_drive';
+
+export function withAssetCache(url: string | null | undefined): string {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('/assets/products/')) return trimmed;
+  if (trimmed.includes(ASSET_CACHE_VERSION)) return trimmed;
+  const base = trimmed.split('?')[0];
+  return `${base}?${ASSET_CACHE_VERSION}`;
+}
+
 export function getProductImageSources(imagePath?: string | null): ProductImageSources {
   if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) {
     return {
-      src: DEFAULT_FALLBACK_IMAGE,
-      webpSrc: '/assets/products/cumin-seeds.webp',
-      w450Src: '/assets/products/cumin-seeds-450.webp'
+      src: withAssetCache(DEFAULT_FALLBACK_IMAGE),
+      webpSrc: withAssetCache('/assets/products/cumin-seeds.webp'),
+      w450Src: withAssetCache('/assets/products/cumin-seeds-450.webp')
     };
   }
 
-  const cleanPath = imagePath.trim();
+  const raw = imagePath.trim();
+  const cleanPath = raw.split('?')[0];
 
   // If external URL, data URL, or dynamic server upload (/uploads/), use directly without regex modification
   if (
@@ -65,7 +77,7 @@ export function getProductImageSources(imagePath?: string | null): ProductImageS
     cleanPath.startsWith('/uploads/')
   ) {
     return {
-      src: cleanPath,
+      src: raw,
       webpSrc: null,
       w450Src: null
     };
@@ -76,15 +88,20 @@ export function getProductImageSources(imagePath?: string | null): ProductImageS
     const isJpgOrPng = /\.(jpe?g|png)$/i.test(cleanPath);
     if (isJpgOrPng) {
       return {
-        src: cleanPath,
-        webpSrc: cleanPath.replace(/\.(jpe?g|png)$/i, '.webp'),
-        w450Src: cleanPath.replace(/\.(jpe?g|png)$/i, '-450.webp')
+        src: withAssetCache(cleanPath),
+        webpSrc: withAssetCache(cleanPath.replace(/\.(jpe?g|png)$/i, '.webp')),
+        w450Src: withAssetCache(cleanPath.replace(/\.(jpe?g|png)$/i, '-450.webp'))
       };
     }
+    return {
+      src: withAssetCache(cleanPath),
+      webpSrc: null,
+      w450Src: null
+    };
   }
 
   return {
-    src: cleanPath,
+    src: raw,
     webpSrc: null,
     w450Src: null
   };
@@ -93,9 +110,11 @@ export function getProductImageSources(imagePath?: string | null): ProductImageS
 export const DEFAULT_PRODUCT_IMAGE_MAP: Record<string, string> = {
   'cinnamon': '/assets/products/cinnamon.jpg',
   'coriander-seeds': '/assets/products/coriander-seeds.jpg',
+  'coriander': '/assets/products/coriander-seeds.jpg',
   'clove': '/assets/products/clove.jpg',
   'cloves': '/assets/products/clove.jpg',
   'cumin-seeds': '/assets/products/cumin-seeds.jpg',
+  'cumin': '/assets/products/cumin-seeds.jpg',
   'whole-turmeric': '/assets/products/whole-turmeric.jpg',
   'turmeric': '/assets/products/turmeric.jpg',
   'turmeric-powder': '/assets/products/turmeric.jpg',
@@ -117,7 +136,6 @@ export const DEFAULT_PRODUCT_IMAGE_MAP: Record<string, string> = {
   'coriander-powder': '/assets/products/coriander-powder.jpg',
   'cumin-powder': '/assets/products/cumin-powder.jpg',
   'black-pepper-powder': '/assets/products/black-pepper-powder.jpg',
-  'mustard-seeds': '/assets/products/mustard-seeds.jpg',
   'garam-masala': '/assets/products/garam-masala.jpg',
   'sambar-masala': '/assets/products/sambar-masala.jpg',
   'rasam-powder': '/assets/products/rasam-powder.jpg',
@@ -129,14 +147,19 @@ export const DEFAULT_PRODUCT_IMAGE_MAP: Record<string, string> = {
 
 export function getProductDefaultImage(productId?: string, productName?: string): string {
   if (productId) {
-    const cleanId = productId.toLowerCase().trim();
+    const cleanId = productId.toLowerCase().trim().replace(/_/g, '-');
     if (DEFAULT_PRODUCT_IMAGE_MAP[cleanId]) return DEFAULT_PRODUCT_IMAGE_MAP[cleanId];
+    const sortedKeys = Object.keys(DEFAULT_PRODUCT_IMAGE_MAP).sort((a, b) => b.length - a.length);
+    for (const key of sortedKeys) {
+      if (cleanId === key || cleanId.includes(key)) return DEFAULT_PRODUCT_IMAGE_MAP[key];
+    }
   }
   if (productName) {
     const slug = productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     if (DEFAULT_PRODUCT_IMAGE_MAP[slug]) return DEFAULT_PRODUCT_IMAGE_MAP[slug];
-    for (const [key, val] of Object.entries(DEFAULT_PRODUCT_IMAGE_MAP)) {
-      if (slug.includes(key) || key.includes(slug)) return val;
+    const sortedKeys = Object.keys(DEFAULT_PRODUCT_IMAGE_MAP).sort((a, b) => b.length - a.length);
+    for (const key of sortedKeys) {
+      if (slug.includes(key) || key.includes(slug)) return DEFAULT_PRODUCT_IMAGE_MAP[key];
     }
   }
   return DEFAULT_FALLBACK_IMAGE;
@@ -167,17 +190,21 @@ export function handleImageFallback(
 
   img.removeAttribute('srcset');
 
-  const defaultPhoto = getProductDefaultImage(productId, productName);
+  const rawDefaultPhoto = getProductDefaultImage(productId, productName);
+  const defaultPhoto = withAssetCache(rawDefaultPhoto);
 
   if (retryCount === 0) {
     // First fallback: If current image failed, try the real catalog photograph!
     img.setAttribute('data-error-count', '1');
-    if (!currentSrc.includes(defaultPhoto)) {
+    const cleanCurrent = currentSrc.split('?')[0];
+    const cleanDefault = rawDefaultPhoto.split('?')[0];
+    if (!cleanCurrent.endsWith(cleanDefault)) {
       img.src = defaultPhoto;
       return;
     }
-    if (!currentSrc.includes(DEFAULT_FALLBACK_IMAGE)) {
-      img.src = DEFAULT_FALLBACK_IMAGE;
+    const cleanFallback = DEFAULT_FALLBACK_IMAGE.split('?')[0];
+    if (!cleanCurrent.endsWith(cleanFallback)) {
+      img.src = withAssetCache(DEFAULT_FALLBACK_IMAGE);
       return;
     }
   }

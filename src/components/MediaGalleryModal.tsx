@@ -459,9 +459,19 @@ export const MediaGalleryModal: React.FC<MediaGalleryModalProps> = ({
                     {/* Meta info */}
                     <div className="p-2.5 bg-white flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="text-xs font-bold text-slate-800 truncate" title={img.title}>
-                          {img.title}
-                        </h4>
+                        <div className="flex items-center justify-between gap-1">
+                          <h4 className="text-xs font-bold text-slate-800 truncate" title={img.title}>
+                            {img.title}
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteImage(e, img.id, img.title)}
+                            className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
+                            title="Delete photo from gallery"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                         {img.description && (
                           <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5" title={img.description}>
                             {img.description}
