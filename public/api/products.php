@@ -53,6 +53,44 @@ if (file_exists($dataFile)) {
     $content = file_get_contents($dataFile);
     $decoded = json_decode($content, true);
     if (is_array($decoded)) {
+        $changed = false;
+        $uploadsDir = dirname(__DIR__) . '/uploads';
+
+        foreach ($decoded as &$item) {
+            $img = isset($item['image']) ? $item['image'] : '';
+            $id = isset($item['id']) ? $item['id'] : '';
+
+            $isBrokenUpload = false;
+            if (strpos($img, '_1792319') !== false) {
+                $isBrokenUpload = true;
+            } elseif (strpos($img, '/uploads/') === 0) {
+                $filename = basename($img);
+                if (!file_exists($uploadsDir . '/' . $filename)) {
+                    $isBrokenUpload = true;
+                }
+            } elseif (empty($img) || strlen($img) < 5) {
+                $isBrokenUpload = true;
+            }
+
+            if ($isBrokenUpload && !empty($id)) {
+                $canonical = '/assets/products/' . $id . '.jpg';
+                if ($id === 'whole-turmeric') $canonical = '/assets/products/turmeric.jpg';
+                if ($id === 'cloves') $canonical = '/assets/products/clove.jpg';
+                if ($id === 'fennel-seeds') $canonical = '/assets/products/fennel.jpg';
+                if ($id === 'cardamom') $canonical = '/assets/products/green-cardamom.jpg';
+                if ($id === 'ginger') $canonical = '/assets/products/dry-ginger.jpg';
+                if ($id === 'red-chilli') $canonical = '/assets/products/whole-red-chili.jpg';
+                $item['image'] = $canonical;
+                $changed = true;
+            }
+        }
+        unset($item);
+
+        if ($changed) {
+            $jsonContent = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            @file_put_contents($dataFile, $jsonContent);
+        }
+
         echo json_encode([
             'success' => true,
             'products' => $decoded
