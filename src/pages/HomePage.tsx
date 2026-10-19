@@ -67,19 +67,26 @@ interface HomePageProps {
 
 const renderHeroFeatureIcon = (iconName: string) => {
   switch (iconName) {
-    case 'Leaf': return <Leaf className="w-3.5 h-3.5 text-white/90" />;
-    case 'Flame': return <Flame className="w-3.5 h-3.5 text-white/90" />;
-    case 'FlaskConical': return <FlaskConical className="w-3.5 h-3.5 text-white/90" />;
-    case 'Sparkles': return <Sparkles className="w-3.5 h-3.5 text-white/90" />;
-    case 'Sun': return <Sun className="w-3.5 h-3.5 text-white/90" />;
-    case 'Wind': return <Wind className="w-3.5 h-3.5 text-white/90" />;
-    case 'ShieldCheck': return <ShieldCheck className="w-3.5 h-3.5 text-white/90" />;
-    case 'Award': return <Award className="w-3.5 h-3.5 text-white/90" />;
-    case 'CheckCircle2': return <CheckCircle2 className="w-3.5 h-3.5 text-white/90" />;
-    case 'Globe': return <Globe className="w-3.5 h-3.5 text-white/90" />;
-    case 'Layers': return <Layers className="w-3.5 h-3.5 text-white/90" />;
-    case 'Package': return <Package className="w-3.5 h-3.5 text-white/90" />;
-    default: return <ShieldCheck className="w-3.5 h-3.5 text-white/90" />;
+    case 'Leaf': return <Leaf className="w-4 h-4 text-white" />;
+    case 'Flame': 
+      return (
+        <svg className="w-4 h-4 text-white stroke-current fill-none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round">
+          <path d="M7.5 5c1.5 2 1.5 4 0 6.5s-1.5 4.5 0 6.5" />
+          <path d="M12 5c1.5 2 1.5 4 0 6.5s-1.5 4.5 0 6.5" />
+          <path d="M16.5 5c1.5 2 1.5 4 0 6.5s-1.5 4.5 0 6.5" />
+        </svg>
+      );
+    case 'FlaskConical': return <FlaskConical className="w-4 h-4 text-white" />;
+    case 'Sparkles': return <Sparkles className="w-4 h-4 text-white" />;
+    case 'Sun': return <Sun className="w-4 h-4 text-white" />;
+    case 'Wind': return <Wind className="w-4 h-4 text-white" />;
+    case 'ShieldCheck': return <ShieldCheck className="w-4 h-4 text-white" />;
+    case 'Award': return <Award className="w-4 h-4 text-white" />;
+    case 'CheckCircle2': return <CheckCircle2 className="w-4 h-4 text-white" />;
+    case 'Globe': return <Globe className="w-4 h-4 text-white" />;
+    case 'Layers': return <Layers className="w-4 h-4 text-white" />;
+    case 'Package': return <Package className="w-4 h-4 text-white" />;
+    default: return <ShieldCheck className="w-4 h-4 text-white" />;
   }
 };
 
@@ -117,8 +124,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       ],
       mobileDescription: 'Direct farmgate sourcing of export-grade whole spices and pure ground powders.',
       ctaText: 'Request a Quote',
-      mobileCtaText: 'Get Quote',
-      mobileSecondaryText: 'Explore'
+      mobileCtaText: 'Enquire Now',
+      mobileSecondaryText: 'View Specs'
     },
     {
       id: 'red-chilli',
@@ -468,7 +475,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div className="bg-white text-[#0F172A]">
       
       {/* 1. HERO SECTION (Dynamic Spice Image & Matching Content Carousel) */}
-      <section className="relative overflow-hidden min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white bg-[#071120]">
+      <section className="relative overflow-hidden min-h-[640px] xs:min-h-[680px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] flex items-center text-white bg-[#071120]">
         {/* Authentic Indian spice background slides (responsive mobile portrait vs desktop landscape) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {heroSlides.map((slide, idx) => (
@@ -507,42 +514,42 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]" />
 
           {/* Mobile Directional Gradient: Calibrated subtle gradient letting photography shine while text remains crisp */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/95 via-[#071120]/70 via-45% to-transparent z-[1]" />
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-t from-[#071120]/85 via-transparent to-transparent z-[1]" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/90 via-[#071120]/60 via-45% to-transparent z-[1]" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-transparent z-[1]" />
         </div>
 
         {/* ============================================================== */}
-        {/* Mobile Hero section: Compact, short height, matching mockup     */}
+        {/* Mobile Hero section: Matching mockup exactly                  */}
         {/* ============================================================== */}
         <div
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="sm:hidden relative z-10 w-full px-4.5 pt-3 pb-3 flex flex-col justify-between min-h-[480px] max-h-[550px]"
+          className="sm:hidden relative z-10 w-full px-5 pt-4 pb-5 flex flex-col justify-between min-h-[640px] xs:min-h-[680px] h-[calc(100svh-56px)] max-h-[820px]"
         >
           {/* Top Row: Slide Counter on the Right (e.g. 02 / 05) */}
-          <div className="flex justify-end w-full mb-0.5">
-            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-900/60 border border-white/10 backdrop-blur-md text-[10.5px] font-mono tracking-wider text-slate-200 shadow-md">
-              <span className="text-[#0070E0] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
-              <span className="text-white/40 mx-1 font-medium">/</span>
-              <span className="text-white/80 font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
+          <div className="flex justify-end w-full mb-1">
+            <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#07172C]/85 border border-sky-400/25 backdrop-blur-md text-xs font-mono tracking-wider shadow-md">
+              <span className="text-[#0084FF] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
+              <span className="text-white/60 mx-1.5 font-semibold">/</span>
+              <span className="text-white font-bold">{String(heroSlides.length).padStart(2, '0')}</span>
             </div>
           </div>
 
-          {/* Top-to-Middle Content Block: Left-Aligned Compact Editorial Hierarchy */}
+          {/* Top-to-Middle Content Block: Left-Aligned Editorial Hierarchy */}
           <div className={`transition-all duration-300 ease-out transform ${
             fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-          } w-full space-y-2 text-left pt-0.5`}>
+          } w-full space-y-2.5 text-left pt-0.5`}>
             
             {/* Eyebrow Header flanked by blue dash */}
-            <div className="flex items-center gap-1.5">
-              <span className="w-4 h-[2px] bg-[#0070E0] rounded-full inline-block" />
-              <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-[#0070E0]">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-6 h-[2.5px] bg-[#0070E0] rounded-full inline-block" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
                 {currentSlideData.badge}
               </span>
             </div>
 
             {/* Dual-Tone Main Headline (Left-aligned, commanding impact) */}
-            <h1 className="text-[25px] xs:text-[27px] sm:text-[30px] font-display font-extrabold text-white tracking-tight leading-[1.12]">
+            <h1 className="text-[28px] xs:text-[32px] sm:text-[36px] font-display font-extrabold text-white tracking-tight leading-[1.14]">
               {currentSlideData.mobileTitle.line1} <br />
               {currentSlideData.mobileTitle.line2Prefix}
               <span className="text-[#0070E0]">{currentSlideData.mobileTitle.line2Highlight}</span> <br />
@@ -550,34 +557,36 @@ export const HomePage: React.FC<HomePageProps> = ({
             </h1>
 
             {/* Specs / Corridor & 3 Circular Micro-Badges Row */}
-            <div className="flex items-center justify-between gap-1.5 pt-0.5 pb-0.5">
+            <div className="flex items-center justify-between gap-2 pt-1 pb-1">
               
               {/* Location Corridor on the Left */}
-              <div className="flex items-center space-x-2 min-w-0">
-                <div className="w-6 h-6 rounded-full bg-[#0070E0] flex items-center justify-center shrink-0 shadow-sm">
-                  <MapPin className="w-3 h-3 text-white" />
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#0070E0] fill-[#0070E0]" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                  </svg>
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-[11.5px] font-bold text-white leading-tight">
+                  <h4 className="text-[13.5px] font-bold text-white leading-tight">
                     {currentSlideData.mobileCorridorTitle}
                   </h4>
-                  <p className="text-[9.5px] text-slate-300 leading-tight mt-0.5">
+                  <p className="text-[11px] text-slate-300 leading-tight mt-0.5">
                     {currentSlideData.mobileCorridorSub}
                   </p>
                 </div>
               </div>
 
               {/* Vertical Divider */}
-              <div className="h-6 w-px bg-white/15 shrink-0 mx-0.5" />
+              <div className="h-9 w-px bg-white/20 shrink-0 mx-2" />
 
               {/* 3 Circular Micro-Badges on the Right */}
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                 {currentSlideData.mobileFeatures.map((feat, i) => (
                   <div key={i} className="flex flex-col items-center">
-                    <div className="w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-full border border-white/20 bg-white/5 backdrop-blur-xs flex items-center justify-center text-white shadow-xs">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/30 bg-white/5 backdrop-blur-xs flex items-center justify-center text-white shadow-xs">
                       {renderHeroFeatureIcon(feat.icon)}
                     </div>
-                    <span className="text-[8px] sm:text-[8.5px] text-slate-300 font-medium text-center leading-tight mt-0.5 max-w-[42px]">
+                    <span className="text-[9.5px] text-slate-200 font-medium text-center leading-tight mt-1 max-w-[46px]">
                       {feat.label}
                     </span>
                   </div>
@@ -587,42 +596,42 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             {/* Subtle Divider Line */}
-            <div className="w-full h-px bg-white/10 my-0.5" />
+            <div className="w-full h-px bg-white/15 my-2.5" />
 
             {/* Narrative Paragraph */}
-            <p className="text-[11px] sm:text-[11.5px] text-slate-200 font-normal leading-relaxed max-w-[340px]">
+            <p className="text-[13px] xs:text-[13.5px] text-slate-200 font-normal leading-relaxed max-w-[360px]">
               {currentSlideData.mobileDescription}
             </p>
 
           </div>
 
           {/* Bottom Area: Action Buttons & Navigation Controls */}
-          <div className="w-full space-y-2.5 pt-1 pb-0.5">
+          <div className="w-full space-y-4 pt-2 pb-1">
             
-            {/* CTAs matching user reference exactly: Blue Pill & Dark Glass Pill */}
-            <div className="grid grid-cols-2 gap-2 w-full">
+            {/* CTAs matching mockup: Vibrant Blue Pill & Dark Glass Pill */}
+            <div className="grid grid-cols-2 gap-3.5 w-full">
               <button
                 onClick={() => handleHeroCta(currentSlideData)}
-                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-2.5 px-3 min-h-[40px] rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center space-x-1.5"
+                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white h-12 rounded-full text-sm font-semibold tracking-wide cursor-pointer shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center space-x-2"
               >
                 <span>{currentSlideData.mobileCtaText}</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                <ArrowRight className="w-4 h-4 ml-0.5" strokeWidth={2.5} />
               </button>
 
               <button
                 onClick={() => handleSecondaryCta(currentSlideData)}
-                className="w-full border border-white/20 hover:border-white/40 text-white bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md active:scale-[0.98] py-2.5 px-3 min-h-[40px] rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
+                className="w-full border border-white/25 hover:border-white/40 text-white bg-[#101014]/90 hover:bg-black backdrop-blur-md active:scale-[0.98] h-12 rounded-full text-sm font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-2"
               >
                 <span>{currentSlideData.mobileSecondaryText}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 ml-0.5" />
+                <ArrowUpRight className="w-4 h-4 text-white ml-0.5" strokeWidth={2.5} />
               </button>
             </div>
 
             {/* Pagination Dots on the Left & Circular Arrow Buttons on the Right */}
-            <div className="flex items-center justify-between w-full pt-0.5 px-0.5">
+            <div className="flex items-center justify-between w-full pt-1 px-0.5">
               
               {/* Dot Indicators */}
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-3">
                 {heroSlides.map((slide, idx) => (
                   <button
                     key={idx}
@@ -633,8 +642,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <span
                       className={`rounded-full transition-all duration-300 block ${
                         idx === currentHeroSlide
-                          ? 'w-2 h-2 bg-[#0070E0] ring-2 ring-blue-400/40 shadow-xs'
-                          : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/80'
+                          ? 'w-2.5 h-2.5 bg-[#0070E0] ring-2 ring-blue-400/40 shadow-xs'
+                          : 'w-2.5 h-2.5 bg-[#A3A8B0] hover:bg-white'
                       }`}
                     />
                   </button>
@@ -642,20 +651,20 @@ export const HomePage: React.FC<HomePageProps> = ({
               </div>
 
               {/* Prev / Next Circular Buttons */}
-              <div className="flex items-center space-x-2 text-white">
+              <div className="flex items-center space-x-2.5 text-white">
                 <button
                   onClick={() => goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length)}
-                  className="w-9 h-9 rounded-full bg-slate-900/80 border border-white/15 backdrop-blur-md flex items-center justify-center hover:bg-slate-800 active:scale-95 transition-all cursor-pointer shadow-md"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#18181A]/95 border border-white/10 hover:border-white/25 backdrop-blur-md flex items-center justify-center hover:bg-[#252528] active:scale-95 transition-all cursor-pointer shadow-lg"
                   aria-label="Previous slide"
                 >
-                  <ChevronLeft className="w-4 h-4 text-white" />
+                  <ChevronLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => goToSlide((currentHeroSlide + 1) % heroSlides.length)}
-                  className="w-9 h-9 rounded-full bg-slate-900/80 border border-white/15 backdrop-blur-md flex items-center justify-center hover:bg-slate-800 active:scale-95 transition-all cursor-pointer shadow-md"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#18181A]/95 border border-white/10 hover:border-white/25 backdrop-blur-md flex items-center justify-center hover:bg-[#252528] active:scale-95 transition-all cursor-pointer shadow-lg"
                   aria-label="Next slide"
                 >
-                  <ChevronRight className="w-4 h-4 text-white" />
+                  <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.5} />
                 </button>
               </div>
 
