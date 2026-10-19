@@ -586,25 +586,25 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
               />
             </div>
 
-            {/* Indian Spices Cluster Image (exact placement matching user mockup) */}
-            <div className="hidden lg:block absolute left-[54%] xl:left-[53%] bottom-0 -translate-x-1/2 w-[280px] xl:w-[330px] pointer-events-none select-none z-10">
+            {/* Indian Spices Cluster Image (Desktop: Floating between left narrative and right checklist card) */}
+            <div className="hidden lg:block absolute right-[260px] xl:right-[320px] 2xl:right-[360px] bottom-0 w-[380px] xl:w-[440px] pointer-events-none select-none z-10">
               <picture>
-                <source srcSet="/assets/about/indian-spices-cluster.webp" type="image/webp" />
+                <source srcSet="/assets/about/indian-spices-cluster.webp?v=3" type="image/webp" />
                 <img
-                  src="/assets/about/indian-spices-cluster.png"
+                  src="/assets/about/indian-spices-cluster.png?v=3"
                   alt="Premium Indian Spices"
                   width="1022"
                   height="631"
-                  className="w-full h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
+                  className="w-full h-auto object-contain drop-shadow-[0_14px_28px_rgba(0,0,0,0.12)]"
                   loading="lazy"
                 />
               </picture>
             </div>
 
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="relative z-20 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
               
-              {/* Left Column: Narrative, 4 Features & Action CTAs (lg:col-span-7) */}
-              <div className="lg:col-span-7 space-y-6">
+              {/* Left Column: Narrative, 4 Features & Action CTAs */}
+              <div className="w-full lg:max-w-[480px] xl:max-w-[520px] shrink-0 space-y-6">
                 
                 {/* Eyebrow Header flanked by blue accent lines */}
                 <div className="inline-flex items-center gap-3">
@@ -616,62 +616,62 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
                 </div>
 
                 {/* Main Heading */}
-                <h2 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-5xl font-display font-extrabold text-[#06152F] tracking-tight leading-[1.15]">
+                <h2 className="text-3xl sm:text-4xl lg:text-[42px] xl:text-[46px] font-display font-extrabold text-[#06152F] tracking-tight leading-[1.15]">
                   Let's Build a Global <br className="hidden sm:inline" />
                   Business <span className="text-[#0070E0]">Relationship.</span>
                 </h2>
 
                 {/* Body Paragraph */}
-                <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
+                <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-[460px]">
                   Looking for an Indian spice supplier or export partner? Share your product requirements, destination country, required quantity, and packaging preferences. Our team will review your enquiry and discuss the next steps.
                 </p>
 
                 {/* 4 Feature Badges in a Row */}
-                <div className="pt-2 pb-2">
-                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-1">
+                <div className="pt-1 pb-1">
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 xl:gap-3.5 py-1">
                     
                     {/* Feature 1: Premium Quality */}
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
-                        <Leaf className="w-5 h-5 text-[#0070E0]" />
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Leaf className="w-4 h-4 text-[#0070E0]" />
                       </div>
-                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                      <div className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
                         Premium<br />Quality
                       </div>
                     </div>
 
-                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+                    <div className="hidden sm:block h-6 w-[1px] bg-slate-200 shrink-0" />
 
                     {/* Feature 2: Custom Packaging */}
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
-                        <Package className="w-5 h-5 text-[#0070E0]" />
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Package className="w-4 h-4 text-[#0070E0]" />
                       </div>
-                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                      <div className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
                         Custom<br />Packaging
                       </div>
                     </div>
 
-                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+                    <div className="hidden sm:block h-6 w-[1px] bg-slate-200 shrink-0" />
 
                     {/* Feature 3: Global Shipping */}
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
-                        <Ship className="w-5 h-5 text-[#0070E0]" />
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <Ship className="w-4 h-4 text-[#0070E0]" />
                       </div>
-                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                      <div className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
                         Global<br />Shipping
                       </div>
                     </div>
 
-                    <div className="hidden sm:block h-8 w-[1px] bg-slate-200" />
+                    <div className="hidden sm:block h-6 w-[1px] bg-slate-200 shrink-0" />
 
                     {/* Feature 4: Complete Documentation */}
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
-                        <FileText className="w-5 h-5 text-[#0070E0]" />
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0070E0] shrink-0 shadow-xs">
+                        <FileText className="w-4 h-4 text-[#0070E0]" />
                       </div>
-                      <div className="text-xs font-bold text-slate-800 leading-tight">
+                      <div className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
                         Complete<br />Documentation
                       </div>
                     </div>
@@ -683,14 +683,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
                 <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <button
                     onClick={onOpenQuote}
-                    className="px-7 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg shadow-blue-500/25 cursor-pointer w-full sm:w-auto"
+                    className="px-6 py-3 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg shadow-blue-500/25 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Submit Sourcing Enquiry</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </button>
                   <button
                     onClick={() => onNavigate('contact')}
-                    className="px-7 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 active:scale-[0.98] text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-xs hover:border-slate-400 cursor-pointer w-full sm:w-auto"
+                    className="px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 active:scale-[0.98] text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition-all duration-200 shadow-xs hover:border-slate-400 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Contact Trade Desk</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
@@ -699,8 +699,23 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
 
               </div>
 
-              {/* Right Column: Commercial Desk Checklist (lg:col-span-5) */}
-              <div className="lg:col-span-5">
+              {/* Mobile/Tablet Spice Visual */}
+              <div className="lg:hidden w-full flex justify-center py-2">
+                <picture>
+                  <source srcSet="/assets/about/indian-spices-cluster.webp?v=3" type="image/webp" />
+                  <img
+                    src="/assets/about/indian-spices-cluster.png?v=3"
+                    alt="Premium Indian Spices"
+                    width="1022"
+                    height="631"
+                    className="w-full max-w-[320px] h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.1)]"
+                    loading="lazy"
+                  />
+                </picture>
+              </div>
+
+              {/* Right Column: Commercial Desk Checklist */}
+              <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:ml-auto">
                 <div className="bg-white rounded-3xl p-6 sm:p-7 md:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.08)] border border-slate-100 space-y-5">
                   
                   {/* Checklist Header */}
