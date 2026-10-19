@@ -22,7 +22,14 @@ import {
   HelpCircle,
   Star,
   CheckCircle2,
-  Calendar
+  Calendar,
+  Flame,
+  FlaskConical,
+  Leaf,
+  Sparkles,
+  Sun,
+  Wind,
+  Award
 } from 'lucide-react';
 import { BLOG_POSTS as DEFAULT_BLOG_POSTS } from '../data/blog';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
@@ -58,6 +65,24 @@ interface HomePageProps {
   onOpenGeneralQuote: () => void;
 }
 
+const renderHeroFeatureIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'Leaf': return <Leaf className="w-3.5 h-3.5 text-white/90" />;
+    case 'Flame': return <Flame className="w-3.5 h-3.5 text-white/90" />;
+    case 'FlaskConical': return <FlaskConical className="w-3.5 h-3.5 text-white/90" />;
+    case 'Sparkles': return <Sparkles className="w-3.5 h-3.5 text-white/90" />;
+    case 'Sun': return <Sun className="w-3.5 h-3.5 text-white/90" />;
+    case 'Wind': return <Wind className="w-3.5 h-3.5 text-white/90" />;
+    case 'ShieldCheck': return <ShieldCheck className="w-3.5 h-3.5 text-white/90" />;
+    case 'Award': return <Award className="w-3.5 h-3.5 text-white/90" />;
+    case 'CheckCircle2': return <CheckCircle2 className="w-3.5 h-3.5 text-white/90" />;
+    case 'Globe': return <Globe className="w-3.5 h-3.5 text-white/90" />;
+    case 'Layers': return <Layers className="w-3.5 h-3.5 text-white/90" />;
+    case 'Package': return <Package className="w-3.5 h-3.5 text-white/90" />;
+    default: return <ShieldCheck className="w-3.5 h-3.5 text-white/90" />;
+  }
+};
+
 export const HomePage: React.FC<HomePageProps> = ({
   onNavigate,
   onOpenProductDetail,
@@ -77,7 +102,19 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Connecting India’s Finest Spices to the World',
       subline: 'Whole Seed Spices, Pure Ground Powders & Custom Sourcing',
       description: 'From prime whole pods and Sortex-cleaned seeds to ultra-fine pulverized powders, Origintra Exim connects international importers, food processors, and re-packers directly to certified Indian agricultural belts.',
-      mobileHeadline: 'India’s Finest Export Spices',
+      mobileTitle: {
+        line1: 'Connecting India’s Finest',
+        line2Prefix: 'Export ',
+        line2Highlight: 'Whole Spices',
+        line3: '& Pure Powders'
+      },
+      mobileCorridorTitle: 'Pan-India Mandi Belts',
+      mobileCorridorSub: 'Direct Farmgate • Multi-FCL',
+      mobileFeatures: [
+        { label: 'Prime Sourcing', icon: 'Globe' },
+        { label: 'Custom Packing', icon: 'Package' },
+        { label: 'Phyto Certified', icon: 'ShieldCheck' }
+      ],
       mobileDescription: 'Direct farmgate sourcing of export-grade whole spices and pure ground powders.',
       ctaText: 'Request a Quote',
       mobileCtaText: 'Get Quote',
@@ -94,8 +131,20 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Premium Indian Dried Red Chilli & Pure Powder',
       subline: 'S17 Teja, Sanam S4, Byadgi & 334 Varieties with Standardized SHU Heat',
       description: 'Machine-stemmed whole red chillies and vibratory-sifted powders milled under low temperature controls. Guaranteed negative for synthetic Sudan dyes and fully tested for Aflatoxin and pesticide MRL compliance.',
-      mobileHeadline: 'Premium Dried Red Chilli & Powder',
-      mobileDescription: 'Machine-stemmed chillies & pure powders with certified SHU heat and zero Sudan dye.',
+      mobileTitle: {
+        line1: 'Premium Indian',
+        line2Prefix: 'Dried ',
+        line2Highlight: 'Red Chilli',
+        line3: '& Pure Powder'
+      },
+      mobileCorridorTitle: 'Guntur & Byadgi Belts',
+      mobileCorridorSub: 'Stemless Pods • Powders',
+      mobileFeatures: [
+        { label: 'Natural Colour', icon: 'Leaf' },
+        { label: 'High Pungency', icon: 'Flame' },
+        { label: 'Certified Quality', icon: 'FlaskConical' }
+      ],
+      mobileDescription: 'Machine–stemmed chillies & pure powders with certified SHU heat and zero Sudan dye.',
       ctaText: 'Enquire for Red Chilli',
       mobileCtaText: 'Enquire Now',
       mobileSecondaryText: 'View Specs'
@@ -111,8 +160,20 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Curcumin-Rich Indian Turmeric Fingers & Powders',
       subline: 'Double-Polished Whole Fingers & Pure Golden Milled Powders',
       description: 'Harvested from premier turmeric cultivation hubs in Southern and Central India. High natural curcumin concentration, zero lead chromate, and packed in multi-wall moisture-barrier export sacks.',
-      mobileHeadline: 'Curcumin-Rich Golden Turmeric',
-      mobileDescription: 'High-curcumin double-polished fingers and pure golden milled turmeric powders.',
+      mobileTitle: {
+        line1: 'Curcumin-Rich Indian',
+        line2Prefix: 'Golden ',
+        line2Highlight: 'Turmeric',
+        line3: '& Pure Powder'
+      },
+      mobileCorridorTitle: 'Salem & Nizamabad Belts',
+      mobileCorridorSub: 'Double-Polished • Powders',
+      mobileFeatures: [
+        { label: 'High Curcumin', icon: 'Sparkles' },
+        { label: 'Golden Colour', icon: 'Sun' },
+        { label: 'Lab Certified', icon: 'ShieldCheck' }
+      ],
+      mobileDescription: 'Double-polished whole fingers & golden powders with high curcumin and zero lead chromate.',
       ctaText: 'Enquire for Turmeric',
       mobileCtaText: 'Enquire Now',
       mobileSecondaryText: 'View Specs'
@@ -123,12 +184,24 @@ export const HomePage: React.FC<HomePageProps> = ({
       tabletImage: '/assets/hero/banner-cumin-tablet.webp',
       mobileImage: '/assets/hero/hero-mobile-cumin.jpg',
       alt: 'Machine cleaned Sortex Indian cumin seeds jeera',
-      badge: 'Cumin (Jeera) Seeds',
+      badge: 'Cumin (Jeera) Specialist',
       eyebrow: 'Unjha Mandi Hub • Gujarat & Rajasthan Belts',
       headline: 'Sortex-Cleaned Machine Purity Indian Cumin Seeds',
       subline: '99% to 99.5% Purity Singapore & European Machine Cleaned Grades',
       description: 'Direct procurement from primary farm yards in Unjha and Western India. Free from foreign seeds and dirt with moisture below 8-9% and high volatile essential oil retention for extractors and blenders.',
-      mobileHeadline: 'Sortex Machine-Cleaned Cumin',
+      mobileTitle: {
+        line1: 'Sortex-Cleaned Indian',
+        line2Prefix: 'Machine ',
+        line2Highlight: 'Cumin Seeds',
+        line3: '(Jeera) & Powders'
+      },
+      mobileCorridorTitle: 'Unjha Mandi Hub',
+      mobileCorridorSub: '99.5% Sortex Cleaned',
+      mobileFeatures: [
+        { label: '99.5% Sortex', icon: 'Sparkles' },
+        { label: 'Rich Volatile Oil', icon: 'Wind' },
+        { label: 'Direct Mandi', icon: 'CheckCircle2' }
+      ],
       mobileDescription: '99% to 99.5% Sortex machine-cleaned cumin seeds direct from Unjha Mandi.',
       ctaText: 'Enquire for Cumin',
       mobileCtaText: 'Enquire Now',
@@ -145,7 +218,19 @@ export const HomePage: React.FC<HomePageProps> = ({
       headline: 'Eagle & Scooter Quality Green Coriander Seeds',
       subline: 'Aromatic Whole Round, Split (Dal), & Fragrant Ground Powders',
       description: 'Sun-cured golden-green coriander seeds with sweet citrusy aroma. Available in whole round, split, and ultra-fine ground powder tailored for commercial spice seasoning mixes and curry powders.',
-      mobileHeadline: 'Eagle & Scooter Green Coriander',
+      mobileTitle: {
+        line1: 'Eagle & Scooter',
+        line2Prefix: 'Green ',
+        line2Highlight: 'Coriander',
+        line3: '& Split Dal'
+      },
+      mobileCorridorTitle: 'Kota & Ramganj Mandi',
+      mobileCorridorSub: 'Whole Round • Split Dal',
+      mobileFeatures: [
+        { label: 'Citrus Aroma', icon: 'Leaf' },
+        { label: 'Machine Cleaned', icon: 'Layers' },
+        { label: 'Export Grade', icon: 'Award' }
+      ],
       mobileDescription: 'Eagle & Scooter grade aromatic whole seeds, split dal, and pure ground powders.',
       ctaText: 'Enquire for Coriander',
       mobileCtaText: 'Enquire Now',
@@ -422,68 +507,103 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#071120]/80 via-transparent to-black/30 z-[1]" />
 
           {/* Mobile Directional Gradient: Calibrated subtle gradient letting photography shine while text remains crisp */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/80 via-[#071120]/55 to-[#071120]/85 z-[1]" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-b from-[#071120]/95 via-[#071120]/75 via-45% to-transparent z-[1]" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-t from-[#071120]/85 via-transparent to-transparent z-[1]" />
         </div>
 
         {/* ============================================================== */}
-        {/* Mobile Hero section: Centered Text & Bottom Controls           */}
-        {/* Large Title & Subtitle, Background Gradient, Bottom Navigation */}
+        {/* Mobile Hero section: Exactly matching user reference design     */}
         {/* ============================================================== */}
         <div
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="sm:hidden relative z-10 w-full px-4 pt-3.5 pb-3 flex flex-col justify-between min-h-[540px] h-[calc(100svh-110px)] max-h-[620px]"
+          className="sm:hidden relative z-10 w-full px-5 pt-3.5 pb-4 flex flex-col justify-between min-h-[620px] h-[calc(100svh-65px)] max-h-[740px]"
         >
-          {/* Top Row: Slide Counter on the side (NOT in the middle) */}
+          {/* Top Row: Slide Counter on the Right (e.g. 02 / 05) */}
           <div className="flex justify-end w-full">
-            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-950/80 border border-white/20 backdrop-blur-md text-[10.5px] font-mono tracking-widest text-slate-200 shadow-md">
-              <span className="text-[#38BDF8] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
-              <span className="text-slate-300 mx-0.5">/</span>
-              <span className="text-white font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-slate-900/60 border border-white/10 backdrop-blur-md text-xs font-mono tracking-wider text-slate-200 shadow-md">
+              <span className="text-[#0070E0] font-bold">{String(currentHeroSlide + 1).padStart(2, '0')}</span>
+              <span className="text-white/40 mx-1 font-medium">/</span>
+              <span className="text-white/80 font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
             </div>
           </div>
 
-          {/* Middle / Center Zone: Large Headline & Subtitle with proper contrast */}
+          {/* Top-to-Middle Content Block: Left-Aligned Editorial Hierarchy */}
           <div className={`transition-all duration-300 ease-out transform ${
-            fadeState === 'in' ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.98]'
-          } w-full max-w-[360px] mx-auto flex-1 flex flex-col items-center justify-center text-center py-3 space-y-2 relative`}>
-            {/* Soft subtle backdrop for text legibility */}
-            <div className="absolute inset-0 -inset-x-3 -inset-y-2 bg-[#071120]/25 rounded-3xl blur-xl -z-10 pointer-events-none" />
+            fadeState === 'in' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+          } w-full space-y-3.5 text-left pt-1`}>
             
-            {/* Commodity Editorial Eyebrow (Clean bespoke typography, no generic AI pill) */}
-            <div className="flex items-center justify-center gap-2 pb-0.5">
-              <span className="h-px w-4 bg-sky-400/50" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300 drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+            {/* Eyebrow Header flanked by blue dash */}
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-[2px] bg-[#0070E0] rounded-full inline-block" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#0070E0]">
                 {currentSlideData.badge}
               </span>
-              <span className="h-px w-4 bg-sky-400/50" />
             </div>
 
-            {/* Main Headline (INCREASED SIZE for commanding visual impact) */}
-            <h1 className="text-[1.82rem] sm:text-[2.1rem] font-display font-bold text-white tracking-tight leading-[1.14] text-center drop-shadow-[0_3px_14px_rgba(0,0,0,0.98)] max-w-[340px]">
-              {currentSlideData.headline}
-              <span className="text-[#38BDF8]">.</span>
+            {/* Dual-Tone Main Headline (Left-aligned, commanding impact) */}
+            <h1 className="text-[30px] xs:text-[32px] sm:text-[36px] font-display font-extrabold text-white tracking-tight leading-[1.12]">
+              {currentSlideData.mobileTitle.line1} <br />
+              {currentSlideData.mobileTitle.line2Prefix}
+              <span className="text-[#0070E0]">{currentSlideData.mobileTitle.line2Highlight}</span> <br />
+              <span className="text-white">{currentSlideData.mobileTitle.line3}</span>
             </h1>
 
-            {/* Sourcing Corridor Subtitle (INCREASED SIZE) */}
-            <p className="text-[13px] sm:text-[14px] font-semibold text-sky-200 flex items-center justify-center gap-1.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.98)] text-center pt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-              <span>{currentSlideData.eyebrow}</span>
-            </p>
+            {/* Specs / Corridor & 3 Circular Micro-Badges Row */}
+            <div className="flex items-center justify-between gap-2 pt-1 pb-0.5">
+              
+              {/* Location Corridor on the Left */}
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-full bg-[#0070E0] flex items-center justify-center shrink-0 shadow-sm">
+                  <MapPin className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate leading-tight">
+                    {currentSlideData.mobileCorridorTitle}
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-300 truncate leading-tight mt-0.5">
+                    {currentSlideData.mobileCorridorSub}
+                  </p>
+                </div>
+              </div>
 
-            {/* Description (INCREASED SIZE) */}
-            <p className="text-[12px] sm:text-[13px] text-slate-100 font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.98)] max-w-[330px] text-center mx-auto pt-0.5">
+              {/* Vertical Divider */}
+              <div className="h-8 w-px bg-white/15 shrink-0 mx-1" />
+
+              {/* 3 Circular Micro-Badges on the Right */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                {currentSlideData.mobileFeatures.map((feat, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-white/5 backdrop-blur-xs flex items-center justify-center text-white shadow-xs">
+                      {renderHeroFeatureIcon(feat.icon)}
+                    </div>
+                    <span className="text-[9px] text-slate-300 font-medium text-center leading-tight mt-1 max-w-[48px]">
+                      {feat.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+            {/* Subtle Divider Line */}
+            <div className="w-full h-px bg-white/10 my-1" />
+
+            {/* Narrative Paragraph */}
+            <p className="text-xs sm:text-[13px] text-slate-200 font-normal leading-relaxed max-w-[340px]">
               {currentSlideData.mobileDescription}
             </p>
+
           </div>
 
-          {/* Bottom Zone: Placed firmly at the bottom */}
-          <div className="w-full space-y-2.5 pt-2 pb-0.5">
-            {/* CTAs matching user reference exactly with accessible min 44px tap targets */}
+          {/* Bottom Area: Action Buttons & Navigation Controls */}
+          <div className="w-full space-y-3.5 pt-2 pb-0.5">
+            
+            {/* CTAs matching user reference exactly: Blue Pill & Dark Glass Pill */}
             <div className="grid grid-cols-2 gap-2.5 w-full">
               <button
                 onClick={() => handleHeroCta(currentSlideData)}
-                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-3 px-3 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg transition-all flex items-center justify-center space-x-1.5 border border-sky-400/30"
+                className="w-full bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white py-3 px-3.5 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center space-x-1.5"
               >
                 <span>{currentSlideData.mobileCtaText}</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
@@ -491,50 +611,56 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <button
                 onClick={() => handleSecondaryCta(currentSlideData)}
-                className="w-full border border-white/35 hover:border-white text-white bg-black/40 hover:bg-black/60 backdrop-blur-md active:scale-[0.98] py-3 px-3 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
+                className="w-full border border-white/20 hover:border-white/40 text-white bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md active:scale-[0.98] py-3 px-3.5 min-h-[44px] rounded-full text-xs font-semibold tracking-wide cursor-pointer transition-all flex items-center justify-center space-x-1.5"
               >
                 <span>{currentSlideData.mobileSecondaryText}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 ml-0.5" />
               </button>
             </div>
 
-            {/* Mobile Slide Dot Controls on Left & Next/Prev Circular Buttons on Right with 44px touch targets */}
-            <div className="flex items-center justify-between w-full pt-1 px-0.5">
-              <div className="flex items-center space-x-1">
+            {/* Pagination Dots on the Left & Circular Arrow Buttons on the Right */}
+            <div className="flex items-center justify-between w-full pt-0.5 px-0.5">
+              
+              {/* Dot Indicators */}
+              <div className="flex items-center space-x-2">
                 {heroSlides.map((slide, idx) => (
                   <button
                     key={idx}
                     onClick={() => goToSlide(idx)}
-                    className="p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center cursor-pointer"
+                    className="p-1 min-w-[24px] min-h-[24px] flex items-center justify-center cursor-pointer"
                     aria-label={`Slide ${idx + 1}: ${slide.badge}`}
                   >
                     <span
-                      className={`rounded-full aspect-square transition-all duration-300 block ${
+                      className={`rounded-full transition-all duration-300 block ${
                         idx === currentHeroSlide
-                          ? 'w-2 h-2 bg-[#0070E0] ring-1.5 ring-white/70 shadow-xs'
-                          : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/90'
+                          ? 'w-2.5 h-2.5 bg-[#0070E0] ring-2 ring-blue-400/40 shadow-xs'
+                          : 'w-2 h-2 bg-white/40 hover:bg-white/80'
                       }`}
                     />
                   </button>
                 ))}
               </div>
-              <div className="flex items-center space-x-2 text-white/90">
+
+              {/* Prev / Next Circular Buttons */}
+              <div className="flex items-center space-x-2.5 text-white">
                 <button
                   onClick={() => goToSlide((currentHeroSlide - 1 + heroSlides.length) % heroSlides.length)}
-                  className="w-11 h-11 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-slate-900/80 border border-white/15 backdrop-blur-md flex items-center justify-center hover:bg-slate-800 active:scale-95 transition-all cursor-pointer shadow-md"
                   aria-label="Previous slide"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-5 h-5 text-white" />
                 </button>
                 <button
                   onClick={() => goToSlide((currentHeroSlide + 1) % heroSlides.length)}
-                  className="w-11 h-11 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-slate-900/80 border border-white/15 backdrop-blur-md flex items-center justify-center hover:bg-slate-800 active:scale-95 transition-all cursor-pointer shadow-md"
                   aria-label="Next slide"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-white" />
                 </button>
               </div>
+
             </div>
+
           </div>
         </div>
 
