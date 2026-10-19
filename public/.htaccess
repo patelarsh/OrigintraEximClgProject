@@ -7,7 +7,7 @@
   RewriteBase /
 
   # 0. Direct Favicon & Crawler Assets (Google Favicon bot requires direct 200 OK without redirects)
-  RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap\.xml|sitemap\.xsl|sitemap_.*\.xml) [NC]
+  RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap.*\.xml) [NC]
   RewriteRule ^ - [L]
 
   # 1. Canonical 301 Redirect: Enforce HTTPS & www.origintra.com (eliminates duplicate crawl errors in GSC)
@@ -23,6 +23,9 @@
   RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
   RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
   RewriteRule ^api/settings/?$ /api/settings.php [L]
+
+  # 2.3 Redirect friendly /sitemap and /site-map directly to /sitemap.xml
+  RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
 
   # 2.5 Set environment variable to trigger X-Robots-Tag noindex on legal, policy & admin pages
   RewriteRule ^(terms-of-service|terms-and-conditions|terms|privacy-policy|cookie-policy|shipping-policy|legal|admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
@@ -57,10 +60,11 @@
   </IfModule>
 </FilesMatch>
 
-# Ensure sitemap.xml and sitemap.xsl are served with proper XML MIME, CORS headers and fresh caching
-<FilesMatch "^(sitemap\.xml|sitemap\.xsl)$">
+# Ensure sitemap.xml is served with proper XML MIME, CORS headers and fresh caching
+<FilesMatch "^sitemap.*\.xml$">
   <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
+    Header set Content-Type "application/xml; charset=utf-8"
     Header set Cache-Control "no-cache, must-revalidate"
   </IfModule>
 </FilesMatch>
@@ -81,8 +85,6 @@
   AddType image/x-icon .ico
   AddType image/webp .webp
   AddType image/svg+xml .svg
-  AddType text/xml .xsl
-  AddType application/xml .xsl
   AddType application/xml .xml
   AddType application/font-woff2 .woff2
   AddType application/manifest+json .webmanifest

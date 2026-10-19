@@ -769,23 +769,3 @@ export function getScheduleMeetingSeo(): SeoConfig {
   };
 }
 
-export function getSitemapSeo(): SeoConfig {
-  return {
-    title: 'Sitemap | Origintra Exim - Indian Spices Exporter Catalog & Directory',
-    description: 'Complete website directory and navigation index for Origintra Exim. Explore our 26 export spices, seeds, ground powders, quality certifications, and market intelligence.',
-    keywords: [
-      'origintra exim sitemap',
-      'indian spices directory',
-      'spice export catalog index',
-      'spices exporter in india sitemap',
-      'whole spices ground spices seeds list'
-    ].join(', '),
-    canonicalPath: '/sitemap',
-    ogType: 'website',
-    breadcrumbs: [
-      { name: 'Home', item: '/' },
-      { name: 'Sitemap', item: '/sitemap' }
-    ]
-  };
-}
-
