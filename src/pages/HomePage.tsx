@@ -1391,18 +1391,18 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 10. REQUEST A QUOTE CTA SECTION */}
-      <section className="py-16 sm:py-24 md:py-28 bg-white text-[#0F172A] border-t border-slate-200/80">
+      <section className="py-12 sm:py-20 md:py-28 bg-[#0A1C3E] text-white">
         <div className="container-x mx-auto max-w-[1440px]">
           <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
               Commercial Sourcing Desk
             </span>
 
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-semibold text-white tracking-tight">
               Ready to Discuss Your Spice Import Requirements?
             </h2>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
               Share your target product grades, container volumes, and discharge port. Our commercial team will evaluate crop lot availability and provide a clear, competitive quotation.
             </p>
 
@@ -1417,16 +1417,16 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <button
                 onClick={() => onNavigate('contact')}
-                className="btn-pill border border-slate-300 hover:border-[#0070E0] text-slate-800 hover:text-[#0070E0] hover:bg-slate-50 px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer w-full sm:w-auto justify-center"
+                className="btn-pill border border-white/40 hover:border-white text-white hover:bg-white/10 px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer w-full sm:w-auto justify-center"
               >
                 <span>Contact Trade Desk</span>
               </button>
             </div>
 
-            <div className="pt-6 text-xs text-slate-600 font-medium flex flex-wrap items-center justify-center gap-6">
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#0070E0]" /> Responses dispatched within 24-48 business hours</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#0070E0]" /> Direct Indian farmgate sourcing</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#0070E0]" /> Customized container packaging</span>
+            <div className="pt-6 text-xs text-slate-300 font-medium flex flex-wrap items-center justify-center gap-6">
+              <span>✓ Responses dispatched within 24-48 business hours</span>
+              <span>✓ Direct Indian farmgate sourcing</span>
+              <span>✓ Customized container packaging</span>
             </div>
           </div>
         </div>

@@ -337,21 +337,18 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-16 sm:py-24 bg-white text-[#0F172A] border-t border-slate-200/80 text-center">
-        <div className="container-x mx-auto max-w-[1440px] space-y-4 sm:space-y-6">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-            Quality Specifications
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-[#0F172A] tracking-tight">
+      <section className="py-20 bg-[#0A1C3E] text-white text-center">
+        <div className="container-x mx-auto max-w-[1440px] space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-display font-semibold text-white tracking-tight">
             Have Specific Quality Tolerances for Your Market?
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-slate-300 max-w-xl mx-auto">
             Our quality and commercial desk is available to review your technical requirements sheet.
           </p>
           <div className="pt-2">
             <button
               onClick={onOpenQuote}
-              className="btn-pill bg-[#0070E0] hover:bg-[#005bb5] text-white px-7 sm:px-9 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold cursor-pointer shadow-md inline-flex items-center space-x-2 w-full sm:w-auto justify-center"
+              className="btn-pill btn-pill-dark bg-[#0070E0] hover:bg-[#005bb5] text-white px-8 py-3.5 text-sm font-semibold cursor-pointer shadow-md inline-flex items-center space-x-2"
             >
               <span>Submit Quality Requirements</span>
               <ArrowUpRight className="w-4 h-4 ml-1" />
