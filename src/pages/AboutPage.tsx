@@ -587,14 +587,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
             </div>
 
             {/* Indian Spices Cluster Image (exact placement matching user mockup) */}
-            <div className="hidden lg:block absolute left-[54%] xl:left-[53%] bottom-0 -translate-x-1/2 w-[270px] xl:w-[310px] pointer-events-none select-none z-10">
+            <div className="hidden lg:block absolute left-[54%] xl:left-[53%] bottom-0 -translate-x-1/2 w-[280px] xl:w-[330px] pointer-events-none select-none z-10">
               <picture>
                 <source srcSet="/assets/about/indian-spices-cluster.webp" type="image/webp" />
                 <img
                   src="/assets/about/indian-spices-cluster.png"
                   alt="Premium Indian Spices"
-                  width="250"
-                  height="260"
+                  width="1022"
+                  height="631"
                   className="w-full h-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
                   loading="lazy"
                 />
