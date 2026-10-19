@@ -46,7 +46,7 @@ export function createProductSvgFallback(productName = 'Export Spice', category 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-export const ASSET_CACHE_VERSION = 'v=20261019_hq';
+export const ASSET_CACHE_VERSION = 'v=20261019_blends_hq';
 
 export function withAssetCache(url: string | null | undefined): string {
   if (!url || typeof url !== 'string') return '';
