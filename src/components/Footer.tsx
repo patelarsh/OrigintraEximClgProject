@@ -421,120 +421,96 @@ export const Footer: React.FC<FooterProps> = ({
           {/* 3.3 Statutory Trust & Accreditation Badges Bar */}
           <div className="border-t border-white/10 pt-7 pb-6">
             {/* 6 Miniaturized Statutory Logos Row */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4">
                 
                 {/* 1. FSSAI */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="FSSAI - Food Safety and Standards Authority of India"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="FSSAI — Food Safety and Standards Authority of India"
+                  aria-label="FSSAI Accreditation"
                 >
                   <img
                     src="/assets/certificates/fssai.png"
-                    alt="FSSAI"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    alt="FSSAI - Food Safety and Standards Authority of India"
+                    className="h-6 sm:h-7 md:h-8 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    FSSAI
-                  </span>
                 </div>
 
                 {/* 2. Spices Board India */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="Spices Board India - Ministry of Commerce and Industry"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="Spices Board India — Ministry of Commerce and Industry"
+                  aria-label="Spices Board India Accreditation"
                 >
                   <img
                     src="/assets/certificates/spices-board.png"
                     alt="Spices Board India"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    Spices Board
-                  </span>
                 </div>
 
                 {/* 3. APEDA */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="APEDA - Agricultural and Processed Food Products Export Development Authority"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="APEDA — Agricultural and Processed Food Products Export Development Authority"
+                  aria-label="APEDA Accreditation"
                 >
                   <img
                     src="/assets/certificates/apeda.png"
                     alt="APEDA"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    className="h-7 sm:h-8 md:h-8.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    APEDA
-                  </span>
                 </div>
 
                 {/* 4. DGFT / IEC */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="IEC - Import Export Code (DGFT, Ministry of Commerce)"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="DGFT IEC — Import Export Code (Ministry of Commerce)"
+                  aria-label="DGFT IEC Registration"
                 >
                   <img
                     src="/assets/certificates/iec.png"
                     alt="IEC DGFT"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    IEC DGFT
-                  </span>
                 </div>
 
                 {/* 5. MSME */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="MSME - Ministry of Micro, Small and Medium Enterprises"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="MSME — Ministry of Micro, Small and Medium Enterprises, Govt. of India"
+                  aria-label="MSME Enterprise Registration"
                 >
                   <img
                     src="/assets/certificates/msme.svg"
                     alt="MSME"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    MSME
-                  </span>
                 </div>
 
                 {/* 6. GST */}
                 <div
                   onClick={() => handleNav('quality')}
-                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
-                  title="GST - Goods and Services Tax Registered"
+                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+                  title="GST Registered — Goods and Services Tax, Govt. of India"
+                  aria-label="GST Tax Registration"
                 >
                   <img
                     src="/assets/certificates/gst-transparent.png"
-                    alt="GST"
-                    width="56"
-                    height="24"
-                    className="h-5 sm:h-6 w-auto object-contain"
+                    alt="GST Registered"
+                    className="h-6 sm:h-7 md:h-8 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
-                    GST Registered
-                  </span>
                 </div>
 
               </div>
