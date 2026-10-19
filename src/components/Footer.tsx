@@ -420,100 +420,26 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* 3.3 Statutory Trust & Accreditation Badges Bar */}
           <div className="border-t border-white/10 pt-7 pb-6">
-            {/* 6 Miniaturized Statutory Logos Row */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4">
-                
-                {/* 1. FSSAI */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="FSSAI — Food Safety and Standards Authority of India"
-                  aria-label="FSSAI Accreditation"
-                >
+            <div className="flex justify-center">
+              <div
+                onClick={() => handleNav('quality')}
+                className="bg-white hover:bg-slate-50/95 rounded-2xl px-5 sm:px-8 py-3 sm:py-4 shadow-[0_2px_12px_rgba(0,0,0,0.15)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_24px_rgba(56,189,248,0.22)] hover:scale-[1.01] transition-all duration-200 cursor-pointer group inline-flex items-center justify-center max-w-full"
+                title="Origintra Exim — Statutory Export Accreditations & Licenses (FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST Registered)"
+                aria-label="Statutory Export Accreditations & Licenses"
+              >
+                <picture>
+                  <source srcSet="/assets/certificates/statutory-licenses-strip.webp" type="image/webp" />
                   <img
-                    src="/assets/certificates/fssai.png"
-                    alt="FSSAI - Food Safety and Standards Authority of India"
-                    className="h-6 sm:h-7 md:h-8 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
+                    src="/assets/certificates/statutory-licenses-strip.png"
+                    alt="Statutory Export Accreditations and Licenses — FSSAI, Spices Board India, APEDA, DGFT IEC, MSME, GST"
+                    width="1024"
+                    height="163"
+                    className="h-10 sm:h-12 md:h-16 lg:h-18 w-auto max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.01]"
                     loading="lazy"
                   />
-                </div>
-
-                {/* 2. Spices Board India */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="Spices Board India — Ministry of Commerce and Industry"
-                  aria-label="Spices Board India Accreditation"
-                >
-                  <img
-                    src="/assets/certificates/spices-board.png"
-                    alt="Spices Board India"
-                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* 3. APEDA */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="APEDA — Agricultural and Processed Food Products Export Development Authority"
-                  aria-label="APEDA Accreditation"
-                >
-                  <img
-                    src="/assets/certificates/apeda.png"
-                    alt="APEDA"
-                    className="h-7 sm:h-8 md:h-8.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* 4. DGFT / IEC */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="DGFT IEC — Import Export Code (Ministry of Commerce)"
-                  aria-label="DGFT IEC Registration"
-                >
-                  <img
-                    src="/assets/certificates/iec.png"
-                    alt="IEC DGFT"
-                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* 5. MSME */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2 sm:p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="MSME — Ministry of Micro, Small and Medium Enterprises, Govt. of India"
-                  aria-label="MSME Enterprise Registration"
-                >
-                  <img
-                    src="/assets/certificates/msme.svg"
-                    alt="MSME"
-                    className="h-7.5 sm:h-8.5 md:h-9.5 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* 6. GST */}
-                <div
-                  onClick={() => handleNav('quality')}
-                  className="w-[98px] sm:w-28 md:w-32 lg:w-36 h-12 sm:h-13 md:h-14 bg-white hover:bg-slate-50/90 rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-white/90 hover:border-[#38BDF8]/60 hover:shadow-[0_8px_20px_rgba(56,189,248,0.22)] hover:scale-[1.06] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
-                  title="GST Registered — Goods and Services Tax, Govt. of India"
-                  aria-label="GST Tax Registration"
-                >
-                  <img
-                    src="/assets/certificates/gst-transparent.png"
-                    alt="GST Registered"
-                    className="h-6 sm:h-7 md:h-8 w-auto max-w-[85%] object-contain transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-
+                </picture>
               </div>
+            </div>
           </div>
 
         </div>
