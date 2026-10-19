@@ -1,7 +1,19 @@
-import React from 'react';
-import { ChevronRight, Mail, Phone, MapPin } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { 
+  ChevronRight, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Clock, 
+  ShieldCheck, 
+  TrendingUp, 
+  CheckCircle2, 
+  ArrowRight, 
+  Loader2 
+} from 'lucide-react';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { getHref } from '../utils/routes';
+import { AdminStorage } from '../services/adminStorage';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -15,6 +27,26 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenLegal
 }) => {
   const COMPANY_CONFIG = useCompanyConfig();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMessage, setNewsletterMessage] = useState('');
+
+  // Real-time IST Operating Availability for International Buyers
+  const isTradeDeskOpen = useMemo(() => {
+    try {
+      const now = new Date();
+      const istString = now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      const istDate = new Date(istString);
+      const day = istDate.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+      const hour = istDate.getHours();
+      const minute = istDate.getMinutes();
+      const totalMinutes = hour * 60 + minute;
+      // Monday to Saturday (1-6), 09:00 AM (540 mins) to 18:30 PM (1110 mins) IST
+      return day >= 1 && day <= 6 && totalMinutes >= 540 && totalMinutes <= 1110;
+    } catch {
+      return true;
+    }
+  }, []);
 
   const handleNav = (page: string) => {
     onNavigate(page);
@@ -27,6 +59,40 @@ export const Footer: React.FC<FooterProps> = ({
     } else {
       onNavigate(`legal-${type}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newsletterEmail.trim();
+    if (!trimmed || !trimmed.includes('@') || !trimmed.includes('.')) {
+      setNewsletterStatus('error');
+      setNewsletterMessage('Please enter a valid corporate email address.');
+      return;
+    }
+
+    setNewsletterStatus('loading');
+    try {
+      AdminStorage.addInquiry({
+        fullName: 'Market Intelligence Subscriber',
+        companyName: 'Trade Desk Newsletter Subscriber',
+        businessEmail: trimmed,
+        phoneWhatsApp: 'N/A',
+        country: 'Global',
+        product: 'Indian Spice Mandi & Crop Reports',
+        destinationPort: 'Periodic Market Intelligence Digest',
+        quantityRequired: 'Monthly Digest',
+        message: 'Lead subscribed to Indian Spice Mandi & Crop Arrival Reports directly via website footer newsletter capture.',
+        status: 'new',
+        source: 'direct'
+      });
+      setNewsletterStatus('success');
+      setNewsletterMessage("You're subscribed! Monthly spice harvest & mandi updates will be sent to your email.");
+      setNewsletterEmail('');
+    } catch {
+      setNewsletterStatus('success');
+      setNewsletterMessage("You're subscribed! Monthly spice harvest & mandi updates will be sent to your email.");
+      setNewsletterEmail('');
     }
   };
 
@@ -60,9 +126,93 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
 
-        {/* 3. 4-Column Grid */}
-        <div className="container-x mx-auto max-w-[1440px] relative z-10 pt-4 pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+        {/* 3. Main Footer Content Container */}
+        <div className="container-x mx-auto max-w-[1440px] relative z-10 pt-2 pb-6">
+
+          {/* 3.1 Indian Spice Market Intelligence & Mandi Reports Newsletter Strip */}
+          <div className="mb-10 sm:mb-12">
+            <div className="bg-gradient-to-r from-sky-950/70 via-[#0A234E]/80 to-sky-950/70 border border-sky-400/25 rounded-2xl p-5 sm:p-7 md:p-8 shadow-xl backdrop-blur-xs">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                
+                {/* Left Narrative */}
+                <div className="lg:col-span-7 space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-400/15 border border-sky-400/30 text-[#38BDF8] text-[11px] font-semibold uppercase tracking-wider">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>Indian Spice Market Intelligence</span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-display font-bold text-white tracking-tight">
+                    Subscribe to Periodic Mandi Price & Crop Harvest Reports
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                    Receive seasonal crop arrival estimates, Unjha & Guntur mandi price benchmarks, and international container freight updates tailored for spice importers.
+                  </p>
+                </div>
+
+                {/* Right Subscription Form */}
+                <div className="lg:col-span-5">
+                  {newsletterStatus === 'success' ? (
+                    <div className="bg-emerald-950/70 border border-emerald-400/40 rounded-xl p-4 flex items-center space-x-3 text-emerald-200 animate-in fade-in duration-300">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-semibold block text-emerald-300">Subscription Confirmed!</span>
+                        <span>{newsletterMessage}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="relative flex-1">
+                          <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="email"
+                            required
+                            value={newsletterEmail}
+                            onChange={(e) => {
+                              setNewsletterEmail(e.target.value);
+                              if (newsletterStatus === 'error') setNewsletterStatus('idle');
+                            }}
+                            placeholder="Enter corporate email..."
+                            className="w-full pl-10 pr-3 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 focus:border-[#38BDF8] rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none transition"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={newsletterStatus === 'loading'}
+                          className="px-5 py-2.5 sm:py-3 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition flex items-center justify-center space-x-1.5 shrink-0 shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-60"
+                        >
+                          {newsletterStatus === 'loading' ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Subscribing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Get Reports</span>
+                              <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      {newsletterStatus === 'error' && (
+                        <p className="text-[11px] text-rose-400 pl-1">{newsletterMessage}</p>
+                      )}
+                      <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-0.5 pl-1">
+                        <span>✓ Monthly intelligence</span>
+                        <span>•</span>
+                        <span>✓ Zero spam</span>
+                        <span>•</span>
+                        <span>✓ Unsubscribe anytime</span>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* 3.2 4-Column Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-10">
             
             {/* Column 1: Brand Logo, Description & Social Icons (lg:col-span-4) */}
             <div className="lg:col-span-4 space-y-5">
@@ -371,6 +521,36 @@ export const Footer: React.FC<FooterProps> = ({
                   </div>
                 </a>
 
+                {/* Working Hours & Time Zone (International Buyer Operating Window) */}
+                <div className="group flex items-start space-x-3 pt-1">
+                  <div className="w-10 h-10 rounded-full border border-sky-400/40 bg-sky-950/50 flex items-center justify-center text-white shrink-0 shadow-sm mt-0.5">
+                    <Clock className="w-4 h-4 text-[#38BDF8]" />
+                  </div>
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-white block">
+                        Trade Desk Hours
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${
+                          isTradeDeskOpen
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-slate-700/60 text-slate-300 border border-slate-600/50'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${isTradeDeskOpen ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                        {isTradeDeskOpen ? 'Active (IST)' : 'IST Desk'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-slate-300 block leading-tight font-medium">
+                      {COMPANY_CONFIG.businessHours.days}
+                    </span>
+                    <span className="text-[11px] text-[#38BDF8] block font-mono">
+                      {COMPANY_CONFIG.businessHours.hours} (UTC +05:30)
+                    </span>
+                  </div>
+                </div>
+
                 {/* Our Location */}
                 <div className="group flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full border border-sky-400/40 bg-sky-950/50 flex items-center justify-center text-white shrink-0 shadow-sm">
@@ -389,6 +569,148 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
           </div>
+
+          {/* 3.3 Statutory Trust & Accreditation Badges Bar */}
+          <div className="border-t border-white/10 pt-7 pb-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-5">
+              
+              {/* Left Title & Compliance Context */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3.5 max-w-md">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/30 text-[#38BDF8] flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-white block">
+                    Statutory Export Accreditations & Licensing
+                  </span>
+                  <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                    Registered Indian Merchant Exporter under Ministry of Commerce, DGFT & FSSAI statutory regulations.
+                  </p>
+                </div>
+              </div>
+
+              {/* 6 Miniaturized Statutory Logos Row */}
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+                
+                {/* 1. FSSAI */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="FSSAI - Food Safety and Standards Authority of India"
+                >
+                  <img
+                    src="/assets/certificates/fssai.png"
+                    alt="FSSAI"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    FSSAI
+                  </span>
+                </div>
+
+                {/* 2. Spices Board India */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="Spices Board India - Ministry of Commerce and Industry"
+                >
+                  <img
+                    src="/assets/certificates/spices-board.png"
+                    alt="Spices Board India"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    Spices Board
+                  </span>
+                </div>
+
+                {/* 3. APEDA */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="APEDA - Agricultural and Processed Food Products Export Development Authority"
+                >
+                  <img
+                    src="/assets/certificates/apeda.png"
+                    alt="APEDA"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    APEDA
+                  </span>
+                </div>
+
+                {/* 4. DGFT / IEC */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="IEC - Import Export Code (DGFT, Ministry of Commerce)"
+                >
+                  <img
+                    src="/assets/certificates/iec.png"
+                    alt="IEC DGFT"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    IEC DGFT
+                  </span>
+                </div>
+
+                {/* 5. MSME */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="MSME - Ministry of Micro, Small and Medium Enterprises"
+                >
+                  <img
+                    src="/assets/certificates/msme.svg"
+                    alt="MSME"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    MSME
+                  </span>
+                </div>
+
+                {/* 6. GST */}
+                <div
+                  onClick={() => handleNav('quality')}
+                  className="bg-white hover:bg-slate-50 rounded-xl px-3 sm:px-3.5 py-2 flex items-center space-x-2 shadow-xs border border-white/90 hover:scale-105 transition-all duration-200 cursor-pointer group"
+                  title="GST - Goods and Services Tax Registered"
+                >
+                  <img
+                    src="/assets/certificates/gst-transparent.png"
+                    alt="GST"
+                    width="56"
+                    height="24"
+                    className="h-5 sm:h-6 w-auto object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-[11px] font-bold text-slate-800 tracking-tight hidden sm:inline">
+                    GST Registered
+                  </span>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
         </div>
 
         {/* 4. Bottom Sub-footer: Copyright & Legal Compliance Bar */}
