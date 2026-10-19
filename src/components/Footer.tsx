@@ -31,55 +31,12 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <footer className="relative w-full overflow-hidden text-slate-300">
-      {/* 1. Curved Top Maritime Wave Ribbon */}
-      <div className="w-full overflow-hidden leading-none select-none pointer-events-none -mb-1 relative z-10">
-        <svg
-          viewBox="0 0 1440 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-12 sm:h-20 md:h-24 lg:h-28 block"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="cyanRibbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#0055B3" />
-              <stop offset="25%" stopColor="#00A3FF" />
-              <stop offset="60%" stopColor="#00D2FF" />
-              <stop offset="85%" stopColor="#0088FF" />
-              <stop offset="100%" stopColor="#0052B4" />
-            </linearGradient>
-            <linearGradient id="deepRibbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#003366" />
-              <stop offset="40%" stopColor="#0066CC" />
-              <stop offset="80%" stopColor="#00A3FF" />
-              <stop offset="100%" stopColor="#004080" />
-            </linearGradient>
-          </defs>
-
-          {/* Deep Blue Secondary Wave Ribbon */}
-          <path
-            d="M 0,22 C 280,68 500,98 840,70 C 1080,48 1240,12 1440,22 L 1440,36 C 1240,26 1080,62 840,84 C 500,112 280,82 0,36 Z"
-            fill="url(#deepRibbonGrad)"
-            opacity="0.85"
-          />
-
-          {/* Vibrant Cyan Primary Wave Crest Ribbon */}
-          <path
-            d="M 0,28 C 290,74 520,104 860,76 C 1100,54 1260,18 1440,28 L 1440,44 C 1260,34 1100,70 860,92 C 520,120 290,90 0,44 Z"
-            fill="url(#cyanRibbonGrad)"
-          />
-
-          {/* Main Dark Ocean Navy Base Fill */}
-          <path
-            d="M 0,38 C 300,84 540,114 880,84 C 1120,62 1280,26 1440,36 L 1440,120 L 0,120 Z"
-            fill="#06152F"
-          />
-        </svg>
-      </div>
+    <footer className="relative w-full overflow-hidden bg-[#06152F] text-slate-300">
+      {/* 1. Flat Top Maritime Cyan/Blue Accent Strip */}
+      <div className="w-full h-1 sm:h-1.5 bg-gradient-to-r from-[#0055B3] via-[#00D2FF] to-[#0052B4] shadow-[0_2px_12px_rgba(0,180,255,0.35)] relative z-10" />
 
       {/* 2. Main Footer Body Container */}
-      <div className="relative bg-[#06152F] pt-6 sm:pt-8 pb-4">
+      <div className="relative bg-[#06152F] pt-12 sm:pt-16 pb-4">
         {/* Maritime Background Visuals: Dotted World Map & Container Ship Port Silhouette */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden z-0">
           {/* Dotted World Map */}
