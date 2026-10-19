@@ -20,7 +20,8 @@ import {
   getGlobalReachSeo, 
   getBlogIndexSeo, 
   getContactSeo,
-  getScheduleMeetingSeo 
+  getScheduleMeetingSeo,
+  getSitemapSeo
 } from './utils/seo';
 
 // Route-based Code Splitting: Lazy-load secondary pages & heavy modals
@@ -32,6 +33,7 @@ const QualityPage = lazy(() => import('./pages/QualityPage').then(m => ({ defaul
 const BlogPage = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.BlogPage })));
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const MeetingPage = lazy(() => import('./pages/MeetingPage').then(m => ({ default: m.MeetingPage })));
+const SitemapPage = lazy(() => import('./pages/SitemapPage').then(m => ({ default: m.SitemapPage })));
 const AdminPage = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const QuoteModal = lazy(() => import('./components/QuoteModal').then(m => ({ default: m.QuoteModal })));
@@ -146,6 +148,9 @@ export const App: React.FC = () => {
       case 'meeting':
         updatePageSeo(getScheduleMeetingSeo());
         break;
+      case 'sitemap':
+        updatePageSeo(getSitemapSeo());
+        break;
       case 'admin':
         updatePageSeo({
           title: 'Origintra Exim — Admin CMS Portal',
@@ -244,6 +249,11 @@ export const App: React.FC = () => {
       applyRouteSeo(route);
     } else if (route.page === 'meeting') {
       setCurrentPage('meeting');
+      setSelectedProduct(null);
+      setBlogArticleSlug(null);
+      applyRouteSeo(route);
+    } else if (route.page === 'sitemap') {
+      setCurrentPage('sitemap');
       setSelectedProduct(null);
       setBlogArticleSlug(null);
       applyRouteSeo(route);
@@ -412,6 +422,13 @@ export const App: React.FC = () => {
 
             {currentPage === 'meeting' && (
               <MeetingPage
+                onNavigate={handleNavigate}
+                onOpenQuote={handleOpenGeneralQuote}
+              />
+            )}
+
+            {currentPage === 'sitemap' && (
+              <SitemapPage
                 onNavigate={handleNavigate}
                 onOpenQuote={handleOpenGeneralQuote}
               />

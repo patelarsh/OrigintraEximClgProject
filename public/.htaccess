@@ -24,9 +24,6 @@
   RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
   RewriteRule ^api/settings/?$ /api/settings.php [L]
 
-  # 2.3 Redirect friendly /sitemap and /site-map to /sitemap.xml
-  RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
-
   # 2.5 Set environment variable to trigger X-Robots-Tag noindex on legal, policy & admin pages
   RewriteRule ^(terms-of-service|terms-and-conditions|terms|privacy-policy|cookie-policy|shipping-policy|legal|admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
 
@@ -84,9 +81,8 @@
   AddType image/x-icon .ico
   AddType image/webp .webp
   AddType image/svg+xml .svg
-  AddType text/xsl .xsl
+  AddType text/xml .xsl
   AddType application/xml .xsl
-  AddType application/xslt+xml .xsl
   AddType application/xml .xml
   AddType application/font-woff2 .woff2
   AddType application/manifest+json .webmanifest

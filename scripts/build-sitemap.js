@@ -138,6 +138,12 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
+  <url>
+    <loc>${BASE_URL}/sitemap</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <!-- ============================================================= -->
   <!-- 4. COMMODITY & SPICE PRODUCT SPECIFICATIONS (27 PRODUCTS) -->

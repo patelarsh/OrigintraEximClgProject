@@ -352,12 +352,25 @@ export const Footer: React.FC<FooterProps> = ({
               Cookie Policy
             </a>
             <a
-              href="/sitemap.xml"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={getHref('sitemap')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                  e.preventDefault();
+                  handleNav('sitemap');
+                }
+              }}
               className="text-slate-300 hover:text-white transition-colors cursor-pointer py-1.5"
             >
               Sitemap
+            </a>
+            <a
+              href="/sitemap.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 hover:text-[#38BDF8] transition-colors cursor-pointer py-1.5 text-[11px]"
+              title="Search Engine XML Sitemap"
+            >
+              XML
             </a>
           </div>
         </div>

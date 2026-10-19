@@ -271,7 +271,10 @@
           <header>
             <div class="brand-row">
               <h1>Origintra Exim — XML Sitemap</h1>
-              <span class="badge-sitemap">Google &amp; Bing Compliant</span>
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <a href="/sitemap" style="background: #0070e0; color: #fff; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Visit Interactive Sitemap</a>
+                <span class="badge-sitemap">Google &amp; Bing Compliant</span>
+              </div>
             </div>
             <p>
               Official search engine index for Origintra Exim (Government of India Spices Board &amp; APEDA certified spices exporter). Generated for optimal search crawler indexing and rich snippet discovery.

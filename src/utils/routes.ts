@@ -14,6 +14,7 @@ export const ROUTES = {
   terms: '/terms-of-service',
   shipping: '/shipping-policy',
   cookies: '/cookie-policy',
+  sitemap: '/sitemap',
   notFound: '/404'
 } as const;
 
@@ -27,12 +28,13 @@ export type RouteTarget =
   | 'contact'
   | 'meeting'
   | 'admin'
+  | 'sitemap'
   | 'not-found'
   | '404'
   | string;
 
 export interface ParsedRoute {
-  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal' | 'not-found';
+  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal' | 'sitemap' | 'not-found';
   productSlug?: string;
   blogSlug?: string;
   legalType?: 'privacy' | 'terms' | 'shipping' | 'cookies';
@@ -71,6 +73,7 @@ export function getHref(target: string): string {
   if (clean === 'legal-terms' || clean === 'terms') return ROUTES.terms;
   if (clean === 'legal-shipping' || clean === 'shipping') return ROUTES.shipping;
   if (clean === 'legal-cookies' || clean === 'cookies') return ROUTES.cookies;
+  if (clean === 'sitemap' || clean === 'site-map') return ROUTES.sitemap;
   if (clean === '404' || clean === 'not-found') return ROUTES.notFound;
 
   return `/${clean}`;
@@ -167,11 +170,8 @@ export function parseCurrentRoute(): ParsedRoute {
     return { page: 'legal', legalType: 'cookies', path: '/cookie-policy' };
   }
 
-  if (pathname === '/sitemap' || pathname === '/site-map' || pathname === '/sitemap.xml') {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/sitemap.xml';
-    }
-    return { page: 'home', path: '/sitemap.xml' };
+  if (pathname === '/sitemap' || pathname === '/site-map') {
+    return { page: 'sitemap', path: '/sitemap' };
   }
 
   if (pathname === '/404' || pathname === '/not-found') {
