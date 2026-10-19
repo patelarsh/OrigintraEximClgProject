@@ -57,7 +57,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({
   ];
 
   return (
-    <div className="min-h-[80vh] bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-800">
+    <div className="min-h-[80vh] bg-gradient-to-b from-slate-50 via-white to-white text-slate-800">
       {/* Top ambient highlight */}
       <div className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-slate-200/70">
         <div className="absolute inset-0 -z-10 pointer-events-none">

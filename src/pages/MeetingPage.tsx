@@ -28,7 +28,7 @@ export const MeetingPage: React.FC<MeetingPageProps> = () => {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#F8FAFC] py-5 sm:py-10 md:py-14 px-2 sm:px-6 flex items-center justify-center">
+    <div className="min-h-[calc(100vh-80px)] bg-white py-5 sm:py-10 md:py-14 px-2 sm:px-6 flex items-center justify-center">
       <div className="w-full max-w-[960px] mx-auto flex justify-center">
         {/* Clean Centered Calendly Card */}
         <div className="w-full bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative min-h-[620px] sm:min-h-[720px] md:min-h-[760px]">
