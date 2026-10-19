@@ -44,7 +44,7 @@ const STORAGE_KEYS = {
   INQUIRIES: 'origintra_admin_inquiries_v1',
   COMPANY: 'origintra_admin_company_v1',
   CUSTOM_GALLERY: 'origintra_admin_custom_gallery_v1',
-  TESTIMONIALS: 'origintra_admin_testimonials_v2',
+  TESTIMONIALS: 'origintra_admin_testimonials_v3',
   DB_STATUS: 'origintra_admin_db_status_v1',
   SESSION: 'origintra_admin_session_v2',
   AUTH: 'origintra_admin_auth_v1',

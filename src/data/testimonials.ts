@@ -15,6 +15,19 @@ export interface Testimonial {
 
 export const TESTIMONIALS: Testimonial[] = [
   {
+    id: 't-amira',
+    author: 'Amira K.',
+    role: 'Food Trading Director',
+    company: 'Apex Asian Foods Berhad',
+    country: 'Malaysia',
+    destinationPort: 'Port Klang, Malaysia',
+    commodity: 'Guntur Dried Red Chilli & Turmeric',
+    volumeOrType: 'Monthly FCL Contract (26 MT)',
+    rating: 5,
+    avatar: '/assets/testimonials/amira-k.png',
+    testimonial: 'The team understands our quality requirements and keeps us informed throughout the export process. A straightforward and professional experience from inquiry to delivery.'
+  },
+  {
     id: 't-1',
     author: 'Tariq Al-Mansoor',
     role: 'Procurement Director',
@@ -24,6 +37,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Guntur S17 Dried Red Chilli',
     volumeOrType: '2 x 20ft FCL (28 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     testimonial: 'We have been ordering Guntur stemless chillies from Origintra for our wholesale distribution in Dubai. Clean lot, moisture was well within our limits, and the container stuffing photos were shared on WhatsApp before dispatch from Mundra. The original documents reached our customs broker before the ship docked at Jebel Ali. Very honest and responsive team to work with.'
   },
   {
@@ -36,6 +50,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Salem Turmeric Fingers & Powder',
     volumeOrType: '1 x 20ft FCL (18 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     testimonial: 'Importing turmeric into the EU can be tricky with pesticide residue regulations. Origintra provided certified lab test reports from an accredited lab prior to shipment, and our independent testing at Rotterdam port matched the specs completely. Goods were well palletized with zero bag damage. Smooth coordination from start to finish.'
   },
   {
@@ -48,6 +63,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Machine-Cleaned Cumin & Coriander Seeds',
     volumeOrType: 'Quarterly Contract (24 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     testimonial: 'We use Indian cumin and coriander seeds for our seasoning manufacturing line in Jurong. Sourcing from Origintra has been very dependable—high seed purity, strong aroma, and no dust or foreign seeds. Their weekly vessel tracking updates made planning our production schedule simple.'
   },
   {
@@ -60,6 +76,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Alleppey Green Cardamom (8mm Bold)',
     volumeOrType: 'LCL Consignment (2.5 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
     testimonial: 'We placed an initial commercial order of 8mm Alleppey green cardamom in aroma-sealed foil packaging. The uniform green color, bold size, and essential oil content were consistent across the whole shipment. Everything passed German customs and health inspection without any queries.'
   },
   {
@@ -72,6 +89,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Tellicherry Black Pepper (570 g/L)',
     volumeOrType: '1 x 20ft FCL (16 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
     testimonial: 'First time working with Origintra for bulk black pepper. The density and pungency were exactly what we agreed upon during sample approval. The container was well stuffed with silica traps so there was zero condensation during ocean transit. We have already placed our repeat order for next quarter.'
   },
   {
@@ -84,6 +102,7 @@ export const TESTIMONIALS: Testimonial[] = [
     commodity: 'Sortex Fennel & Cumin Seeds',
     volumeOrType: 'Mixed 40ft Container (22 MT)',
     rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
     testimonial: 'Consolidating different seed spices into a single 40ft container saved us substantial ocean freight. Origintra handled the FDA prior notice documentation, phytosanitary certificate, and palletizing professionally. No delays at US customs entry. Straightforward communication and reliable quality.'
   }
 ];

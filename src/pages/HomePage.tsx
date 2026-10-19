@@ -32,6 +32,25 @@ import { HOME_FAQS } from '../utils/seo';
 import { ProductImage } from '../components/ProductImage';
 import { formatCardOrigin, getDisplayExportForms, formatSupplyGrade } from '../utils/productHelpers';
 
+const COUNTRY_FLAG_MAP: Record<string, { code: string; name: string }> = {
+  'Malaysia': { code: 'my', name: 'Malaysia' },
+  'United Arab Emirates': { code: 'ae', name: 'UAE' },
+  'UAE': { code: 'ae', name: 'UAE' },
+  'Netherlands': { code: 'nl', name: 'Netherlands' },
+  'Singapore': { code: 'sg', name: 'Singapore' },
+  'Germany': { code: 'de', name: 'Germany' },
+  'United Kingdom': { code: 'gb', name: 'United Kingdom' },
+  'UK': { code: 'gb', name: 'UK' },
+  'United States': { code: 'us', name: 'United States' },
+  'USA': { code: 'us', name: 'USA' },
+  'Saudi Arabia': { code: 'sa', name: 'Saudi Arabia' },
+  'Australia': { code: 'au', name: 'Australia' },
+  'Canada': { code: 'ca', name: 'Canada' },
+  'Japan': { code: 'jp', name: 'Japan' },
+  'Vietnam': { code: 'vn', name: 'Vietnam' },
+  'Indonesia': { code: 'id', name: 'Indonesia' }
+};
+
 interface HomePageProps {
   onNavigate: (page: string) => void;
   onOpenProductDetail: (product: Product) => void;
@@ -1165,66 +1184,87 @@ export const HomePage: React.FC<HomePageProps> = ({
               {(testimonials.length < 4
                 ? [...testimonials, ...testimonials, ...testimonials, ...testimonials]
                 : [...testimonials, ...testimonials]
-              ).map((item, idx) => (
-                <div 
-                  key={`${item.id}-${idx}`}
-                  className="w-[360px] sm:w-[420px] md:w-[460px] shrink-0 bg-white rounded-xl p-6 sm:p-7 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
-                >
-                  <div>
+              ).map((item, idx) => {
+                const countryFlag = COUNTRY_FLAG_MAP[item.country] || {
+                  code: item.country?.toLowerCase().slice(0, 2) || 'un',
+                  name: item.country || 'Global'
+                };
 
-
-                    {/* Commodity Title & Consignment Volume */}
-                    <div className="mb-3.5">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#0070E0] mb-1">
-                        {item.volumeOrType || 'Commercial FCL Consignment'}
+                return (
+                  <div 
+                    key={`${item.id}-${idx}`}
+                    className="w-[350px] sm:w-[440px] md:w-[480px] shrink-0 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-slate-200/85 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_36px_rgba(0,0,0,0.08)] hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group select-none"
+                  >
+                    <div>
+                      {/* Top Row: 5 Golden Amber Stars */}
+                      <div className="flex items-center space-x-1.5 mb-4 sm:mb-5">
+                        {[...Array(item.rating || 5)].map((_, sIdx) => (
+                          <Star key={sIdx} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                        ))}
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#0070E0] transition-colors leading-snug">
-                        {item.commodity}
-                      </h3>
+
+                      {/* Testimonial Quote with Typographic Opening & Closing Quotes */}
+                      <p className="text-sm sm:text-base md:text-[17px] text-[#0F172A] leading-relaxed sm:leading-relaxed font-normal">
+                        <span className="font-serif text-lg sm:text-xl text-[#0F172A] mr-1 select-none">“</span>
+                        {item.testimonial}
+                        <span className="font-serif text-lg sm:text-xl text-[#0F172A] ml-1 select-none">”</span>
+                      </p>
                     </div>
 
-                    {/* Commercial Quote - Clean Editorial Typography with Accent Line */}
-                    <blockquote className="my-3 pl-3.5 border-l-2 border-[#0070E0]/35 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">
-                      "{item.testimonial}"
-                    </blockquote>
-                  </div>
+                    {/* Thin Horizontal Divider */}
+                    <div className="border-t border-slate-100 my-5 sm:my-6" />
 
-                  {/* Author, Role & Company Footer */}
-                  <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <div className="flex items-center space-x-3 min-w-0">
-                      {item.avatar ? (
-                        <img 
-                          src={item.avatar} 
-                          alt={item.author} 
-                          width="40"
-                          height="40"
-                          loading="lazy"
-                          decoding="async"
-                          className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0 shadow-2xs" 
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0 tracking-wider shadow-2xs">
-                          {item.author.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                    {/* Bottom Metadata: Avatar & Author on Left, Country Flag Pill on Right */}
+                    <div className="flex items-center justify-between gap-3 pt-0.5">
+                      
+                      {/* Left: Avatar + Author Info */}
+                      <div className="flex items-center space-x-3.5 min-w-0">
+                        {item.avatar ? (
+                          <img 
+                            src={item.avatar} 
+                            alt={item.author} 
+                            width="56"
+                            height="56"
+                            loading="lazy"
+                            decoding="async"
+                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shrink-0 shadow-2xs border border-slate-100" 
+                          />
+                        ) : (
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 tracking-wider shadow-2xs">
+                            {item.author.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <h4 className="text-base sm:text-lg font-bold text-[#0F172A] truncate tracking-tight leading-snug">
+                            {item.author}
+                          </h4>
+                          <p className="text-xs sm:text-sm text-slate-500 font-normal truncate mt-0.5">
+                            {item.role}
+                          </p>
                         </div>
-                      )}
-                      <div className="min-w-0">
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                          {item.author}
-                        </h4>
-                        <p className="text-[11px] text-slate-500 truncate">
-                          {item.role}
-                        </p>
-                        <p className="text-[11px] font-medium text-slate-700 truncate flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="truncate">{item.company}</span>
-                          <span className="text-slate-400 font-normal shrink-0">({item.country})</span>
-                        </p>
                       </div>
-                    </div>
-                  </div>
 
-                </div>
-              ))}
+                      {/* Right: Country Pill with National Flag */}
+                      <div className="bg-slate-100/90 rounded-full px-3 sm:px-3.5 py-1.5 sm:py-2 flex items-center gap-2 border border-slate-200/60 shrink-0">
+                        <img
+                          src={`https://flagcdn.com/w40/${countryFlag.code}.png`}
+                          srcSet={`https://flagcdn.com/w80/${countryFlag.code}.png 2x`}
+                          alt={countryFlag.name}
+                          width="20"
+                          height="14"
+                          className="w-5 h-3.5 object-cover rounded-[2px] shadow-2xs shrink-0"
+                          loading="lazy"
+                        />
+                        <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                          {countryFlag.name}
+                        </span>
+                      </div>
+
+                    </div>
+
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
