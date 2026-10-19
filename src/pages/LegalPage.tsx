@@ -9,14 +9,9 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  ExternalLink,
   CheckCircle2,
-  Clock,
-  Building2,
   FileCheck,
-  Scale,
-  Anchor,
-  HelpCircle
+  Anchor
 } from 'lucide-react';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { ROUTES } from '../utils/routes';
@@ -56,7 +51,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
     }[];
   }> = {
     privacy: {
-      title: 'Commercial Privacy Policy',
+      title: 'Privacy Policy',
       navLabel: 'Privacy Policy',
       path: ROUTES.privacy,
       icon: ShieldCheck,
@@ -131,7 +126,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
       ]
     },
     terms: {
-      title: 'Export Terms & Conditions',
+      title: 'Terms & Conditions',
       navLabel: 'Terms & Conditions',
       path: ROUTES.terms,
       icon: FileText,
@@ -206,7 +201,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
       ]
     },
     shipping: {
-      title: 'Shipping & Maritime Policy',
+      title: 'Shipping Policy',
       navLabel: 'Shipping Policy',
       path: ROUTES.shipping,
       icon: Truck,
@@ -275,7 +270,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
       ]
     },
     cookies: {
-      title: 'Digital Cookie Policy',
+      title: 'Cookie Policy',
       navLabel: 'Cookie Policy',
       path: ROUTES.cookies,
       icon: Cookie,
@@ -330,7 +325,6 @@ export const LegalPage: React.FC<LegalPageProps> = ({
   };
 
   const activePolicy = POLICIES[policyType] || POLICIES.privacy;
-  const ActiveIcon = activePolicy.icon;
 
   const handleTabClick = (type: LegalPolicyType) => {
     onNavigate(POLICIES[type].path);
@@ -339,85 +333,26 @@ export const LegalPage: React.FC<LegalPageProps> = ({
   return (
     <div className="bg-[#F8FAFC] text-slate-800 min-h-screen">
       
-      {/* 1. HERO BANNER */}
-      <section className="relative bg-[#07152D] text-white pt-12 pb-16 sm:pb-20 overflow-hidden border-b border-slate-800">
-        
-        {/* Subtle Background World Map / Grid Elements */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none select-none overflow-hidden">
-          <img
-            src="/assets/dotted-world-map.svg"
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover scale-125 translate-x-20"
-          />
-        </div>
-
-        <div className="container-x mx-auto max-w-[1280px] relative z-10">
-          
-          {/* Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs text-slate-400 mb-6 flex-wrap">
-            <button
-              onClick={() => onNavigate('/')}
-              className="hover:text-white transition-colors cursor-pointer"
-            >
-              Home
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-            <span className="text-slate-400">Legal Governance</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-            <span className="text-[#38BDF8] font-semibold" aria-current="page">
-              {activePolicy.title}
-            </span>
-          </nav>
-
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-6 h-[2px] bg-[#0070E0] rounded-full inline-block" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
+      {/* 1. HERO BANNER (Common Header Design) */}
+      <section className="relative overflow-hidden bg-[#0A1C3E] text-white py-12 sm:py-20 md:py-28 shadow-xs">
+        <div className="container-x mx-auto max-w-[1440px] relative">
+          <div className="max-w-3xl space-y-3 sm:space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-sky-300">
               {activePolicy.eyebrow}
             </span>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white">
+              {activePolicy.title}<span className="text-[#0070E0]">.</span>
+            </h1>
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed pt-1 sm:pt-2">
+              {activePolicy.lead}
+            </p>
           </div>
-
-          {/* Heading */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
-            <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white tracking-tight">
-                {activePolicy.title}
-              </h1>
-              <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-normal">
-                {activePolicy.lead}
-              </p>
-            </div>
-            
-            <div className="shrink-0 hidden md:block">
-              <div className="w-16 h-16 rounded-2xl bg-[#0070E0]/20 border border-sky-400/30 flex items-center justify-center text-[#38BDF8] shadow-lg">
-                <ActiveIcon className="w-8 h-8" />
-              </div>
-            </div>
-          </div>
-
-          {/* Policy Meta Badges */}
-          <div className="mt-6 pt-5 border-t border-slate-800/80 flex flex-wrap items-center gap-4 sm:gap-8 text-xs text-slate-400 font-medium">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#38BDF8]" />
-              <span>Effective: <strong className="text-slate-200">{activePolicy.effectiveDate}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#38BDF8]" />
-              <span>Entity: <strong className="text-slate-200">{companyConfig.legalName}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Scale className="w-4 h-4 text-[#38BDF8]" />
-              <span>Jurisdiction: <strong className="text-slate-200">Ahmedabad, Gujarat, India</strong></span>
-            </div>
-          </div>
-
         </div>
       </section>
 
       {/* 2. POLICY SWITCHER TABS BAR */}
       <section className="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-xs">
-        <div className="container-x mx-auto max-w-[1280px]">
+        <div className="container-x mx-auto max-w-[1440px]">
           <div className="flex items-center overflow-x-auto no-scrollbar py-2 sm:py-3 gap-2 sm:gap-3">
             {(Object.keys(POLICIES) as LegalPolicyType[]).map((key) => {
               const pol = POLICIES[key];
@@ -446,13 +381,19 @@ export const LegalPage: React.FC<LegalPageProps> = ({
 
       {/* 3. MAIN BODY & SIDEBAR */}
       <section className="py-10 sm:py-16">
-        <div className="container-x mx-auto max-w-[1280px]">
+        <div className="container-x mx-auto max-w-[1440px]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left 8 Columns: Detailed Policy Articles */}
             <div className="lg:col-span-8 space-y-8">
               
               <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs space-y-10">
+                {/* Policy Metadata Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-slate-100 text-xs text-slate-500 font-medium">
+                  <span>Effective Date: <strong className="text-slate-800">{activePolicy.effectiveDate}</strong></span>
+                  <span>Entity: <strong className="text-slate-800">{companyConfig.legalName}</strong></span>
+                  <span>Jurisdiction: <strong className="text-slate-800">Ahmedabad, Gujarat, India</strong></span>
+                </div>
                 {activePolicy.sections.map((section, idx) => (
                   <article
                     key={section.id}
