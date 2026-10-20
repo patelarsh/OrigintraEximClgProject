@@ -1,0 +1,112 @@
+# ===============================================================
+# Origintra Exim - Hostinger LiteSpeed / Apache SPA Routing Rules
+# ===============================================================
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 0. Direct Favicon & Crawler Assets (Google Favicon & Bing IndexNow & BingSiteAuth require direct 200 OK)
+  RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap.*\.xml|BingSiteAuth\.xml|[0-9a-fA-F]{16,64}\.txt) [NC]
+  RewriteRule ^ - [L]
+
+  # 1. Canonical 301 Redirect: Enforce HTTPS & www.origintra.com (eliminates duplicate crawl errors in GSC)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
+
+  RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
+  RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
+
+  # 2. API Endpoints: Route clean API URLs directly to PHP handlers
+  RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
+  RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
+  RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
+  RewriteRule ^api/settings/?$ /api/settings.php [L]
+
+  # 2.3 Redirect friendly /sitemap and /site-map directly to /sitemap.xml
+  RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
+
+  # 2.5 Set environment variable to trigger X-Robots-Tag noindex on admin portal only
+  RewriteRule ^(admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
+
+  # 3. Existing physical files and directories: Serve directly without rewriting
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 4. React Single Page Application (SPA) Fallback:
+  # Rewrite all virtual routes (/schedule-meeting, /products, /about, etc.) to index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Security Headers & Anti-Indexing Directives
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  Header always set X-Robots-Tag "noindex, nofollow" env=NOINDEX_PAGE
+</IfModule>
+
+# Ensure HTML and API JSON payloads are always fresh & never cached with stale data
+<FilesMatch "\.(html|htm|json)$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </IfModule>
+</FilesMatch>
+
+# Ensure sitemap.xml is served with proper XML MIME, CORS headers and fresh caching
+<FilesMatch "^sitemap.*\.xml$">
+  <IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Content-Type "application/xml; charset=utf-8"
+    Header set Cache-Control "no-cache, must-revalidate"
+  </IfModule>
+</FilesMatch>
+
+# Block access to sensitive files and configs
+<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$|mail-config\.php$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# MIME Types for WebP, modern fonts, and icons
+<IfModule mod_mime.c>
+  AddType image/x-icon .ico
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+  AddType application/xml .xml
+  AddType application/font-woff2 .woff2
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Gzip Compression for fast delivery on Hostinger
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
+</IfModule>
+
+# Browser Caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/json "access plus 0 seconds"
+  ExpiresByType image/x-icon "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
