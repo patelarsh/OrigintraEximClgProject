@@ -13,6 +13,7 @@ export interface CompanyConfig {
   whatsappUrl: string;
   calendlyUrl: string;
   googleMapsUrl?: string;
+  googleMapsEmbedUrl?: string;
   headOffice: {
     title: string;
     street: string;
@@ -57,6 +58,7 @@ export const COMPANY_CONFIG: CompanyConfig = {
   whatsappUrl: 'https://wa.me/917069182990?text=Hello%20Origintra%20Exim,%20I%20am%20interested%20in%20sourcing%20quality%20spices.',
   calendlyUrl: 'https://calendly.com/origintraexim/30min',
   googleMapsUrl: 'https://maps.app.goo.gl/Yay1MwEGyTEiQhMu6',
+  googleMapsEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d42673.10287590732!2d72.84979227910158!3d23.776796900000008!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395dafa047d489ed%3A0x2f6b731c3fb3148b!2sOrigintra%20Exim!5e1!3m2!1sen!2sus!4v1792497478534!5m2!1sen!2sus',
   instagramUrl: 'https://www.instagram.com/origintra.exim/',
   facebookUrl: 'https://www.facebook.com/origintra.exim',
   linkedinUrl: 'https://www.linkedin.com/company/origintra-exim',

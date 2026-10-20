@@ -258,11 +258,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                 <div className="relative w-full h-64 sm:h-72 bg-slate-100 border-y border-slate-200/80">
                   <iframe
                     title="Origintra Exim Google Map Location"
-                    src="https://maps.google.com/maps?q=Origintra%20Exim,%20Ahmedabad,%20Gujarat&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d42673.10287590732!2d72.84979227910158!3d23.776796900000008!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395dafa047d489ed%3A0x2f6b731c3fb3148b!2sOrigintra%20Exim!5e1!3m2!1sen!2sus!4v1792497478534!5m2!1sen!2sus"
                     className="w-full h-full border-0"
                     loading="lazy"
                     allowFullScreen
-                    referrerPolicy="no-referrer-when-downgrade"
+                    referrerPolicy="strict-origin-when-cross-origin"
                   />
                 </div>
 
