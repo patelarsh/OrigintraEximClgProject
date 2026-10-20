@@ -889,7 +889,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   // ==========================================
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 sm:p-8 lg:p-12 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
         
         {/* Subtle World Map background watermark */}
         <div 
@@ -897,258 +897,168 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           style={{ backgroundImage: `url('/assets/brand/dotted-world-map.svg')`, backgroundSize: '700px auto' }}
         />
 
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center relative z-10">
-          
-          {/* ========================================================= */}
-          {/* LEFT COLUMN: BRANDING, TITLE, FEATURES & SPICE CLUSTER */}
-          {/* ========================================================= */}
-          <div className="lg:col-span-7 flex flex-col justify-between py-4">
+        <div className="w-full max-w-md relative z-10 my-8">
+          <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-7 sm:p-9 relative">
             
-            {/* 1. Official Origintra Exim Brand Logo */}
-            <div>
+            {/* Language Selector Indicator */}
+            <div className="flex items-center justify-end space-x-1 text-slate-500 text-xs font-semibold mb-2">
+              <Globe className="w-3.5 h-3.5 text-slate-400" />
+              <span>EN</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </div>
+
+            {/* Card Header with Centered Official Logo */}
+            <div className="text-center">
               <img
                 src="/assets/logo/logo-full-color.webp"
-                alt="Origintra Exim - Connecting Markets. Moving Possibilities."
-                className="h-14 sm:h-16 w-auto object-contain"
+                alt="Origintra Exim"
+                className="h-11 sm:h-12 w-auto mx-auto object-contain mb-3"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/logo/logo-full-color.png';
                 }}
               />
-            </div>
-
-            {/* 2. Admin Portal Accent & Typography */}
-            <div className="mt-8">
-              <div className="flex items-center space-x-2.5 text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-                <span className="w-8 h-0.5 bg-[#0070E0] inline-block rounded-full" />
-                <span>ADMIN PORTAL</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-[#0A1C3E] tracking-tight leading-tight">
-                Manage Global Trade<br />with <span className="text-[#0070E0]">Confidence.</span>
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-600 mt-4 max-w-xl leading-relaxed font-medium">
-                Access the Origintra Exim admin portal to manage products, inquiries, content, and global trade operations — all in one place.
+              
+              <h2 className="text-2xl font-display font-extrabold text-[#0A1C3E]">
+                Admin <span className="text-[#0070E0]">Portal</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Sign in to manage your export business operations.
               </p>
 
-              {/* 3. 4 Feature Icons Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-2">
-                <div className="space-y-2">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shadow-2xs">
-                    <Package className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-800 block leading-tight">
-                    Product Management
-                  </span>
+              {/* Status Pill */}
+              <div className="flex justify-center mt-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200/70 shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <Database className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Supabase Cloud PostgreSQL Active</span>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shadow-2xs">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-800 block leading-tight">
-                    Inquiries & Leads
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shadow-2xs">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-800 block leading-tight">
-                    Team & Content
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shadow-2xs">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-800 block leading-tight">
-                    Business Growth
-                  </span>
-                </div>
-              </div>
-
-              {/* 4. Realistic Indian Spices Cluster Image */}
-              <div className="mt-8 pt-4 relative -ml-4 sm:-ml-6 max-w-lg pointer-events-none hidden sm:block">
-                <img
-                  src="/assets/about/indian-spices-cluster.png"
-                  alt="Authentic Indian Export Spices"
-                  className="w-full h-auto object-contain drop-shadow-xl"
-                />
               </div>
             </div>
 
-          </div>
-
-          {/* ========================================================= */}
-          {/* RIGHT COLUMN: LOGIN AUTHENTICATION CARD */}
-          {/* ========================================================= */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/90 shadow-2xl p-7 sm:p-9 relative">
+            {/* Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4 mt-6">
               
-              {/* Language Selector Indicator */}
-              <div className="flex items-center justify-end space-x-1 text-slate-500 text-xs font-semibold mb-2">
-                <Globe className="w-3.5 h-3.5 text-slate-400" />
-                <span>EN</span>
-                <ChevronDown className="w-3 h-3 text-slate-400" />
-              </div>
-
-              {/* Card Header with Centered Official Logo */}
-              <div className="text-center">
-                <img
-                  src="/assets/logo/logo-full-color.webp"
-                  alt="Origintra Exim"
-                  className="h-10 sm:h-12 w-auto mx-auto object-contain mb-3"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/logo/logo-full-color.png';
-                  }}
-                />
-                
-                <h2 className="text-2xl font-display font-extrabold text-[#0A1C3E]">
-                  Admin <span className="text-[#0070E0]">Portal</span>
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Sign in to manage your export business operations.
-                </p>
-
-                {/* Status Pill */}
-                <div className="flex justify-center mt-3">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200/70 shadow-2xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <Database className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Supabase Cloud PostgreSQL Active</span>
-                  </div>
+              {/* Field 1: Corporate Email Address */}
+              <div>
+                <label className="text-xs font-bold text-slate-800 block mb-1.5">
+                  Corporate Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="e.g. arsh@origintra.com"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/15 font-medium transition"
+                  />
                 </div>
               </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleLogin} className="space-y-4 mt-6">
-                
-                {/* Field 1: Corporate Email Address */}
-                <div>
-                  <label className="text-xs font-bold text-slate-800 block mb-1.5">
-                    Corporate Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      required
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="e.g. arsh@origintra.com"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/15 font-medium transition"
-                    />
-                  </div>
-                </div>
-
-                {/* Field 2: Password */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-slate-800">
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-xs font-semibold text-[#0070E0] hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      <span>{showPassword ? 'Hide' : 'Show'}</span>
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/15 font-medium transition"
-                    />
-                  </div>
-                </div>
-
-                {/* Remember Me & Forgot Password */}
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <label className="flex items-center space-x-2 text-slate-600 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      className="w-4 h-4 rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0]"
-                    />
-                    <span>Keep me signed in</span>
+              {/* Field 2: Password */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-slate-800">
+                    Password
                   </label>
                   <button
                     type="button"
-                    onClick={() => alert('Please contact administrative IT desk at info@origintra.com for credential resets.')}
-                    className="text-[#0070E0] hover:underline font-semibold"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-xs font-semibold text-[#0070E0] hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    Forgot password?
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    <span>{showPassword ? 'Hide' : 'Show'}</span>
                   </button>
                 </div>
-
-                {loginError && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center space-x-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
-                    <span>{loginError}</span>
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#0A1C3E] hover:bg-[#061228] text-white font-bold text-sm tracking-wide shadow-md hover:shadow-blue-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer group"
-                >
-                  <span>Sign In to Admin Portal</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </button>
-
-                {/* Divider */}
-                <div className="relative my-4 flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200" />
-                  </div>
-                  <span className="relative bg-white px-3 text-[11px] font-bold text-slate-400 uppercase">
-                    OR
-                  </span>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/15 font-medium transition"
+                  />
                 </div>
+              </div>
 
-                {/* Google Workspace SSO Button (Optional) */}
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between text-xs pt-1">
+                <label className="flex items-center space-x-2 text-slate-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="w-4 h-4 rounded border-slate-300 text-[#0070E0] focus:ring-[#0070E0]"
+                  />
+                  <span>Keep me signed in</span>
+                </label>
                 <button
                   type="button"
-                  onClick={() => alert('Corporate Google Workspace SSO is optional. Please use your standard corporate email credentials above.')}
-                  className="w-full py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer shadow-2xs"
+                  onClick={() => alert('Please contact administrative IT desk at info@origintra.com for credential resets.')}
+                  className="text-[#0070E0] hover:underline font-semibold"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                  </svg>
-                  <span>Continue with Google</span>
-                  <span className="text-[11px] text-slate-400 font-normal">(Optional)</span>
+                  Forgot password?
                 </button>
+              </div>
 
-                {/* Return to Public Website */}
-                <div className="text-center pt-2">
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('home')}
-                    className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition cursor-pointer"
-                  >
-                    <span>← Return to Public Website</span>
-                  </button>
+              {loginError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                  <span>{loginError}</span>
                 </div>
+              )}
 
-              </form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl bg-[#0A1C3E] hover:bg-[#061228] text-white font-bold text-sm tracking-wide shadow-md hover:shadow-blue-900/20 transition-all flex items-center justify-center space-x-2 cursor-pointer group"
+              >
+                <span>Sign In to Admin Portal</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </button>
 
-            </div>
+              {/* Divider */}
+              <div className="relative my-4 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200" />
+                </div>
+                <span className="relative bg-white px-3 text-[11px] font-bold text-slate-400 uppercase">
+                  OR
+                </span>
+              </div>
+
+              {/* Google Workspace SSO Button (Optional) */}
+              <button
+                type="button"
+                onClick={() => alert('Corporate Google Workspace SSO is optional. Please use your standard corporate email credentials above.')}
+                className="w-full py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer shadow-2xs"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continue with Google</span>
+                <span className="text-[11px] text-slate-400 font-normal">(Optional)</span>
+              </button>
+
+              {/* Return to Public Website */}
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('home')}
+                  className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                >
+                  <span>← Return to Public Website</span>
+                </button>
+              </div>
+
+            </form>
+
           </div>
-
         </div>
 
       </div>
