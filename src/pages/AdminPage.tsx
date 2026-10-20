@@ -910,11 +910,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             {/* Card Header with Centered Official Logo */}
             <div className="text-center">
               <img
-                src="/assets/logo/logo-full-color.webp"
+                src="/assets/logo/origintra-admin-logo.webp"
                 alt="Origintra Exim"
-                className="h-11 sm:h-12 w-auto mx-auto object-contain mb-3"
+                className="h-12 sm:h-14 w-auto mx-auto object-contain mb-3"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/logo/logo-full-color.png';
+                  (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
                 }}
               />
               
@@ -1061,28 +1061,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Top: Brand Logo Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <div className="px-5 py-4.5 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center">
             <img
-              src="/assets/logo/logo-mark-color.webp"
-              alt="Origintra Exim Swirl Mark"
-              className="w-8 h-8 object-contain shrink-0"
+              src="/assets/logo/origintra-admin-logo.webp"
+              alt="Origintra Exim"
+              className="h-8.5 sm:h-9 w-auto max-w-[175px] object-contain"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/logo/logo-mark-color.png';
+                (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
               }}
             />
-            <div className="leading-tight">
-              <span className="font-display font-extrabold text-sm tracking-wider text-[#0A1C3E] block">
-                ORIGINTRA
-              </span>
-              <span className="text-[10px] font-bold text-[#0070E0] tracking-[0.25em] block uppercase">
-                EXIM
-              </span>
-            </div>
           </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -1307,14 +1299,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-20">
           
           {/* Left: Mobile Toggle & Global Search */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition"
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer"
               aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
+
+            <img
+              src="/assets/logo/origintra-admin-logo.webp"
+              alt="Origintra Exim"
+              className="h-7 w-auto object-contain md:hidden"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
+              }}
+            />
 
             <div className="relative w-64 sm:w-80 md:w-96">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
