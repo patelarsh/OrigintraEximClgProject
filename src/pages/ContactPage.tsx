@@ -280,14 +280,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                 </div>
               </div>
 
-              {/* Regulatory Accreditations */}
-              <div className="px-6 py-4 bg-slate-100/70 rounded-2xl border border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
-                <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-4 h-4 text-slate-500" />
-                  <span className="font-medium">Registered Exporter: APEDA • Spices Board • FSSAI • IEC</span>
-                </div>
-              </div>
-
             </div>
 
             {/* Right Column: Commercial Enquiry Form matching exact mockup */}
@@ -539,21 +531,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                       </button>
                     </div>
 
-                    {/* Bottom Shipping Calculator Link */}
-                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center space-x-2 text-slate-500">
-                        <Package className="w-4 h-4 text-slate-400 shrink-0" />
-                        <span>Need instant proforma, container stowage and weight calculation?</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={onOpenQuote}
-                        className="text-[#0070E0] hover:underline font-bold inline-flex items-center space-x-1 cursor-pointer shrink-0"
-                      >
-                        <span>Open 3D Shipping Calculator</span>
-                        <span>→</span>
-                      </button>
-                    </div>
 
                   </form>
                 )}
