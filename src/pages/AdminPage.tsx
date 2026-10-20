@@ -1061,12 +1061,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Top: Brand Logo Header */}
-        <div className="px-5 py-4.5 border-b border-slate-100 flex items-center justify-between">
+        <div className="h-[70px] px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center">
             <img
               src="/assets/logo/origintra-admin-logo.webp"
               alt="Origintra Exim"
-              className="h-8.5 sm:h-9 w-auto max-w-[175px] object-contain"
+              className="h-10 sm:h-11 w-auto max-w-[185px] object-contain block"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
               }}
@@ -1296,7 +1296,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Clean White Header Bar */}
-        <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-[70px] bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
           
           {/* Left: Mobile Toggle & Global Search */}
           <div className="flex items-center space-x-2.5 sm:space-x-3">
