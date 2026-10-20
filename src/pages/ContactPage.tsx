@@ -283,7 +283,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
             </div>
 
             {/* Right Column: Commercial Enquiry Form matching exact mockup */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between">
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
               
               {/* Header Dark Spice Banner */}
               <div className="bg-[#091C35] text-white relative overflow-hidden">
@@ -311,7 +311,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
               </div>
 
               {/* Form Body Area */}
-              <div className="p-6 sm:p-8">
+              <div className="p-6 sm:p-8 pt-6 sm:pt-7">
                 {isSuccess ? (
                   <div className="py-12 px-4 text-center space-y-4 animate-in fade-in">
                     <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
@@ -351,7 +351,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                     
                     {/* Anti-spam honeypot */}
                     <div className="hidden" aria-hidden="true">
