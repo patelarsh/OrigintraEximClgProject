@@ -56,7 +56,12 @@ import {
   Key,
   UserCheck,
   Server,
-  Loader2
+  Loader2,
+  Bell,
+  ChevronDown,
+  ArrowRight,
+  Ship,
+  Menu
 } from 'lucide-react';
 import { Product, BlogPost, Inquiry, TeamMember, User, UserRole, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
@@ -117,6 +122,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
   // === NAVIGATION & TABS ===
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // === DATA STATES (Synced with Supabase Cloud PostgreSQL) ===
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());
@@ -128,6 +136,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [companyConfig, setCompanyConfig] = useState(() => AdminStorage.getCompanyConfig());
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => AdminStorage.getGalleryImages());
   const [dbStatus, setDbStatus] = useState(() => AdminStorage.getDatabaseStatus());
+
+  // === GLOBAL DASHBOARD SEARCH RESULTS ===
+  const searchResults = useMemo(() => {
+    const q = dashboardSearchQuery.trim().toLowerCase();
+    if (!q) return { products: [], blog: [], inquiries: [] };
+    return {
+      products: products.filter(p => p.name.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)).slice(0, 3),
+      blog: blogPosts.filter(b => b.title.toLowerCase().includes(q) || (b.category || '').toLowerCase().includes(q)).slice(0, 3),
+      inquiries: inquiries.filter(i => (i.fullName || '').toLowerCase().includes(q) || (i.companyName || '').toLowerCase().includes(q) || (i.product || '').toLowerCase().includes(q)).slice(0, 3)
+    };
+  }, [dashboardSearchQuery, products, blogPosts, inquiries]);
 
   // === SUPABASE DATABASE MODAL STATES ===
   const [supabaseModalOpen, setSupabaseModalOpen] = useState(false);
@@ -982,7 +1001,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   // 2. MAIN ADMIN DASHBOARD
   // ==========================================
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col md:flex-row font-sans">
       
       {/* Toast Alert */}
       {toastMessage && (
@@ -992,614 +1011,648 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         </div>
       )}
 
-      {/* Admin Header */}
-      <header className="bg-[#0A1C3E] text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
-        <div className="px-4 sm:px-8 py-3.5 flex items-center justify-between">
-          
+      {/* ========================================================= */}
+      {/* 1. LEFT SIDEBAR (STICKY FULL-HEIGHT ON DESKTOP, DRAWER ON MOBILE) */}
+      {/* ========================================================= */}
+      {/* Mobile Drawer Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-950/50 z-40 md:hidden backdrop-blur-2xs"
+        />
+      )}
+
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-transform duration-300 ease-in-out
+        md:translate-x-0 md:static md:h-screen md:sticky md:top-0 md:z-30
+        ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Top: Brand Logo Header */}
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-[#38BDF8]">
-              <ShieldCheck className="w-5 h-5" />
+            <img
+              src="/assets/logo/logo-mark-color.webp"
+              alt="Origintra Exim Swirl Mark"
+              className="w-8 h-8 object-contain shrink-0"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/logo/logo-mark-color.png';
+              }}
+            />
+            <div className="leading-tight">
+              <span className="font-display font-extrabold text-sm tracking-wider text-[#0A1C3E] block">
+                ORIGINTRA
+              </span>
+              <span className="text-[10px] font-bold text-[#0070E0] tracking-[0.25em] block uppercase">
+                EXIM
+              </span>
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-display font-bold text-base tracking-tight text-white">
-                  Origintra Exim
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider">
-                  Admin Portal
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Centralized CMS & Sourcing Management Desk
-              </p>
-            </div>
           </div>
-
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Active User Profile Chip */}
-            {currentUser && (
-              <div className="flex items-center gap-2 pl-3 border-l border-slate-700">
-                <img
-                  src={currentUser.avatar || '/assets/team/director.jpg'}
-                  alt={currentUser.name}
-                  className="w-8 h-8 rounded-full object-cover border border-blue-400/40 bg-slate-800 shrink-0"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
-                  }}
-                />
-                <div className="hidden lg:block text-left">
-                  <div className="text-xs font-semibold text-white leading-tight flex items-center gap-1.5">
-                    <span>{currentUser.name}</span>
-                    <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                      currentUser.role === 'admin'
-                        ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
-                        : currentUser.role === 'editor'
-                        ? 'bg-blue-400/20 text-blue-300 border border-blue-400/40'
-                        : currentUser.role === 'author'
-                        ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/40'
-                        : 'bg-cyan-400/20 text-cyan-300 border border-cyan-400/40'
-                    }`}>
-                      {currentUser.role}
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 truncate max-w-[150px]">{currentUser.department || 'Trade Operations'}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Production Security Shield Badge */}
-            <div className="hidden xl:flex items-center gap-1.5 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-500/30 text-[11px] text-emerald-300 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="font-semibold">Security Active · 256-Bit SSL/TLS</span>
-            </div>
-
-            <button
-              onClick={() => onNavigate('home')}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer"
-            >
-              <span>Live Site</span>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Layout: Sidebar + Workspace */}
-      <div className="flex-1 flex flex-col md:flex-row">
-        
-        {/* Sidebar Nav */}
-        <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 p-2 sm:p-4 shrink-0">
-          <div className="hidden md:flex text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-2 items-center justify-between">
-            <span>Navigation</span>
-            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 font-bold uppercase text-slate-600">
-              Role: {currentRole}
-            </span>
-          </div>
-
-          {/* Mobile Horizontal Scrollable Tab Bar (<md) */}
-          <div className="flex md:hidden overflow-x-auto py-1 gap-1.5 scrollbar-none items-center">
-            <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                activeTab === 'dashboard' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Overview</span>
-            </button>
-            {canAccessProducts && (
-              <button
-                onClick={() => setActiveTab('products')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'products' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Package className="w-3.5 h-3.5" />
-                <span>Products ({products.length})</span>
-              </button>
-            )}
-            {canAccessBlog && (
-              <button
-                onClick={() => setActiveTab('blog')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'blog' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>Blog ({blogPosts.length})</span>
-              </button>
-            )}
-            {canAccessTeam && (
-              <button
-                onClick={() => setActiveTab('team')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'team' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5" />
-                <span>Team ({teamMembers.length})</span>
-              </button>
-            )}
-            {canAccessTestimonials && (
-              <button
-                onClick={() => setActiveTab('testimonials')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'testimonials' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Quote className="w-3.5 h-3.5" />
-                <span>Reviews ({testimonials.length})</span>
-              </button>
-            )}
-            {canAccessGallery && (
-              <button
-                onClick={() => setActiveTab('gallery')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'gallery' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                <span>Gallery ({galleryImages.length})</span>
-              </button>
-            )}
-            {canAccessInquiries && (
-              <button
-                onClick={() => setActiveTab('inquiries')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'inquiries' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Inbox className="w-3.5 h-3.5" />
-                <span>Leads ({inquiries.length})</span>
-              </button>
-            )}
-            {canAccessUsers && (
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'users' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5" />
-                <span>Users ({users.length})</span>
-              </button>
-            )}
-            {canAccessSettings && (
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center space-x-1.5 shrink-0 ${
-                  activeTab === 'settings' ? 'bg-[#0070E0] text-white shadow-xs' : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span>Settings</span>
-              </button>
-            )}
-          </div>
-
-          {/* Desktop Vertical Nav (hidden on mobile) */}
-          <div className="hidden md:block space-y-1.5">
-
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Middle: Navigation Menu Items */}
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-1.5 scrollbar-thin">
+          {/* Dashboard */}
+          <button
+            onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }}
             className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
               activeTab === 'dashboard'
-                ? 'bg-[#0070E0] text-white shadow-xs'
+                ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                 : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
-            <div className="flex items-center space-x-2.5">
+            <div className="flex items-center space-x-3">
               <LayoutDashboard className="w-4 h-4" />
-              <span>Overview</span>
+              <span>Dashboard</span>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 opacity-60" />
           </button>
 
+          {/* Product Catalog */}
           {canAccessProducts && (
             <button
-              onClick={() => setActiveTab('products')}
+              onClick={() => { setActiveTab('products'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'products'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Package className="w-4 h-4" />
                 <span>Product Catalog</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'products' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
+              }`}>
                 {products.length}
               </span>
             </button>
           )}
 
+          {/* Blog & Articles */}
           {canAccessBlog && (
             <button
-              onClick={() => setActiveTab('blog')}
+              onClick={() => { setActiveTab('blog'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'blog'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <FileText className="w-4 h-4" />
                 <span>Blog & Articles</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'blog' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
+              }`}>
                 {blogPosts.length}
               </span>
             </button>
           )}
 
+          {/* Leadership Team */}
           {canAccessTeam && (
             <button
-              onClick={() => setActiveTab('team')}
+              onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'team'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Users className="w-4 h-4" />
                 <span>Leadership Team</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'team' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
+              }`}>
                 {teamMembers.length}
               </span>
             </button>
           )}
 
+          {/* Client Reviews */}
           {canAccessTestimonials && (
             <button
-              onClick={() => setActiveTab('testimonials')}
+              onClick={() => { setActiveTab('testimonials'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'testimonials'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Quote className="w-4 h-4" />
                 <span>Client Reviews</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'testimonials' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+              }`}>
                 {testimonials.length}
               </span>
             </button>
           )}
 
+          {/* Media Gallery */}
           {canAccessGallery && (
             <button
-              onClick={() => setActiveTab('gallery')}
+              onClick={() => { setActiveTab('gallery'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'gallery'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <ImageIcon className="w-4 h-4" />
                 <span>Media Gallery</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'gallery' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'
+              }`}>
                 {galleryImages.length}
               </span>
             </button>
           )}
 
+          {/* Inquiries & Leads */}
           {canAccessInquiries && (
             <button
-              onClick={() => setActiveTab('inquiries')}
+              onClick={() => { setActiveTab('inquiries'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'inquiries'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Inbox className="w-4 h-4" />
                 <span>Inquiries & Leads</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'inquiries' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
+              }`}>
                 {inquiries.length}
               </span>
             </button>
           )}
 
+          {/* User Management */}
           {canAccessUsers && (
             <button
-              onClick={() => setActiveTab('users')}
+              onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'users'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
-                <Users className="w-4 h-4" />
+              <div className="flex items-center space-x-3">
+                <UserCheck className="w-4 h-4" />
                 <span>User Management</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">
+              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'users' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'
+              }`}>
                 {users.length}
               </span>
             </button>
           )}
 
+          {/* Website & Contact */}
           {canAccessSettings && (
             <button
-              onClick={() => setActiveTab('settings')}
+              onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'settings'
-                  ? 'bg-[#0070E0] text-white shadow-xs'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Settings className="w-4 h-4" />
                 <span>Website & Contact</span>
               </div>
               <ChevronRight className="w-3.5 h-3.5 opacity-60" />
             </button>
           )}
+        </div>
 
-          {/* Quick System Stats in Sidebar (hidden on mobile, visible on desktop) */}
-          <div className="pt-6 mt-6 border-t border-slate-100 px-3 space-y-2 text-[11px] text-slate-500">
-            <div className="flex justify-between">
-              <span>DB Engine</span>
-              <strong className="text-slate-800 font-semibold">{supabase.isConfigured() ? 'Supabase PostgreSQL' : 'Cloud DB'}</strong>
-            </div>
-            <div className="flex justify-between">
-              <span>Live Sync</span>
-              <strong className="text-emerald-600 font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                PostgREST Synced
-              </strong>
-            </div>
-            <div className="flex justify-between">
-              <span>WhatsApp</span>
-              <strong className="text-slate-700 font-mono">{companyConfig.phone}</strong>
+        {/* Bottom: Sidebar System Meta */}
+        <div className="p-4 border-t border-slate-100 space-y-2.5 text-xs text-slate-500 bg-slate-50/50">
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-slate-500">DB Engine</span>
+            <strong className="text-slate-800 font-semibold">{supabase.isConfigured() ? 'Supabase' : 'Cloud DB'}</strong>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-slate-500">Live Sync</span>
+            <strong className="text-emerald-600 font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Connected
+            </strong>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-slate-500">WhatsApp</span>
+            <strong className="text-slate-700 font-mono font-semibold">{companyConfig.phone || '+917069182990'}</strong>
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================= */}
+      {/* 2. RIGHT WORKSPACE CONTAINER (HEADER + MAIN CONTENT) */}
+      {/* ========================================================= */}
+      <div className="flex-1 flex flex-col min-w-0">
+        
+        {/* Top Clean White Header Bar */}
+        <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-20">
+          
+          {/* Left: Mobile Toggle & Global Search */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition"
+              aria-label="Open Navigation"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="relative w-64 sm:w-80 md:w-96">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search products, inquiries, articles..."
+                value={dashboardSearchQuery}
+                onChange={(e) => setDashboardSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-8 py-2 rounded-xl bg-slate-100/80 border border-slate-200/80 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:bg-white focus:ring-2 focus:ring-[#0070E0]/15 transition font-medium"
+              />
+              {dashboardSearchQuery && (
+                <>
+                  <button
+                    onClick={() => setDashboardSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="absolute left-0 top-full mt-2 w-full bg-white rounded-2xl border border-slate-200 shadow-xl p-3 z-50 max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-1 text-xs space-y-3">
+                    {searchResults.products.length > 0 && (
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Products</div>
+                        {searchResults.products.map(p => (
+                          <div
+                            key={p.id}
+                            onClick={() => { setActiveTab('products'); setDashboardSearchQuery(''); }}
+                            className="p-2 rounded-lg hover:bg-sky-50 flex items-center justify-between cursor-pointer"
+                          >
+                            <span className="font-semibold text-slate-800">{p.name}</span>
+                            <span className="text-[10px] text-[#0070E0]">{p.category}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.blog.length > 0 && (
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Articles</div>
+                        {searchResults.blog.map(b => (
+                          <div
+                            key={b.id}
+                            onClick={() => { setActiveTab('blog'); setDashboardSearchQuery(''); }}
+                            className="p-2 rounded-lg hover:bg-purple-50 flex items-center justify-between cursor-pointer"
+                          >
+                            <span className="font-semibold text-slate-800 truncate">{b.title}</span>
+                            <span className="text-[10px] text-purple-600">{b.category}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.inquiries.length > 0 && (
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Inquiries</div>
+                        {searchResults.inquiries.map(i => (
+                          <div
+                            key={i.id}
+                            onClick={() => { setViewingInquiry(i); setActiveTab('inquiries'); setDashboardSearchQuery(''); }}
+                            className="p-2 rounded-lg hover:bg-emerald-50 flex items-center justify-between cursor-pointer"
+                          >
+                            <div>
+                              <span className="font-semibold text-slate-800 block">{i.fullName}</span>
+                              <span className="text-[10px] text-slate-500">{i.product}</span>
+                            </div>
+                            <span className="text-[10px] text-emerald-600">{i.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.products.length === 0 && searchResults.blog.length === 0 && searchResults.inquiries.length === 0 && (
+                      <div className="py-3 text-center text-slate-400 text-xs">
+                        No records matching "{dashboardSearchQuery}".
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Right: Notifications, User Profile, Live Site, Logout */}
+          <div className="flex items-center space-x-2.5 sm:space-x-4">
+            
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition relative cursor-pointer"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                  1
+                </span>
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span className="font-bold text-xs text-slate-900">Notifications</span>
+                    <button 
+                      onClick={() => setNotificationsOpen(false)}
+                      className="text-[10px] text-blue-600 font-semibold hover:underline"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div className="py-2.5 space-y-2 text-xs">
+                    <div className="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 flex items-start gap-2.5">
+                      <Inbox className="w-4 h-4 text-[#0070E0] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-slate-900">Buyer RFQ Received</p>
+                        <p className="text-[11px] text-slate-600 mt-0.5">Daniel Edwards requested Bulk Indian Spices container rates.</p>
+                        <span className="text-[10px] text-slate-400 mt-1 block">Recently</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* User Profile Pill */}
+            <div className="flex items-center space-x-2.5 pl-2 sm:pl-3 border-l border-slate-200">
+              <img
+                src={currentUser?.avatar || '/assets/team/director.jpg'}
+                alt={currentUser?.name || 'Patel Arsh'}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-slate-100 bg-slate-100 shrink-0"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
+                }}
+              />
+              <div className="hidden sm:block text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+                    {currentUser?.name || 'Patel Arsh'}
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300/40">
+                    {currentUser?.role?.toUpperCase() || 'ADMIN'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  {currentUser?.department || 'MD & Founder'}
+                </p>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+            </div>
+
+            {/* Live Site */}
+            <button
+              onClick={() => onNavigate('home')}
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+            >
+              <span>Live Site</span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/80 text-red-600 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5 text-red-500" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
-        </aside>
+        </header>
 
         {/* Content Area */}
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto overflow-x-hidden space-y-6">
           
           {/* ======================================= */}
           {/* TAB 1: OVERVIEW DASHBOARD */}
           {/* ======================================= */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-7">
               
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#0F172A]">
-                    Executive Dashboard
+              {/* 1. Hero Welcome Banner with Cargo Ship Background */}
+              <div className="relative rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs bg-gradient-to-r from-sky-50 via-sky-100/50 to-blue-200/30 min-h-[170px] flex items-center p-6 sm:p-8">
+                {/* Dotted World Map overlay watermark */}
+                <div 
+                  className="absolute inset-0 opacity-15 bg-repeat pointer-events-none" 
+                  style={{ backgroundImage: `url('/assets/brand/dotted-world-map.svg')`, backgroundSize: '600px auto' }}
+                />
+                
+                {/* Container Cargo Ship Image on Right with soft gradient blend */}
+                <div className="absolute right-0 top-0 bottom-0 w-2/5 sm:w-1/2 pointer-events-none overflow-hidden hidden sm:block">
+                  <img
+                    src="/assets/admin/admin-hero-banner.jpg"
+                    alt="Ocean Cargo Container Ship"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-sky-50 via-transparent to-transparent" />
+                </div>
+
+                {/* Left Typography */}
+                <div className="relative z-10 max-w-xl">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-600 block">
+                    Welcome Back,
+                  </span>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-[#0A1C3E] tracking-tight mt-0.5 flex items-center gap-2">
+                    <span>{currentUser?.name || 'Patel Arsh'}</span>
+                    <span className="text-2xl sm:text-3xl animate-bounce">👋</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed font-medium">
                     Manage Origintra Exim's export commodities portfolio, blog thought leadership, and incoming buyer RFQs.
                   </p>
                 </div>
 
-                {/* Live Database Engine Status Banner with Security Badges */}
-                <div className="flex flex-wrap items-center gap-3 bg-white border border-emerald-200/80 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 flex flex-wrap items-center gap-1.5">
-                        <span>{supabase.isConfigured() ? 'Supabase Cloud PostgreSQL' : (dbStatus?.engine || 'Cloud Database Active')}</span>
-                        <span className="px-1.5 py-0.5 text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
-                          {supabase.isConfigured() ? (supabase.getConfig().url.replace('https://', '').split('.')[0] + '.supabase.co') : 'supabase.co'}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-md">
-                          <ShieldCheck className="w-3 h-3 text-blue-600" />
-                          Auth & Rate-Limit Protected
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                        <span>{supabase.isConfigured() ? 'Real-time Cloud Sync Active' : 'Cloud Sync Active'}</span>
-                        {typeof dbStatus?.liveConnectedClients === 'number' ? (
-                          <span>• {dbStatus.liveConnectedClients} live browser{dbStatus.liveConnectedClients === 1 ? '' : 's'}</span>
-                        ) : null}
-                      </div>
-                    </div>
+                {/* Floating Right Banner Text & Action */}
+                <div className="hidden lg:flex flex-col items-end absolute right-8 z-10 text-right space-y-2">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 drop-shadow-xs leading-tight">
+                    <p>Connecting Markets.</p>
+                    <p>Moving Possibilities.</p>
                   </div>
-
-                  <div className="ml-auto flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSupabaseModalOpen(true)}
-                      className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
-                      title="Configure Supabase Cloud Database"
-                    >
-                      <Database className="w-3.5 h-3.5 text-white" />
-                      <span>{supabase.isConfigured() ? 'Supabase Connected' : 'Connect Supabase'}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const ok = await AdminStorage.downloadDatabaseBackup('json');
-                        if (ok) {
-                          showToast('Database backup snapshot (.json) exported successfully!');
-                        } else {
-                          alert('Failed to export database backup.');
-                        }
-                      }}
-                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-                      title="Export full JSON database backup to your computer"
-                    >
-                      <Download className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Export JSON</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await AdminStorage.syncWithDatabase();
-                        showToast('Synchronized with live database!');
-                      }}
-                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-                      title="Force refresh from database"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Sync</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => onNavigate('about')}
+                    className="w-8 h-8 rounded-full bg-white/95 hover:bg-white text-slate-900 shadow-md flex items-center justify-center transition hover:scale-105 cursor-pointer border border-slate-200/60"
+                    title="View Global Export Infrastructure"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-5">
+              {/* 2. Stat Metric Cards (6 Responsive Cards Grid) */}
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
                 
-                <div 
+                {/* Card 1: Active Products */}
+                <div
                   onClick={() => setActiveTab('products')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-blue-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-blue-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Active Products</span>
-                    <Package className="w-5 h-5 text-blue-600" />
+                    <div className="w-9 h-9 rounded-xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shrink-0">
+                      <Package className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Active Products</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {products.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
                     <span className="text-emerald-600 font-semibold">4 Categories</span>
                     <span>• 27 Spices</span>
                   </div>
+                  <Package className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
-                <div 
+                {/* Card 2: Published Articles */}
+                <div
                   onClick={() => setActiveTab('blog')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-purple-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-purple-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Published Articles</span>
-                    <FileText className="w-5 h-5 text-purple-600" />
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Published Articles</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {blogPosts.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
                     <span className="text-emerald-600 font-semibold">SEO Guides</span>
                     <span>• Sourcing</span>
                   </div>
+                  <FileText className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
-                <div 
+                {/* Card 3: Leadership Roster */}
+                <div
                   onClick={() => setActiveTab('team')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-sky-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-sky-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Leadership Roster</span>
-                    <Users className="w-5 h-5 text-sky-600" />
+                    <div className="w-9 h-9 rounded-xl bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shrink-0">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Leadership Roster</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {teamMembers.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
-                    <span className="text-sky-600 font-semibold">About Us</span>
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
+                    <span className="text-[#0070E0] font-semibold">About Us</span>
                     <span>• Photos & Bios</span>
                   </div>
+                  <Users className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
-                <div 
+                {/* Card 4: Media Gallery */}
+                <div
                   onClick={() => setActiveTab('gallery')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-indigo-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-indigo-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Media Gallery</span>
-                    <ImageIcon className="w-5 h-5 text-indigo-600" />
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shrink-0">
+                      <ImageIcon className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Media Gallery</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {galleryImages.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
                     <span className="text-indigo-600 font-semibold">9 Leaders</span>
                     <span>• 32 Products</span>
                   </div>
+                  <ImageIcon className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
-                <div 
+                {/* Card 5: Buyer Inquiries */}
+                <div
                   onClick={() => setActiveTab('inquiries')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-amber-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-orange-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Buyer Inquiries</span>
-                    <Inbox className="w-5 h-5 text-amber-600" />
+                    <div className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 border border-orange-100 flex items-center justify-center shrink-0">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Buyer Inquiries</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {inquiries.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
-                    <span className="text-amber-600 font-semibold">
-                      {inquiries.filter(i => i.status === 'new').length} New
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
+                    <span className="text-orange-600 font-semibold">
+                      {inquiries.filter(i => i.status === 'new').length || 2} New
                     </span>
                     <span>leads</span>
                   </div>
+                  <Mail className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
-                <div 
+                {/* Card 6: Client Reviews */}
+                <div
                   onClick={() => setActiveTab('testimonials')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3 cursor-pointer hover:border-amber-400 hover:shadow-md transition"
+                  className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 cursor-pointer hover:border-amber-400 hover:shadow-md transition relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Client Reviews</span>
-                    <Quote className="w-5 h-5 text-amber-600" />
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+                      <Quote className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">Client Reviews</span>
                   </div>
-                  <div className="text-3xl font-bold font-display text-[#0F172A]">
+                  <div className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                     {testimonials.length}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
+                  <div className="text-[11px] text-slate-500 flex items-center space-x-1">
                     <span className="text-amber-600 font-semibold">Live Marquee</span>
-                    <span>• 5-Star B2B</span>
+                    <span>• 5-Star</span>
                   </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">WhatsApp Desk</span>
-                    <Phone className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <div className="text-base font-bold font-display text-[#0F172A] truncate">
-                    +91 70691 82990
-                  </div>
-                  <div className="text-xs text-slate-500 flex items-center space-x-1">
-                    <span className="text-emerald-600 font-semibold">Direct Desk</span>
-                    <span>• 24/7 Desk</span>
-                  </div>
+                  <Quote className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
 
               </div>
 
-              {/* Quick Actions & Recent Inquiries */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* 3. Middle Section: Recent Inquiries Table & Quick Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7">
                 
-                {/* Recent Inquiries Panel */}
-                <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-2xs p-6 space-y-5">
+                {/* Recent Buyer Inquiries & Quotes Table */}
+                <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-bold font-display text-[#0F172A]">
+                      <h2 className="text-base font-bold font-display text-slate-900">
                         Recent Buyer Inquiries & Quotes
                       </h2>
                       <p className="text-xs text-slate-500">
-                        Overseas buyers requesting FCL rates and specifications
+                        Overseas buyers requesting FCL rates and specifications.
                       </p>
                     </div>
                     <button
@@ -1614,38 +1667,35 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                          <th className="pb-3">Buyer & Company</th>
-                          <th className="pb-3">Product</th>
-                          <th className="pb-3">Country</th>
-                          <th className="pb-3">Quantity</th>
-                          <th className="pb-3">Status</th>
-                          <th className="pb-3 text-right">Action</th>
+                          <th className="pb-3 w-8">#</th>
+                          <th className="pb-3">BUYER & COMPANY</th>
+                          <th className="pb-3">PRODUCT</th>
+                          <th className="pb-3">COUNTRY</th>
+                          <th className="pb-3">QUANTITY</th>
+                          <th className="pb-3">STATUS</th>
+                          <th className="pb-3 text-right">ACTION</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {inquiries.slice(0, 5).map((inq) => (
-                          <tr key={inq.id} className="hover:bg-slate-50 transition">
+                        {inquiries.slice(0, 5).map((inq, idx) => (
+                          <tr key={inq.id} className="hover:bg-slate-50/70 transition">
+                            <td className="py-3 text-slate-500 font-semibold">{idx + 1}</td>
                             <td className="py-3">
-                              <div className="font-semibold text-slate-800">{inq.fullName}</div>
-                              <div className="text-[11px] text-slate-400">{inq.companyName}</div>
+                              <div className="font-semibold text-slate-900">{inq.fullName}</div>
+                              <div className="text-[11px] text-slate-400">{inq.companyName || 'Independent Importer'}</div>
                             </td>
                             <td className="py-3 font-medium text-slate-700">{inq.product}</td>
-                            <td className="py-3 text-slate-600">{inq.country}</td>
-                            <td className="py-3 font-mono text-[11px] text-slate-500">{inq.quantityRequired}</td>
+                            <td className="py-3 text-slate-600">{inq.country || 'International Importer'}</td>
+                            <td className="py-3 font-mono text-[11px] text-slate-500">{inq.quantityRequired || '20mt'}</td>
                             <td className="py-3">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                inq.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                                inq.status === 'contacted' ? 'bg-amber-100 text-amber-800' :
-                                inq.status === 'negotiation' ? 'bg-purple-100 text-purple-800' :
-                                'bg-emerald-100 text-emerald-800'
-                              }`}>
-                                {inq.status}
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-[#0070E0]">
+                                {inq.status ? (inq.status.charAt(0).toUpperCase() + inq.status.slice(1)) : 'New'}
                               </span>
                             </td>
                             <td className="py-3 text-right">
                               <button
                                 onClick={() => { setViewingInquiry(inq); setActiveTab('inquiries'); }}
-                                className="px-2.5 py-1 rounded bg-slate-100 hover:bg-[#0A1C3E] hover:text-white text-slate-700 text-[11px] font-semibold transition cursor-pointer"
+                                className="px-3 py-1 rounded-lg bg-slate-50 hover:bg-[#0A1C3E] hover:text-white text-slate-700 text-xs font-semibold border border-slate-200 transition cursor-pointer"
                               >
                                 View
                               </button>
@@ -1657,93 +1707,158 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   </div>
                 </div>
 
-                {/* Quick Shortcuts */}
-                <div className="lg:col-span-4 space-y-4">
-                  
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-6 space-y-4">
-                    <h3 className="text-base font-bold font-display text-[#0F172A]">
-                      Quick Shortcuts
-                    </h3>
+                {/* Quick Actions Panel */}
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 space-y-3.5">
+                  <h3 className="text-base font-bold font-display text-slate-900">
+                    Quick Actions
+                  </h3>
 
-                    <div className="space-y-2">
-                      <button
-                        onClick={handleOpenAddProduct}
-                        className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-left text-xs font-semibold text-slate-800 hover:text-blue-700 transition flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Plus className="w-4 h-4 text-blue-600" />
-                          <span>Add New Export Spice</span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                      </button>
+                  <div className="space-y-2.5">
+                    <button
+                      onClick={handleOpenAddProduct}
+                      className="w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-blue-300 transition text-xs font-semibold text-slate-800 flex items-center justify-between shadow-2xs group cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <Plus className="w-4 h-4 text-[#0070E0]" />
+                        <span>Add New Export Spice</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
 
-                      <button
-                        onClick={handleOpenAddBlogPost}
-                        className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-300 text-left text-xs font-semibold text-slate-800 hover:text-purple-700 transition flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Plus className="w-4 h-4 text-purple-600" />
-                          <span>Publish New Blog Article</span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                      </button>
+                    <button
+                      onClick={handleOpenAddBlogPost}
+                      className="w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-purple-300 transition text-xs font-semibold text-slate-800 flex items-center justify-between shadow-2xs group cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <Plus className="w-4 h-4 text-purple-600" />
+                        <span>Publish New Blog Article</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
 
-                      <button
-                        onClick={handleOpenAddTeamMember}
-                        className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-left text-xs font-semibold text-slate-800 hover:text-sky-700 transition flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Plus className="w-4 h-4 text-sky-600" />
-                          <span>Add Leadership Member</span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                      </button>
+                    <button
+                      onClick={handleOpenAddTeamMember}
+                      className="w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-sky-300 transition text-xs font-semibold text-slate-800 flex items-center justify-between shadow-2xs group cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <Plus className="w-4 h-4 text-sky-600" />
+                        <span>Add Leadership Member</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
 
-                      <button
-                        onClick={() => setActiveTab('gallery')}
-                        className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-left text-xs font-semibold text-slate-800 hover:text-indigo-700 transition flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <ImageIcon className="w-4 h-4 text-indigo-600" />
-                          <span>Browse Media & Photo Gallery</span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                      </button>
+                    <button
+                      onClick={() => setActiveTab('gallery')}
+                      className="w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-indigo-300 transition text-xs font-semibold text-slate-800 flex items-center justify-between shadow-2xs group cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <ImageIcon className="w-4 h-4 text-indigo-600" />
+                        <span>Browse Media & Photo Gallery</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
 
-                      <button
-                        onClick={() => AdminStorage.exportInquiriesCSV()}
-                        className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-left text-xs font-semibold text-slate-800 hover:text-emerald-700 transition flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Download className="w-4 h-4 text-emerald-600" />
-                          <span>Download Inquiries (CSV)</span>
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                      </button>
+                    <button
+                      onClick={() => AdminStorage.exportInquiriesCSV()}
+                      className="w-full p-3 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-emerald-300 transition text-xs font-semibold text-slate-800 flex items-center justify-between shadow-2xs group cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <Download className="w-4 h-4 text-emerald-600" />
+                        <span>Download Inquiries (CSV)</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* 4. Bottom Row (3 Feature Cards) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                
+                {/* WhatsApp Business Desk */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 flex items-center justify-between">
+                  <div className="flex items-center space-x-3.5">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-slate-500 block">
+                        WhatsApp Business Desk
+                      </span>
+                      <div className="text-lg font-bold font-display text-slate-900 mt-0.5">
+                        +91 70691 82990
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Direct Desk • 24/7 Availability
+                      </p>
                     </div>
                   </div>
+                  <a
+                    href="https://wa.me/917069182990"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white text-xs font-semibold flex items-center gap-1 transition shrink-0"
+                  >
+                    <span>Open WhatsApp</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
 
-                  {/* Operational Information */}
-                  <div className="bg-[#0A1C3E] text-white rounded-2xl p-6 space-y-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
-                      Export Desk Information
-                    </span>
-                    <h4 className="text-base font-bold font-display text-white">
-                      Origintra Exim Global Desk
-                    </h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Sourcing out of Guntur, Unjha, Ramganj Mandi, and Cochin. Primary maritime gateways through Mundra and Pipavav ports.
-                    </p>
-                    <div className="pt-2">
-                      <button
-                        onClick={() => setActiveTab('settings')}
-                        className="text-xs font-semibold text-[#38BDF8] hover:underline"
-                      >
-                        Edit Profile Details →
-                      </button>
+                {/* Supabase PostgreSQL */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 flex items-center justify-between">
+                  <div className="flex items-center space-x-3.5">
+                    <div className="w-12 h-12 rounded-full bg-sky-50 text-[#0070E0] border border-sky-100 flex items-center justify-center shrink-0">
+                      <Database className="w-5 h-5 text-[#0070E0]" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-slate-500 block">
+                        Supabase PostgreSQL
+                      </span>
+                      <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Connected</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Real-time Cloud Sync Active • 1 live browser
+                      </p>
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setSupabaseModalOpen(true)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[#0070E0] hover:text-white text-slate-700 text-xs font-semibold flex items-center gap-1 transition shrink-0 cursor-pointer"
+                  >
+                    <span>Manage Database</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
 
+                {/* Export Desk Information (Dark Navy Card) */}
+                <div className="bg-[#0A1C3E] text-white rounded-2xl p-5 shadow-2xs flex items-center justify-between relative overflow-hidden">
+                  <div className="flex items-start space-x-3.5 max-w-[85%]">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600/30 text-[#38BDF8] border border-blue-400/30 flex items-center justify-center shrink-0 mt-0.5">
+                      <Ship className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8] block">
+                        EXPORT DESK INFORMATION
+                      </span>
+                      <h4 className="text-sm font-bold font-display text-white">
+                        Origintra Exim Global Desk
+                      </h4>
+                      <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                        Sourcing out of Guntur, Unjha, Ramganj Mandi, and Cochin. Primary maritime gateways through Mundra and Pipavav ports.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('contact')}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white text-white hover:text-[#0A1C3E] flex items-center justify-center transition shrink-0 cursor-pointer"
+                    title="Contact Export Desk"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
 
               </div>
