@@ -106,7 +106,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       alt: 'Origintra Exim premium whole spices and export agricultural assortment',
       badge: 'Premier Spices Exporter',
       eyebrow: 'Premier Spices Exporter in India • Multi-Commodity FCL',
-      headline: 'Connecting India’s Finest Spices to the World',
+      headline: 'Premier Spices Exporter in India',
       subline: 'Spices Exporter in India — Whole Seeds, Pure Powders & Blends',
       description: 'From prime whole pods and Sortex-cleaned seeds to ultra-fine pulverized powders, Origintra Exim connects international importers, food processors, and re-packers directly to certified Indian agricultural belts.',
       mobileTitle: {
