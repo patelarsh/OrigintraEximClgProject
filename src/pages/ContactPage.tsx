@@ -23,22 +23,6 @@ interface ContactPageProps {
   onOpenQuote: () => void;
 }
 
-const COMMODITIES = [
-  'Select commodity of interest...',
-  'Turmeric (Salem / Erode Whole Fingers & Powder)',
-  'Red Chilli (S17 Teja Stemless, Sanam, Powder)',
-  'Cumin Seeds (Unjha Machine Cleaned & Sortex 99.5%)',
-  'Coriander Seeds (Eagle, Scooter & Ground Powder)',
-  'Black Pepper (Malabar 550 - 580 GL & Powder)',
-  'Green Cardamom (Alleppey Bold 7mm - 8mm)',
-  'Cloves (Handpicked Whole Lal Pari)',
-  'Cinnamon (Ceylon Pure Quills)',
-  'Mustard Seeds & Fenugreek Seeds',
-  'Commercial Spice Blends (Garam Masala, Curry Powder)',
-  'Organic Moringa Oleifera Leaf Powder',
-  'Custom Agro-Commodity Contract Sourcing'
-];
-
 export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuote }) => {
   const COMPANY_CONFIG = useCompanyConfig();
   const [formData, setFormData] = useState({
@@ -448,25 +432,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                       </label>
                       <input
                         type="text"
-                        list="spice-suggestions"
                         placeholder="e.g. S17 Teja, Whole with Stem"
                         value={formData.spiceAndGrade}
                         onChange={(e) => setFormData({ ...formData, spiceAndGrade: e.target.value })}
                         className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
-                      <datalist id="spice-suggestions">
-                        <option value="S17 Teja Red Chilli, Whole with Stem" />
-                        <option value="S17 Teja Red Chilli, Stemless" />
-                        <option value="Salem Turmeric Fingers (3.5% Curcumin)" />
-                        <option value="Erode Turmeric Fingers" />
-                        <option value="Unjha Cumin Seeds (Sortex 99.5% Purity)" />
-                        <option value="Eagle Coriander Seeds (Whole)" />
-                        <option value="Malabar Black Pepper (550 GL / 580 GL)" />
-                        <option value="Alleppey Green Cardamom (7mm - 8mm Bold)" />
-                        <option value="Handpicked Lal Pari Cloves" />
-                        <option value="Ceylon Pure Cinnamon Quills" />
-                        <option value="Organic Moringa Leaf Powder" />
-                      </datalist>
                     </div>
                   </div>
 
