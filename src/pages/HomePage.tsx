@@ -104,10 +104,10 @@ export const HomePage: React.FC<HomePageProps> = ({
       tabletImage: '/assets/hero/spices-hero-banner-tablet.webp',
       mobileImage: '/assets/hero/hero-mobile-spices.jpg',
       alt: 'Origintra Exim premium whole spices and export agricultural assortment',
-      badge: 'All Indian Spices',
-      eyebrow: 'Direct Farmgate Sourcing • Multi-Commodity FCL',
+      badge: 'Premier Spices Exporter',
+      eyebrow: 'Premier Spices Exporter in India • Multi-Commodity FCL',
       headline: 'Connecting India’s Finest Spices to the World',
-      subline: 'Whole Seed Spices, Pure Ground Powders & Custom Sourcing',
+      subline: 'Spices Exporter in India — Whole Seeds, Pure Powders & Blends',
       description: 'From prime whole pods and Sortex-cleaned seeds to ultra-fine pulverized powders, Origintra Exim connects international importers, food processors, and re-packers directly to certified Indian agricultural belts.',
       mobileTitle: {
         line1: 'Connecting India’s Finest',
