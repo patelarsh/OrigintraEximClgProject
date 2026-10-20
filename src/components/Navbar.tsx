@@ -226,10 +226,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <img
               src="/assets/logo/logo-full-color.webp"
               alt="Origintra Exim — Connecting Markets. Moving Possibilities."
-              width="144"
+              width="170"
               height="48"
               fetchPriority="high"
               className="w-auto h-10 sm:h-11 max-h-11 object-contain transition-opacity duration-200 group-hover:opacity-90"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/logo/logo-full-color.png';
+              }}
             />
           </a>
 
