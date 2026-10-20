@@ -12,6 +12,7 @@ export interface CompanyConfig {
   whatsappDisplay: string;
   whatsappUrl: string;
   calendlyUrl: string;
+  googleMapsUrl?: string;
   headOffice: {
     title: string;
     street: string;
@@ -55,6 +56,7 @@ export const COMPANY_CONFIG: CompanyConfig = {
   whatsappDisplay: '+91 70691 82990',
   whatsappUrl: 'https://wa.me/917069182990?text=Hello%20Origintra%20Exim,%20I%20am%20interested%20in%20sourcing%20quality%20spices.',
   calendlyUrl: 'https://calendly.com/origintraexim/30min',
+  googleMapsUrl: 'https://maps.app.goo.gl/Yay1MwEGyTEiQhMu6',
   instagramUrl: 'https://www.instagram.com/origintra.exim/',
   facebookUrl: 'https://www.facebook.com/origintra.exim',
   linkedinUrl: 'https://www.linkedin.com/company/origintra-exim',

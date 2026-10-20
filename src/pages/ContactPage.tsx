@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   Building,
   Copy,
-  Check
+  Check,
+  ExternalLink
 } from 'lucide-react';
 import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { AdminStorage } from '../services/adminStorage';
@@ -223,54 +224,64 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
               </div>
 
-              {/* Maritime Ports & Sourcing Hubs */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-4">
-                
-                <div className="flex items-center space-x-2 text-slate-900">
-                  <Anchor className="w-4 h-4 text-[#0070E0]" />
-                  <h3 className="text-sm font-display font-bold">
-                    Export Ports & Mandi Procurement
-                  </h3>
+              {/* Google Map Location */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs space-y-0">
+                <div className="p-5 sm:p-6 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5 text-slate-900">
+                      <div className="w-8 h-8 rounded-lg bg-sky-50 text-[#0070E0] flex items-center justify-center border border-sky-100">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-display font-bold text-slate-900">
+                          Office & Facility Location
+                        </h3>
+                        <p className="text-[11px] text-slate-500">
+                          Origintra Exim • Gujarat Export Hub
+                        </p>
+                      </div>
+                    </div>
+
+                    <a
+                      href="https://maps.app.goo.gl/Yay1MwEGyTEiQhMu6"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-[#0070E0] text-[#0070E0] hover:text-white text-xs font-semibold border border-sky-100 transition-all cursor-pointer group"
+                    >
+                      <span>Directions</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
 
-                <div className="space-y-3 text-xs text-slate-600">
-                  
-                  <div className="flex items-start justify-between pb-2 border-b border-slate-100">
-                    <div>
-                      <span className="font-semibold text-slate-800 block">Mundra Port</span>
-                      <span className="text-[11px] text-slate-500">Dry & Reefer FCL • Spices & Seeds</span>
-                    </div>
-                    <span className="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                      INMUN1
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between pb-2 border-b border-slate-100">
-                    <div>
-                      <span className="font-semibold text-slate-800 block">JNPT Nhava Sheva</span>
-                      <span className="text-[11px] text-slate-500">Ocean Liners • Direct European & US Freight</span>
-                    </div>
-                    <span className="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                      INNSA1
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="font-semibold text-slate-800 block">Cochin Port</span>
-                      <span className="text-[11px] text-slate-500">Malabar Black Pepper & Alleppey Cardamom</span>
-                    </div>
-                    <span className="font-mono text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                      INCOK1
-                    </span>
-                  </div>
-
+                {/* Interactive Map Embed */}
+                <div className="relative w-full h-64 sm:h-72 bg-slate-100 border-y border-slate-200/80">
+                  <iframe
+                    title="Origintra Exim Google Map Location"
+                    src="https://maps.google.com/maps?q=Origintra%20Exim,%20Ahmedabad,%20Gujarat&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 leading-relaxed">
-                  Direct Mandi Sourcing: Unjha (Gujarat), Guntur (Andhra Pradesh), Ramganj Mandi (Rajasthan), and Idukki (Kerala).
+                {/* Map Footer Link */}
+                <div className="p-4 sm:p-5 bg-slate-50/70 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-1.5 text-slate-600">
+                    <MapPin className="w-3.5 h-3.5 text-[#0070E0] shrink-0" />
+                    <span className="truncate max-w-[200px] text-slate-700 font-medium">Ahmedabad / Gujarat Hubs</span>
+                  </div>
+                  <a
+                    href="https://maps.app.goo.gl/Yay1MwEGyTEiQhMu6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#0070E0] hover:underline font-bold flex items-center space-x-1 shrink-0"
+                  >
+                    <span>Open in Google Maps</span>
+                    <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+                  </a>
                 </div>
-
               </div>
 
               {/* Regulatory Accreditations */}
