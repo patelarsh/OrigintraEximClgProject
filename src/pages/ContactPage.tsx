@@ -295,14 +295,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
             </div>
 
             {/* Right Column: Commercial Enquiry Form matching user mockup */}
-            <div className="lg:col-span-7 bg-[#F5F3F0] rounded-2xl sm:rounded-3xl border border-[#E7E4DF] p-6 sm:p-10 shadow-xs">
+            <div className="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-xs">
               
-              <div className="border-b border-[#E0DEDA] pb-5 mb-7 sm:mb-8">
-                <span className="text-[#F77036] text-[11px] sm:text-xs font-bold uppercase tracking-wider block mb-1">
+              <div className="border-b border-slate-100 pb-5 mb-7 sm:mb-8">
+                <span className="text-[#0070E0] text-[11px] sm:text-xs font-bold uppercase tracking-wider block mb-1">
                   Export Trade Desk • Direct Enquiry
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight">
-                  Commercial Quotation & Inquiries<span className="text-[#F77036]">.</span>
+                  Commercial Quotation & Inquiries<span className="text-[#0070E0]">.</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
                   Submit your spice parameters below. Our trade desk coordinates official FOB/CIF quotations, COA laboratory specs, and container schedules within 24 hours.
@@ -341,7 +341,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                           honeypot: ''
                         });
                       }}
-                      className="px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                      className="px-5 py-2.5 text-xs font-semibold text-white bg-[#0070E0] hover:bg-[#005bb5] rounded-lg transition cursor-pointer"
                     >
                       Submit Another Enquiry
                     </button>
@@ -372,7 +372,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Row 1: FULL NAME * & COMPANY * */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         FULL NAME *
                       </label>
                       <input
@@ -380,12 +380,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         COMPANY *
                       </label>
                       <input
@@ -393,7 +393,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         required
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Row 2: EMAIL ADDRESS * & PHONE NUMBER * */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         EMAIL ADDRESS *
                       </label>
                       <input
@@ -409,12 +409,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         PHONE NUMBER *
                       </label>
                       <input
@@ -423,7 +423,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         placeholder="e.g. +1 415 555 2671"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400/90 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
                   </div>
@@ -431,19 +431,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Row 3: DESTINATION PORT & SPICE AND GRADE */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         DESTINATION PORT
                       </label>
                       <input
                         type="text"
                         value={formData.destinationPort}
                         onChange={(e) => setFormData({ ...formData, destinationPort: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400/90 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         SPICE AND GRADE
                       </label>
                       <input
@@ -452,7 +452,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         placeholder="e.g. S17 Teja, Whole with Stem"
                         value={formData.spiceAndGrade}
                         onChange={(e) => setFormData({ ...formData, spiceAndGrade: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400/90 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                       <datalist id="spice-suggestions">
                         <option value="S17 Teja Red Chilli, Whole with Stem" />
@@ -473,7 +473,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Row 4: VOLUME */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                         VOLUME
                       </label>
                       <input
@@ -481,7 +481,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                         placeholder="e.g. 15 Metric Tons"
                         value={formData.volume}
                         onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400/90 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
                       />
                     </div>
                     <div className="hidden sm:block">
@@ -491,7 +491,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
                   {/* Row 5: ADDITIONAL NOTES */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#F77036]">
+                    <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
                       ADDITIONAL NOTES
                     </label>
                     <textarea
@@ -499,12 +499,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                       placeholder="Mention any specific packaging or certification needs..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full bg-transparent border-0 border-b border-[#E0DEDA] focus:border-[#F77036] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-stone-400/90 text-sm sm:text-base outline-none transition-colors duration-200 resize-y min-h-[80px] font-medium"
+                      className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 resize-y min-h-[80px] font-medium"
                     />
                   </div>
 
                   {/* Footer & Submit */}
-                  <div className="pt-6 border-t border-[#E0DEDA] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <p className="text-[11px] text-stone-500">
                       * Required fields. Inquiries handled under strict commercial trade confidentiality.
                     </p>
@@ -512,7 +512,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#F77036] hover:bg-[#e05e26] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-orange-500/25 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-70 active:scale-95"
+                      className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-blue-500/25 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-70 active:scale-95"
                     >
                       {isSubmitting ? (
                         <>
@@ -534,7 +534,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     <button
                       type="button"
                       onClick={onOpenQuote}
-                      className="text-[#F77036] font-semibold hover:underline inline-block cursor-pointer"
+                      className="text-[#0070E0] font-semibold hover:underline inline-block cursor-pointer"
                     >
                       Open 3D Shipping Calculator →
                     </button>
