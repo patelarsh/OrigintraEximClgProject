@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
             <div className="hidden lg:flex items-center space-x-1.5 text-slate-300 shrink-0">
               <Clock className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
-              <span>Mon – Sat: 10:00 – 18:00 IST</span>
+              <span>Mon – Sat: {COMPANY_CONFIG.businessHours?.hours || '09:00 – 18:30 IST'}</span>
             </div>
 
             {/* Mobile-only quick phone link */}
@@ -787,7 +787,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
                 <span className="flex items-center space-x-1 text-slate-400">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>10:00 - 18:00 IST</span>
+                  <span>{COMPANY_CONFIG.businessHours?.hours || '09:00 – 18:30 IST'}</span>
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1 text-slate-400">

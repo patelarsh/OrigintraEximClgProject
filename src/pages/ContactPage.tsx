@@ -208,7 +208,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     <div>
                       <p className="font-semibold text-slate-900">Operating Schedule</p>
                       <p className="text-xs text-slate-600 mt-0.5">
-                        Monday to Saturday: 09:00 – 18:30 IST (UTC+05:30)
+                        {COMPANY_CONFIG.businessHours?.days || 'Monday to Saturday'}: {COMPANY_CONFIG.businessHours?.hours || '09:00 – 18:30 IST'} (UTC+05:30)
                       </p>
                       <p className="text-[11px] text-slate-400 mt-0.5">
                         Commercial inquiries acknowledged within one business day.
