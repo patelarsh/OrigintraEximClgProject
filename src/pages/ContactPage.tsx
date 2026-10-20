@@ -285,29 +285,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
             {/* Right Column: Commercial Enquiry Form matching exact mockup */}
             <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
               
-              {/* Header Dark Spice Banner */}
-              <div className="bg-[#091C35] text-white relative overflow-hidden">
-                {/* Spices Background Photography (clean image with zero ghost text) */}
-                <div className="absolute inset-0 pointer-events-none select-none">
-                  <img 
-                    src="/assets/contact-banner-spices.webp" 
-                    alt="Indian Spices Sourcing Selection" 
-                    className="w-full h-full object-cover object-right"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#091C35] via-[#091C35]/85 to-transparent sm:via-[#091C35]/75" />
-                </div>
-
-                <div className="p-6 sm:p-8 relative z-10 max-w-xl">
-                  <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#38BDF8] block mb-1.5">
-                    Export Trade Desk • Direct Enquiry
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
-                    Commercial Quotation & Inquiries<span className="text-[#38BDF8]">.</span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                    Submit your spice parameters below. Our trade desk coordinates official FOB/CIF quotations, COA laboratory specs, and container schedules within 24 hours.
-                  </p>
-                </div>
+              {/* Header Theme Banner (Solid brand navy theme color, no bg image) */}
+              <div className="bg-[#0A1C3E] text-white p-6 sm:p-8">
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#38BDF8] block mb-1.5">
+                  Export Trade Desk • Direct Enquiry
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                  Commercial Quotation & Inquiries<span className="text-[#38BDF8]">.</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed max-w-2xl">
+                  Submit your spice parameters below. Our trade desk coordinates official FOB/CIF quotations, COA laboratory specs, and container schedules within 24 hours.
+                </p>
               </div>
 
               {/* Form Body Area */}
