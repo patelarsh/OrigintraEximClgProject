@@ -224,14 +224,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Origintra Exim — Home"
           >
             <img
-              src="/assets/logo/logo-full-color.webp"
+              src="/assets/logo/origintra-official-logo.webp?v=2"
               alt="Origintra Exim — Connecting Markets. Moving Possibilities."
-              width="170"
+              width="175"
               height="48"
               fetchPriority="high"
-              className="w-auto h-10 sm:h-11 max-h-11 object-contain transition-opacity duration-200 group-hover:opacity-90"
+              className="w-auto h-10 sm:h-12 max-h-12 object-contain transition-opacity duration-200 group-hover:opacity-90"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/logo/logo-full-color.png';
+                (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
               }}
             />
           </a>

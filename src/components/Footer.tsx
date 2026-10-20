@@ -87,7 +87,7 @@ export const Footer: React.FC<FooterProps> = ({
                 className="inline-block group"
               >
                 <img
-                  src="/assets/logo/logo-full-white.webp"
+                  src="/assets/logo/origintra-official-white.webp?v=2"
                   alt="Origintra Exim — Connecting Markets. Moving Possibilities."
                   width="180"
                   height="56"
@@ -95,7 +95,7 @@ export const Footer: React.FC<FooterProps> = ({
                   decoding="async"
                   className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/logo/logo-full-white.png';
+                    (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-white.png?v=2';
                   }}
                 />
               </a>

@@ -911,11 +911,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             {/* Card Header with Centered Official Logo */}
             <div className="text-center">
               <img
-                src="/assets/logo/origintra-admin-logo.webp"
+                src="/assets/logo/origintra-official-logo.webp?v=2"
                 alt="Origintra Exim"
                 className="h-12 sm:h-14 w-auto mx-auto object-contain mb-3"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
+                  (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
                 }}
               />
               
@@ -1065,11 +1065,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         <div className="h-[70px] px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center">
             <img
-              src="/assets/logo/origintra-admin-logo.webp"
+              src="/assets/logo/origintra-official-logo.webp?v=2"
               alt="Origintra Exim"
               className="h-10 sm:h-11 w-auto max-w-[185px] object-contain block"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
+                (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
               }}
             />
           </div>
@@ -1310,11 +1310,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </button>
 
             <img
-              src="/assets/logo/origintra-admin-logo.webp"
+              src="/assets/logo/origintra-official-logo.webp?v=2"
               alt="Origintra Exim"
               className="h-6 sm:h-7 w-auto object-contain md:hidden shrink-0"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
+                (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
               }}
             />
 
