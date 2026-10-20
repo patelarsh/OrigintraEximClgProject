@@ -115,13 +115,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
       {/* Main Two-Column Section */}
       <section className="py-12 sm:py-16">
         <div className="container-x mx-auto max-w-[1320px]">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
             
             {/* Left Column: Official Contact Channels & Trade Desk */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 flex flex-col space-y-6">
               
               {/* Primary Office Card */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-6">
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-6 shrink-0">
                 
                 <div>
                   <h2 className="text-xl font-display font-bold text-slate-900">
@@ -221,11 +221,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
               </div>
 
               {/* Google Map Location */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs space-y-0">
-                <div className="p-5 sm:p-6 pb-4">
+              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs flex-1 flex flex-col">
+                <div className="p-5 sm:p-6 pb-4 shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2.5 text-slate-900">
-                      <div className="w-8 h-8 rounded-lg bg-sky-50 text-[#0070E0] flex items-center justify-center border border-sky-100">
+                      <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0 border border-sky-100/70">
                         <MapPin className="w-4 h-4" />
                       </div>
                       <div>
@@ -250,12 +250,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   </div>
                 </div>
 
-                {/* Interactive Map Embed */}
-                <div className="relative w-full h-64 sm:h-72 bg-slate-100 border-y border-slate-200/80">
+                {/* Interactive Map Embed (flex-1 to match exact height of form card) */}
+                <div className="relative w-full flex-1 min-h-[260px] sm:min-h-[320px] bg-slate-100 border-y border-slate-200/80">
                   <iframe
                     title="Origintra Exim Google Map Location"
                     src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d42673.10287590732!2d72.84979227910158!3d23.776796900000008!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395dafa047d489ed%3A0x2f6b731c3fb3148b!2sOrigintra%20Exim!5e1!3m2!1sen!2sus!4v1792497478534!5m2!1sen!2sus"
-                    className="w-full h-full border-0"
+                    className="w-full h-full border-0 absolute inset-0"
                     loading="lazy"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
@@ -263,7 +263,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                 </div>
 
                 {/* Map Footer Link */}
-                <div className="p-4 sm:p-5 bg-slate-50/70 flex items-center justify-between text-xs">
+                <div className="p-4 sm:p-5 bg-slate-50/70 flex items-center justify-between text-xs shrink-0">
                   <div className="flex items-center space-x-1.5 text-slate-600">
                     <MapPin className="w-3.5 h-3.5 text-[#0070E0] shrink-0" />
                     <span className="truncate max-w-[200px] text-slate-700 font-medium">Ahmedabad / Gujarat Hubs</span>
@@ -283,7 +283,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
             </div>
 
             {/* Right Column: Commercial Enquiry Form matching exact mockup */}
-            <div className="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between">
               
               {/* Header Dark Spice Banner */}
               <div className="bg-[#091C35] text-white relative overflow-hidden">
