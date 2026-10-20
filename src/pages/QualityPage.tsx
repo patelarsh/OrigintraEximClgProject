@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   CheckCircle2, 
   FileText, 
@@ -8,9 +8,12 @@ import {
   ArrowUpRight, 
   Search, 
   Layers,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  X,
+  ShieldCheck
 } from 'lucide-react';
-import { EXPORT_CERTIFICATIONS } from '../data/company';
+import { EXPORT_CERTIFICATIONS, ExportCertificate } from '../data/company';
 
 interface QualityPageProps {
   onNavigate: (page: string) => void;
@@ -18,6 +21,8 @@ interface QualityPageProps {
 }
 
 export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuote }) => {
+  const [previewCert, setPreviewCert] = useState<ExportCertificate | null>(null);
+
   const qualityPillars = [
     {
       step: '01',
@@ -108,10 +113,10 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
       </section>
 
 
-      {/* Statutory Export Accreditations & Registrations (APEDA, FSSAI, GST, IEC, Spices Board) */}
+      {/* Statutory Export Accreditations & Registrations (APEDA, FSSAI, GST, IEC, Spices Board, MSME) */}
       <section className="py-12 sm:py-20 md:py-24 bg-white border-b border-slate-200">
         <div className="container-x mx-auto max-w-[1440px]">
-          <div className="max-w-3xl mb-10 sm:mb-12">
+          <div className="max-w-3xl mb-10 sm:mb-14">
             <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
               Statutory Compliance & Legal Trade
             </span>
@@ -123,63 +128,95 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* 3x2 Grid for the 6 Statutory Certificates matching user mockup */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             {EXPORT_CERTIFICATIONS.map((cert) => (
               <div
                 key={cert.id}
-                className="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-5"
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-[0_4px_24px_-4px_rgba(0,112,224,0.06)] hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 group relative"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="h-12 w-24 bg-white rounded-lg border border-slate-200 p-1.5 flex items-center justify-center">
-                      <img src={cert.logo} alt={cert.name} className="h-full w-auto object-contain" />
-                    </div>
-                    <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#0070E0] text-[11px] font-bold border border-blue-100">
-                      {cert.badge}
+                {/* Framed Certificate Left */}
+                <div 
+                  onClick={() => setPreviewCert(cert)}
+                  className="w-[110px] sm:w-[120px] shrink-0 drop-shadow-[0_8px_18px_rgba(0,0,0,0.16)] group-hover:drop-shadow-[0_12px_24px_rgba(0,0,0,0.22)] group-hover:scale-105 transition-all duration-300 cursor-pointer relative rounded overflow-hidden"
+                  title={`Click to preview official ${cert.name} certificate`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPreviewCert(cert); } }}
+                >
+                  <img 
+                    src={cert.frameImage} 
+                    srcSet={cert.frameImage2x ? `${cert.frameImage} 1x, ${cert.frameImage2x} 2x` : undefined} 
+                    alt={`${cert.name} - ${cert.fullName}`} 
+                    className="w-full h-auto object-contain block" 
+                    loading="lazy" 
+                  />
+                  {/* Hover overlay with zoom icon */}
+                  <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <span className="bg-white/95 text-slate-900 rounded-full p-1.5 shadow-md transform scale-90 group-hover:scale-100 transition-transform">
+                      <Eye className="w-4 h-4 text-[#0070E0]" />
                     </span>
                   </div>
-
-                  <div>
-                    <h3 className="text-xl font-bold text-[#0F172A]">{cert.name}</h3>
-                    <p className="text-xs font-medium text-slate-500 mt-0.5">{cert.fullName}</p>
-                  </div>
-
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {cert.description}
-                  </p>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 truncate max-w-[190px]">{cert.authority}</span>
-                  <span className="text-emerald-700 font-bold flex items-center space-x-1 shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Verified</span>
-                  </span>
+                {/* Content Right */}
+                <div className="flex-1 flex flex-col justify-between min-h-[175px] w-full text-left">
+                  <div className="space-y-1.5">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-sky-50 text-[#0070E0] border border-sky-100/90 text-[10px] sm:text-[11px] font-bold tracking-wide">
+                      {cert.badge}
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-display font-bold text-slate-900 tracking-tight">
+                      {cert.name}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs font-semibold text-slate-500 leading-snug">
+                      {cert.fullName}
+                    </p>
+                    <p className="text-xs text-slate-600 leading-relaxed pt-1 line-clamp-4">
+                      {cert.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 mt-auto flex items-center justify-between border-t border-slate-100 text-xs">
+                    <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50 shrink-0" />
+                      <span>Verified</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewCert(cert)}
+                      className="text-slate-400 hover:text-[#0070E0] text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
 
-            {/* Custom Sourcing Dossier Card */}
-            <div className="p-6 rounded-2xl bg-[#0A1C3E] text-white shadow-md flex flex-col justify-between space-y-5">
-              <div className="space-y-3">
-                <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-[#38BDF8] text-[11px] font-bold border border-blue-400/30 inline-block">
-                  Custom Destination Protocols
-                </span>
-                <h3 className="text-xl font-bold text-white">Destination-Specific Dossiers</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Need country-specific laboratory tests (e.g. EU MRL screens, US FDA compliance, Phytosanitary Fumigation, Certificate of Origin)? Our trade compliance desk coordinates tailored export dossiers for every port of entry.
-                </p>
-              </div>
+          {/* Full-width Destination-Specific Dossiers Banner */}
+          <div className="mt-8 sm:mt-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#0A1C3E] via-[#0E244F] to-[#0A1C3E] text-white p-6 sm:p-8 shadow-xl border border-blue-950 flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-3 max-w-3xl">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-500/20 text-[#38BDF8] text-[11px] font-bold border border-blue-400/30">
+                Custom Destination Protocols
+              </span>
+              <h3 className="text-xl sm:text-2xl font-display font-bold text-white tracking-tight">
+                Destination-Specific Dossiers & Laboratory Testing
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Need country-specific laboratory tests (e.g. EU MRL multi-residue pesticide screens, US FDA compliance, Phytosanitary Fumigation, Certificate of Origin, or Halal/Kosher declarations)? Our international trade compliance desk coordinates tailored export dossiers for every port of entry.
+              </p>
+            </div>
 
-              <div className="pt-3 border-t border-slate-700">
-                <button
-                  onClick={onOpenQuote}
-                  className="w-full py-2.5 rounded-lg bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-sm"
-                >
-                  <span>Request Documentation Dossier</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <div className="shrink-0 w-full lg:w-auto">
+              <button
+                onClick={onOpenQuote}
+                className="w-full lg:w-auto px-6 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold transition-all shadow-lg hover:shadow-blue-500/20 flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
+              >
+                <span>Request Documentation Dossier</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -356,6 +393,70 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
           </div>
         </div>
       </section>
+
+
+      {/* Certificate Enlarged Lightbox Modal */}
+      {previewCert && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setPreviewCert(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div 
+            className="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center space-x-2.5">
+                <span className="px-2 py-0.5 rounded-full bg-sky-100 text-[#0070E0] text-[11px] font-bold">
+                  {previewCert.badge}
+                </span>
+                <h4 className="text-lg font-bold text-slate-900 font-display">
+                  {previewCert.name}
+                </h4>
+              </div>
+              <button 
+                onClick={() => setPreviewCert(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
+                aria-label="Close certificate preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Certificate Frame Display */}
+            <div className="p-6 sm:p-8 bg-slate-100 flex items-center justify-center">
+              <div className="max-w-[320px] drop-shadow-[0_16px_32px_rgba(0,0,0,0.28)]">
+                <img 
+                  src={previewCert.frameImage2x || previewCert.frameImage} 
+                  alt={previewCert.fullName}
+                  className="w-full h-auto object-contain rounded"
+                />
+              </div>
+            </div>
+
+            {/* Modal Info Footer */}
+            <div className="px-6 py-4 bg-white border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="text-slate-600">
+                <p className="font-semibold text-slate-900">{previewCert.fullName}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{previewCert.authority}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setPreviewCert(null);
+                  onOpenQuote();
+                }}
+                className="px-4 py-2 rounded-lg bg-[#0070E0] hover:bg-[#005bb5] text-white font-semibold transition shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Verify with Export Desk</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

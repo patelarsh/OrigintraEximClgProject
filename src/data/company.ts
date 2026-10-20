@@ -108,6 +108,8 @@ export interface ExportCertificate {
   badge: string;
   description: string;
   logo: string;
+  frameImage: string;
+  frameImage2x?: string;
 }
 
 export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
@@ -118,7 +120,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Directorate General of Foreign Trade (DGFT), Ministry of Commerce & Industry',
     badge: 'Statutory Export License',
     description: 'Mandatory primary business identification number issued by the Government of India enabling legal international export consignments.',
-    logo: '/assets/certificates/iec.png'
+    logo: '/assets/certificates/iec.png',
+    frameImage: '/assets/certificates/framed/iec.webp',
+    frameImage2x: '/assets/certificates/framed/iec@2x.webp'
   },
   {
     id: 'apeda',
@@ -127,7 +131,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Ministry of Commerce & Industry, Govt. of India',
     badge: 'Export Promotion Council',
     description: 'Registered with APEDA for quality standards promotion, scheduled agricultural commodity monitoring, and verified international trade linkage.',
-    logo: '/assets/certificates/apeda.png'
+    logo: '/assets/certificates/apeda.png',
+    frameImage: '/assets/certificates/framed/apeda.webp',
+    frameImage2x: '/assets/certificates/framed/apeda@2x.webp'
   },
   {
     id: 'spices-board',
@@ -136,7 +142,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Spices Board, Ministry of Commerce & Industry',
     badge: 'Statutory Commodity Board',
     description: 'Authorized export accreditation ensuring pre-shipment sampling, mandatory laboratory clearance, moisture testing, and purity thresholds.',
-    logo: '/assets/certificates/spices-board.png'
+    logo: '/assets/certificates/spices-board.png',
+    frameImage: '/assets/certificates/framed/spices-board.webp',
+    frameImage2x: '/assets/certificates/framed/spices-board@2x.webp'
   },
   {
     id: 'fssai',
@@ -145,7 +153,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Ministry of Health and Family Welfare, Govt. of India',
     badge: 'Food Safety License',
     description: 'Guarantees that raw, whole, and ground spices are processed, graded, packed, and stored under strict hygienic and sanitary food safety conditions.',
-    logo: '/assets/certificates/fssai.png'
+    logo: '/assets/certificates/fssai.png',
+    frameImage: '/assets/certificates/framed/fssai.webp',
+    frameImage2x: '/assets/certificates/framed/fssai@2x.webp'
   },
   {
     id: 'gst',
@@ -154,7 +164,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Department of Revenue, Ministry of Finance, Govt. of India',
     badge: 'Tax Registered Exporter',
     description: 'Compliant formal commercial taxation registration ensuring validated legal invoicing, international banking compliance, and formal trade remittances.',
-    logo: '/assets/certificates/gst-transparent.png'
+    logo: '/assets/certificates/gst-transparent.png',
+    frameImage: '/assets/certificates/framed/gst.webp',
+    frameImage2x: '/assets/certificates/framed/gst@2x.webp'
   },
   {
     id: 'msme',
@@ -163,7 +175,9 @@ export const EXPORT_CERTIFICATIONS: ExportCertificate[] = [
     authority: 'Govt. of India Enterprise Registration',
     badge: 'Recognized Enterprise',
     description: 'Formally registered commercial enterprise under the Ministry of Micro, Small and Medium Enterprises, Government of India.',
-    logo: '/assets/certificates/msme.svg'
+    logo: '/assets/certificates/msme.svg',
+    frameImage: '/assets/certificates/framed/msme.webp',
+    frameImage2x: '/assets/certificates/framed/msme@2x.webp'
   }
 ];
 
