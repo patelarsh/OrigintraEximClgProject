@@ -11,6 +11,10 @@ import {
   Anchor,
   ShieldCheck,
   Building,
+  User,
+  Leaf,
+  Package,
+  FileText,
   Copy,
   Check,
   ExternalLink
@@ -120,7 +124,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-6">
                 
                 <div>
-                  <h2 className="text-lg font-display font-bold text-slate-900">
+                  <h2 className="text-xl font-display font-bold text-slate-900">
                     Origintra Exim
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
@@ -132,7 +136,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   
                   {/* Corporate Office */}
                   <div className="flex items-start space-x-3.5">
-                    <MapPin className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0 border border-sky-100/70">
+                      <MapPin className="w-4 h-4" />
+                    </div>
                     <div>
                       <p className="font-semibold text-slate-900">Registered Office & Commercial Desk</p>
                       <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
@@ -147,7 +153,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Email */}
                   <div className="flex items-start justify-between border-t border-slate-100 pt-4">
                     <div className="flex items-start space-x-3.5">
-                      <Mail className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
+                      <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0 border border-sky-100/70">
+                        <Mail className="w-4 h-4" />
+                      </div>
                       <div>
                         <p className="font-semibold text-slate-900">Commercial Inquiries & RFQs</p>
                         <a 
@@ -160,7 +168,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     </div>
                     <button
                       onClick={() => handleCopy(COMPANY_CONFIG.primaryEmail, 'email')}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                      className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition cursor-pointer"
                       title="Copy email address"
                     >
                       {copiedKey === 'email' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -170,7 +178,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                   {/* Phone & WhatsApp */}
                   <div className="flex items-start justify-between border-t border-slate-100 pt-4">
                     <div className="flex items-start space-x-3.5">
-                      <Phone className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
+                      <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0 border border-sky-100/70">
+                        <Phone className="w-4 h-4" />
+                      </div>
                       <div>
                         <p className="font-semibold text-slate-900">Telephone & WhatsApp Desk</p>
                         <a 
@@ -183,7 +193,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
                     </div>
                     <button
                       onClick={() => handleCopy(COMPANY_CONFIG.phoneDisplay, 'phone')}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                      className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition cursor-pointer"
                       title="Copy telephone"
                     >
                       {copiedKey === 'phone' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -192,14 +202,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
                   {/* Working Hours */}
                   <div className="flex items-start space-x-3.5 border-t border-slate-100 pt-4">
-                    <Clock className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0070E0] flex items-center justify-center shrink-0 border border-sky-100/70">
+                      <Clock className="w-4 h-4" />
+                    </div>
                     <div>
                       <p className="font-semibold text-slate-900">Operating Schedule</p>
                       <p className="text-xs text-slate-600 mt-0.5">
                         Monday to Saturday: 09:00 – 18:30 IST (UTC+05:30)
                       </p>
                       <p className="text-[11px] text-slate-400 mt-0.5">
-                        Commercial inquiries acknowledged within one business day
+                        Commercial inquiries acknowledged within one business day.
                       </p>
                     </div>
                   </div>
@@ -278,240 +290,275 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
             </div>
 
-            {/* Right Column: Commercial Enquiry Form matching user mockup */}
-            <div className="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-xs">
+            {/* Right Column: Commercial Enquiry Form matching exact mockup */}
+            <div className="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
               
-              <div className="border-b border-slate-100 pb-5 mb-7 sm:mb-8">
-                <span className="text-[#0070E0] text-[11px] sm:text-xs font-bold uppercase tracking-wider block mb-1">
-                  Export Trade Desk • Direct Enquiry
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight">
-                  Commercial Quotation & Inquiries<span className="text-[#0070E0]">.</span>
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
-                  Submit your spice parameters below. Our trade desk coordinates official FOB/CIF quotations, COA laboratory specs, and container schedules within 24 hours.
-                </p>
+              {/* Header Dark Spice Banner */}
+              <div className="bg-[#091C35] text-white relative overflow-hidden">
+                {/* Spices Background Photography (fading smoothly on the right) */}
+                <div className="absolute right-0 top-0 bottom-0 w-2/5 min-w-[200px] max-w-[320px] pointer-events-none select-none hidden sm:block">
+                  <img 
+                    src="/assets/contact-banner-spices.webp" 
+                    alt="Indian Spices Selection" 
+                    className="w-full h-full object-cover object-left"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#091C35] via-[#091C35]/50 to-transparent" />
+                </div>
+
+                <div className="p-6 sm:p-8 relative z-10 max-w-xl">
+                  <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#38BDF8] block mb-1.5">
+                    Export Trade Desk • Direct Enquiry
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                    Commercial Quotation & Inquiries<span className="text-[#38BDF8]">.</span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                    Submit your spice parameters below. Our trade desk coordinates official FOB/CIF quotations, COA laboratory specs, and container schedules within 24 hours.
+                  </p>
+                </div>
               </div>
 
-              {isSuccess ? (
-                <div className="py-12 px-4 text-center space-y-4 animate-in fade-in">
-                  <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
-                    <CheckCircle2 className="w-7 h-7" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-bold font-display text-slate-900">
-                      Enquiry Received
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Thank you for contacting Origintra Exim.
+              {/* Form Body Area */}
+              <div className="p-6 sm:p-8">
+                {isSuccess ? (
+                  <div className="py-12 px-4 text-center space-y-4 animate-in fade-in">
+                    <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+                      <CheckCircle2 className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-bold font-display text-slate-900">
+                        Enquiry Received
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Thank you for contacting Origintra Exim.
+                      </p>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                      Our trade merchandiser will review your product parameters and destination discharge requirements and follow up with you directly within one business day.
                     </p>
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                    Our trade merchandiser will review your product parameters and destination discharge requirements and follow up with you directly within one business day.
-                  </p>
-                  <div className="pt-3">
-                    <button
-                      onClick={() => {
-                        setIsSuccess(false);
-                        setFormData({
-                          name: '',
-                          company: '',
-                          email: '',
-                          phone: '',
-                          destinationPort: '',
-                          spiceAndGrade: '',
-                          volume: '',
-                          message: '',
-                          honeypot: ''
-                        });
-                      }}
-                      className="px-5 py-2.5 text-xs font-semibold text-white bg-[#0070E0] hover:bg-[#005bb5] rounded-lg transition cursor-pointer"
-                    >
-                      Submit Another Enquiry
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
-                  
-                  {/* Anti-spam honeypot */}
-                  <div className="hidden" aria-hidden="true">
-                    <input
-                      type="text"
-                      name="origin_hp_token"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      value={formData.honeypot}
-                      onChange={(e) => setFormData({ ...formData, honeypot: e.target.value })}
-                    />
-                  </div>
-
-                  {errorMsg && (
-                    <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center space-x-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{errorMsg}</span>
+                    <div className="pt-3">
+                      <button
+                        onClick={() => {
+                          setIsSuccess(false);
+                          setFormData({
+                            name: '',
+                            company: '',
+                            email: '',
+                            phone: '',
+                            destinationPort: '',
+                            spiceAndGrade: '',
+                            volume: '',
+                            message: '',
+                            honeypot: ''
+                          });
+                        }}
+                        className="px-5 py-2.5 text-xs font-semibold text-white bg-[#0070E0] hover:bg-[#005bb5] rounded-xl transition cursor-pointer"
+                      >
+                        Submit Another Enquiry
+                      </button>
                     </div>
-                  )}
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                    
+                    {/* Anti-spam honeypot */}
+                    <div className="hidden" aria-hidden="true">
+                      <input
+                        type="text"
+                        name="origin_hp_token"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={formData.honeypot}
+                        onChange={(e) => setFormData({ ...formData, honeypot: e.target.value })}
+                      />
+                    </div>
 
-                  {/* Row 1: FULL NAME * & COMPANY * */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                    {errorMsg && (
+                      <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center space-x-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{errorMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Row 1: Full Name & Company Name */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <User className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Full Name</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="John Miller"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <Building className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Company Name</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Company or Trading House"
+                          value={formData.company}
+                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 2: Email Address & Phone Number */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <Mail className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Email Address</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="john@company.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <Phone className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Phone Number</span>
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          placeholder="+91 70691 82990"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 3: Destination Port & Spice and Grade */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <Anchor className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Destination Port</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Jebel Ali (Dubai), Rotterdam, USA"
+                          value={formData.destinationPort}
+                          onChange={(e) => setFormData({ ...formData, destinationPort: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                          <Leaf className="w-4 h-4 text-[#0070E0] shrink-0" />
+                          <span>Spice and Grade</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. S17 Teja, Whole with Stem"
+                          value={formData.spiceAndGrade}
+                          onChange={(e) => setFormData({ ...formData, spiceAndGrade: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row 4: Volume / Quantity */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        FULL NAME *
+                      <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                        <Package className="w-4 h-4 text-[#0070E0] shrink-0" />
+                        <span>Volume / Quantity</span>
                       </label>
                       <input
                         type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        COMPANY *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.company}
-                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 2: EMAIL ADDRESS * & PHONE NUMBER * */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        EMAIL ADDRESS *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        PHONE NUMBER *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="e.g. +1 415 555 2671"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 3: DESTINATION PORT & SPICE AND GRADE */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        DESTINATION PORT
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.destinationPort}
-                        onChange={(e) => setFormData({ ...formData, destinationPort: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        SPICE AND GRADE
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. S17 Teja, Whole with Stem"
-                        value={formData.spiceAndGrade}
-                        onChange={(e) => setFormData({ ...formData, spiceAndGrade: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 4: VOLUME */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                        VOLUME
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 15 Metric Tons"
+                        placeholder="e.g. 15 Metric Tons, 1 x 20ft Container"
                         value={formData.volume}
                         onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
-                        className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 font-medium"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all font-medium"
                       />
                     </div>
-                    <div className="hidden sm:block">
-                      {/* Preserves 2-column balance matching mockup */}
+
+                    {/* Row 5: Additional Notes */}
+                    <div className="space-y-1.5">
+                      <label className="flex items-center space-x-2 text-xs sm:text-[13px] font-bold text-slate-900">
+                        <FileText className="w-4 h-4 text-[#0070E0] shrink-0" />
+                        <span>Additional Notes</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Mention any specific packaging, certification needs, delivery schedule, or other requirements..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/10 transition-all resize-y min-h-[90px] font-medium"
+                      />
                     </div>
-                  </div>
 
-                  {/* Row 5: ADDITIONAL NOTES */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs sm:text-[13px] font-bold tracking-wider uppercase text-[#0070E0]">
-                      ADDITIONAL NOTES
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Mention any specific packaging or certification needs..."
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full bg-transparent border-0 border-b border-slate-200 focus:border-[#0070E0] focus:ring-0 rounded-none py-2 px-0 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base outline-none transition-colors duration-200 resize-y min-h-[80px] font-medium"
-                    />
-                  </div>
+                    {/* Footer Row: Confidentiality & Submit */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+                      <div className="bg-sky-50/70 border border-sky-100/90 rounded-xl p-3 sm:p-3.5 flex items-center space-x-2.5 flex-1">
+                        <ShieldCheck className="w-4 h-4 text-[#0070E0] shrink-0" />
+                        <p className="text-[11px] sm:text-xs text-slate-600 leading-snug">
+                          Your information is kept strictly confidential and used only for commercial trade purposes.
+                        </p>
+                      </div>
 
-                  {/* Footer & Submit */}
-                  <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <p className="text-[11px] text-slate-500 max-w-xs leading-normal">
-                      * Required fields. Inquiries handled under strict commercial trade confidentiality.
-                    </p>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full sm:w-auto px-7 sm:px-8 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold tracking-wide transition-all shadow-md hover:shadow-blue-500/25 cursor-pointer flex items-center justify-center space-x-2 whitespace-nowrap shrink-0 disabled:opacity-70 active:scale-95 group"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                            <span>Submitting Enquiry...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Trade Enquiry</span>
+                            <ArrowRight className="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-1" />
+                          </>
+                        )}
+                      </button>
+                    </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-blue-500/25 cursor-pointer inline-flex items-center justify-center gap-2.5 whitespace-nowrap shrink-0 disabled:opacity-70 active:scale-95 group"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                          <span className="whitespace-nowrap">Submitting RFQ...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="whitespace-nowrap">Submit Trade RFQ</span>
-                          <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
-                        </>
-                      )}
-                    </button>
-                  </div>
+                    {/* Bottom Shipping Calculator Link */}
+                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center space-x-2 text-slate-500">
+                        <Package className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>Need instant proforma, container stowage and weight calculation?</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={onOpenQuote}
+                        className="text-[#0070E0] hover:underline font-bold inline-flex items-center space-x-1 cursor-pointer shrink-0"
+                      >
+                        <span>Open 3D Shipping Calculator</span>
+                        <span>→</span>
+                      </button>
+                    </div>
 
-                  {/* Direct Proforma Calculator Link */}
-                  <div className="pt-2 text-xs text-stone-500">
-                    Need instant proforma container stowage and weight calculation?{' '}
-                    <button
-                      type="button"
-                      onClick={onOpenQuote}
-                      className="text-[#0070E0] font-semibold hover:underline inline-block cursor-pointer"
-                    >
-                      Open 3D Shipping Calculator →
-                    </button>
-                  </div>
-
-                </form>
-              )}            </div>
+                  </form>
+                )}
+              </div>
+            </div>
 
           </div>
         </div>
