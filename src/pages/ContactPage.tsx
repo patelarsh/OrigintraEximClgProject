@@ -505,24 +505,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
                   {/* Footer & Submit */}
                   <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <p className="text-[11px] text-stone-500">
+                    <p className="text-[11px] text-slate-500 max-w-xs leading-normal">
                       * Required fields. Inquiries handled under strict commercial trade confidentiality.
                     </p>
 
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-blue-500/25 cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-70 active:scale-95"
+                      className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0070E0] hover:bg-[#005bb5] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-blue-500/25 cursor-pointer inline-flex items-center justify-center gap-2.5 whitespace-nowrap shrink-0 disabled:opacity-70 active:scale-95 group"
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Submitting RFQ...</span>
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                          <span className="whitespace-nowrap">Submitting RFQ...</span>
                         </>
                       ) : (
                         <>
-                          <span>Submit Trade RFQ</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <span className="whitespace-nowrap">Submit Trade RFQ</span>
+                          <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                         </>
                       )}
                     </button>
