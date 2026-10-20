@@ -125,6 +125,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   // === DATA STATES (Synced with Supabase Cloud PostgreSQL) ===
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());
@@ -1296,13 +1297,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Clean White Header Bar */}
-        <header className="h-[70px] bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-[70px] bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
           
           {/* Left: Mobile Toggle & Global Search */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer shrink-0"
               aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
@@ -1311,13 +1312,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             <img
               src="/assets/logo/origintra-admin-logo.webp"
               alt="Origintra Exim"
-              className="h-7 w-auto object-contain md:hidden"
+              className="h-6 sm:h-7 w-auto object-contain md:hidden shrink-0"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/logo/origintra-admin-logo.png';
               }}
             />
 
-            <div className="relative w-64 sm:w-80 md:w-96">
+            {/* Desktop / Tablet Search */}
+            <div className="relative hidden sm:block sm:w-60 md:w-80 lg:w-96">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -1330,7 +1332,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 <>
                   <button
                     onClick={() => setDashboardSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -1396,31 +1398,40 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </>
               )}
             </div>
+
+            {/* Mobile Search Icon Toggle */}
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="sm:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer shrink-0"
+              title="Search Portal"
+            >
+              <Search className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Right: Notifications, User Profile, Live Site, Logout */}
-          <div className="flex items-center space-x-2.5 sm:space-x-4">
+          <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
             
             {/* Notification Bell */}
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="w-10 h-10 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition relative flex items-center justify-center cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition relative flex items-center justify-center cursor-pointer"
                 title="Notifications"
               >
-                <Bell className="w-5 h-5 text-slate-600" />
-                <span className="absolute top-1 right-1 min-w-4 h-4 px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-600" />
+                <span className="absolute top-1 right-1 min-w-3.5 h-3.5 sm:min-w-4 sm:h-4 px-0.5 sm:px-1 bg-red-500 text-white text-[8px] sm:text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
                   1
                 </span>
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <span className="font-bold text-xs text-slate-900">Notifications</span>
                     <button 
                       onClick={() => setNotificationsOpen(false)}
-                      className="text-[10px] text-blue-600 font-semibold hover:underline"
+                      className="text-[10px] text-blue-600 font-semibold hover:underline cursor-pointer"
                     >
                       Close
                     </button>
@@ -1440,7 +1451,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </div>
 
             {/* User Profile Pill */}
-            <div className="flex items-center space-x-2.5 pl-2 sm:pl-3 border-l border-slate-200">
+            <div className="flex items-center space-x-2 pl-1.5 sm:pl-3 border-l border-slate-200">
               <img
                 src={currentUser?.avatar || '/assets/team/director.jpg'}
                 alt={currentUser?.name || 'Patel Arsh'}
@@ -1449,7 +1460,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
                 }}
               />
-              <div className="hidden sm:block text-left">
+              <div className="hidden md:block text-left">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
                     {currentUser?.name || 'Patel Arsh'}
@@ -1462,28 +1473,113 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   {currentUser?.department || 'MD & Founder'}
                 </p>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
             </div>
 
             {/* Live Site */}
             <button
               onClick={() => onNavigate('home')}
-              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              className="p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              title="View Live Public Site"
             >
-              <span>Live Site</span>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden md:inline">Live Site</span>
             </button>
 
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/80 text-red-600 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              className="p-2 sm:px-3 sm:py-2 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/80 text-red-600 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              title="Sign Out"
             >
               <LogOut className="w-3.5 h-3.5 text-red-500" />
-              <span className="hidden sm:inline">Logout</span>
+              <span className="hidden md:inline">Logout</span>
             </button>
           </div>
         </header>
+
+        {/* Mobile Search Dropdown Bar */}
+        {mobileSearchOpen && (
+          <div className="sm:hidden px-4 py-2.5 bg-white border-b border-slate-200 sticky top-[70px] z-19 shadow-xs animate-in fade-in slide-in-from-top-1">
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search products, inquiries, articles..."
+                value={dashboardSearchQuery}
+                onChange={(e) => setDashboardSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0070E0] focus:bg-white transition"
+              />
+              {dashboardSearchQuery && (
+                <button
+                  onClick={() => setDashboardSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {dashboardSearchQuery && (
+              <div className="mt-2 bg-white rounded-xl border border-slate-200 shadow-lg p-2 max-h-60 overflow-y-auto text-xs space-y-2">
+                {searchResults.products.length > 0 && (
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Products</div>
+                    {searchResults.products.map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => { setActiveTab('products'); setDashboardSearchQuery(''); setMobileSearchOpen(false); }}
+                        className="p-2 rounded-lg hover:bg-sky-50 flex items-center justify-between cursor-pointer"
+                      >
+                        <span className="font-semibold text-slate-800">{p.name}</span>
+                        <span className="text-[10px] text-[#0070E0]">{p.category}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {searchResults.blog.length > 0 && (
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Articles</div>
+                    {searchResults.blog.map(b => (
+                      <div
+                        key={b.id}
+                        onClick={() => { setActiveTab('blog'); setDashboardSearchQuery(''); setMobileSearchOpen(false); }}
+                        className="p-2 rounded-lg hover:bg-purple-50 flex items-center justify-between cursor-pointer"
+                      >
+                        <span className="font-semibold text-slate-800 truncate">{b.title}</span>
+                        <span className="text-[10px] text-purple-600">{b.category}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {searchResults.inquiries.length > 0 && (
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 px-2 mb-1">Inquiries</div>
+                    {searchResults.inquiries.map(i => (
+                      <div
+                        key={i.id}
+                        onClick={() => { setViewingInquiry(i); setActiveTab('inquiries'); setDashboardSearchQuery(''); setMobileSearchOpen(false); }}
+                        className="p-2 rounded-lg hover:bg-emerald-50 flex items-center justify-between cursor-pointer"
+                      >
+                        <div>
+                          <span className="font-semibold text-slate-800 block">{i.fullName}</span>
+                          <span className="text-[10px] text-slate-500">{i.product}</span>
+                        </div>
+                        <span className="text-[10px] text-emerald-600">{i.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {searchResults.products.length === 0 && searchResults.blog.length === 0 && searchResults.inquiries.length === 0 && (
+                  <div className="py-2 text-center text-slate-400 text-xs">
+                    No records matching "{dashboardSearchQuery}".
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content Area */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto overflow-x-hidden space-y-6">
