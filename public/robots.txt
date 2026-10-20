@@ -15,5 +15,11 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
+User-agent: msnbot
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
 Sitemap: https://www.origintra.com/sitemap.xml
 Host: https://www.origintra.com

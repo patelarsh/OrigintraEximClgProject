@@ -6,8 +6,8 @@
   RewriteEngine On
   RewriteBase /
 
-  # 0. Direct Favicon & Crawler Assets (Google Favicon bot requires direct 200 OK without redirects)
-  RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap.*\.xml) [NC]
+  # 0. Direct Favicon & Crawler Assets (Google Favicon & Bing IndexNow bots require direct 200 OK)
+  RewriteCond %{REQUEST_URI} ^/(favicon.*|android-chrome.*|apple-touch-icon.*|site\.webmanifest|browserconfig\.xml|robots\.txt|sitemap.*\.xml|[0-9a-fA-F]{16,64}\.txt) [NC]
   RewriteRule ^ - [L]
 
   # 1. Canonical 301 Redirect: Enforce HTTPS & www.origintra.com (eliminates duplicate crawl errors in GSC)
