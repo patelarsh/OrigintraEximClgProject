@@ -295,14 +295,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
               
               {/* Header Dark Spice Banner */}
               <div className="bg-[#091C35] text-white relative overflow-hidden">
-                {/* Spices Background Photography (fading smoothly on the right) */}
-                <div className="absolute right-0 top-0 bottom-0 w-2/5 min-w-[200px] max-w-[320px] pointer-events-none select-none hidden sm:block">
+                {/* Spices Background Photography (clean image with zero ghost text) */}
+                <div className="absolute inset-0 pointer-events-none select-none">
                   <img 
                     src="/assets/contact-banner-spices.webp" 
-                    alt="Indian Spices Selection" 
-                    className="w-full h-full object-cover object-left"
+                    alt="Indian Spices Sourcing Selection" 
+                    className="w-full h-full object-cover object-right"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#091C35] via-[#091C35]/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#091C35] via-[#091C35]/85 to-transparent sm:via-[#091C35]/75" />
                 </div>
 
                 <div className="p-6 sm:p-8 relative z-10 max-w-xl">
