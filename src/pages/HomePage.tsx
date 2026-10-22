@@ -192,24 +192,24 @@ export const HomePage: React.FC<HomePageProps> = ({
       mobileImage: '/assets/hero/hero-mobile-cumin.jpg',
       alt: 'Machine cleaned Sortex Indian cumin seeds jeera',
       badge: 'Cumin (Jeera) Specialist',
-      eyebrow: 'Unjha Mandi Hub • Gujarat & Rajasthan Belts',
+      eyebrow: 'Gujarat Seed Spice Hub • Gujarat & Rajasthan Belts',
       headline: 'Sortex-Cleaned Machine Purity Indian Cumin Seeds',
       subline: '99% to 99.5% Purity Singapore & European Machine Cleaned Grades',
-      description: 'Direct procurement from primary farm yards in Unjha and Western India. Free from foreign seeds and dirt with moisture below 8-9% and high volatile essential oil retention for extractors and blenders.',
+      description: 'Direct procurement from primary farm yards across prime Western India growing belts. Free from foreign seeds and dirt with moisture below 8-9% and high volatile essential oil retention for extractors and blenders.',
       mobileTitle: {
         line1: 'Sortex-Cleaned Indian',
         line2Prefix: 'Machine ',
         line2Highlight: 'Cumin Seeds',
         line3: '(Jeera) & Powders'
       },
-      mobileCorridorTitle: 'Unjha Mandi Hub',
+      mobileCorridorTitle: 'Gujarat Seed Hub',
       mobileCorridorSub: '99.5% Sortex Cleaned',
       mobileFeatures: [
         { label: '99.5% Sortex', icon: 'Sparkles' },
         { label: 'Rich Volatile Oil', icon: 'Wind' },
         { label: 'Direct Mandi', icon: 'CheckCircle2' }
       ],
-      mobileDescription: '99% to 99.5% Sortex machine-cleaned cumin seeds direct from Unjha Mandi.',
+      mobileDescription: '99% to 99.5% Sortex machine-cleaned cumin seeds direct from prime Gujarat growing belts.',
       ctaText: 'Enquire for Cumin',
       mobileCtaText: 'Enquire Now',
       mobileSecondaryText: 'View Specs'
@@ -929,7 +929,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 Export Quality Indian Spices & Agro Commodities<span className="text-[#0070E0]">.</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
-                Featured flagship commodities from our 27-product portfolio: Guntur dry red chillies, Salem turmeric fingers, Unjha sortex cumin seeds, and Alleppey cardamom. Sourced directly from contracted regional farms across India.
+                Featured flagship commodities from our 27-product portfolio: Guntur dry red chillies, Salem turmeric fingers, Sortex cumin seeds, and Alleppey cardamom. Sourced directly from contracted regional farms across India.
               </p>
             </div>
 

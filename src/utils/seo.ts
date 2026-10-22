@@ -24,7 +24,7 @@ export interface SeoConfig {
 }
 
 export const BASE_URL = 'https://www.origintra.com';
-export const DEFAULT_IMAGE = `${BASE_URL}/assets/logo/logo-full-color.png`;
+export const DEFAULT_IMAGE = `${BASE_URL}/assets/og/origintra-preview.jpg`;
 
 export const DEFAULT_KEYWORDS = [
   'spice exporter in india',
@@ -35,14 +35,14 @@ export const DEFAULT_KEYWORDS = [
   'spice export company in india',
   'indian spices supplier',
   'wholesale spice suppliers india',
-  'spices manufacturer and exporter in unjha gujarat',
+  'leading spices exporter in india',
   'reliable global b2b spice supply',
   'whole spices exporter in india',
   'powdered spices exporter in india',
   'ground spices manufacturer india',
   'coriander seeds exporter in india',
   'cumin seeds exporter india',
-  'unjha cumin seeds jeera export',
+  'sortex cumin seeds jeera export',
   'sortex cumin seeds 99.5',
   'fennel seeds exporter in india',
   'fenugreek seeds exporter india',
@@ -70,7 +70,7 @@ export const DEFAULT_KEYWORDS = [
 export const HOME_FAQS: FaqItem[] = [
   {
     question: 'Who is the leading spices exporter in India for international bulk buyers?',
-    answer: 'Origintra Exim is a trusted merchant spices exporter in India, registered with the Spices Board of India, APEDA, and FSSAI. We supply containerized consignments (FCL/LCL) of premium whole spices, sortex seeds, and finely milled powders—such as Guntur S17 dried red chillies, Salem turmeric fingers (5%+ curcumin), Unjha cumin seeds (99.5% purity), and Alleppey green cardamom—to commercial importers, food manufacturers, and private-label distributors in over 24 countries worldwide.'
+    answer: 'Origintra Exim is a trusted merchant spices exporter in India, registered with the Spices Board of India, APEDA, and FSSAI. We supply containerized consignments (FCL/LCL) of premium whole spices, sortex seeds, and finely milled powders—such as Guntur S17 dried red chillies, Salem turmeric fingers (5%+ curcumin), Sortex cumin seeds (99.5% purity), and Alleppey green cardamom—to commercial importers, food manufacturers, and private-label distributors in over 24 countries worldwide.'
   },
   {
     question: 'What spices does Origintra Exim export from India?',
@@ -111,8 +111,8 @@ export const ORGANIZATION_SCHEMA = {
     'width': 512,
     'height': 512
   },
-  'image': `${BASE_URL}/assets/hero/spices-hero-banner.jpg`,
-  'description': 'Premier Indian spices exporter and agricultural merchant trading house. Sourcing and exporting premium whole dry red chillies, turmeric fingers, unjha cumin seeds, green cardamom, and custom spice blends in 20ft/40ft containers to B2B food manufacturers and wholesale importers worldwide.',
+  'image': `${BASE_URL}/assets/og/origintra-preview.jpg`,
+  'description': 'Premier Indian spices exporter and agricultural merchant trading house. Sourcing and exporting premium whole dry red chillies, turmeric fingers, sortex cumin seeds, green cardamom, and custom spice blends in 20ft/40ft containers to B2B food manufacturers and wholesale importers worldwide.',
   'email': 'export@origintra.com',
   'telephone': '+91-70691-82990',
   'taxID': '2424018921',
@@ -120,7 +120,7 @@ export const ORGANIZATION_SCHEMA = {
   'address': {
     '@type': 'PostalAddress',
     'streetAddress': 'Commercial Export Zone, Logistics Corridor',
-    'addressLocality': 'Ahmedabad / Unjha',
+    'addressLocality': 'Ahmedabad',
     'addressRegion': 'Gujarat',
     'postalCode': '384170',
     'addressCountry': 'IN'
@@ -146,7 +146,7 @@ export const ORGANIZATION_SCHEMA = {
     'Spice Exporter in India',
     'Indian Spice Exporter',
     'Bulk Spice Supplier from India',
-    'Spices Manufacturer and Exporter in Unjha Gujarat',
+    'Leading Spices Exporter in India',
     'Reliable Global B2B Spice Supply',
     'Indian Whole Spices',
     'Powdered Spices and Ground Masala',
@@ -418,7 +418,7 @@ export function updatePageSeo(config: SeoConfig) {
 
 export function getHomeSeo(): SeoConfig {
   return {
-    title: 'Spices Exporter in India - Origintra Exim - Unjha, Gujarat',
+    title: 'Origintra Exim | Leading Spices Exporter in India',
     description: 'Leading spices exporter in India offering bulk whole spices, sortex seeds, ground powders & agricultural staples with certified quality and reliable global B2B supply. Spices Board & APEDA registered exporter shipping containerized FCL orders worldwide. Get a quote today.',
     keywords: [
       'origintra exim',
@@ -432,14 +432,14 @@ export function getHomeSeo(): SeoConfig {
       'spice export company in india',
       'indian spices supplier',
       'wholesale spice suppliers india',
-      'spices manufacturer and exporter in unjha gujarat',
+      'leading spices exporter in india',
       'reliable global b2b spice supply',
       'whole spices exporter in india',
       'powdered spices exporter in india',
       'ground spices manufacturer india',
       'coriander seeds exporter in india',
       'cumin seeds exporter india',
-      'unjha cumin seeds jeera export',
+      'sortex cumin seeds jeera export',
       'sortex cumin seeds 99.5',
       'fennel seeds exporter in india',
       'fenugreek seeds exporter india',
@@ -533,7 +533,7 @@ export function getProductsCatalogSeo(category?: string): SeoConfig {
       'fennel seeds exporter in india',
       'sortex spice seeds india',
       'bulk spices superfoods staples supplier india',
-      'spices manufacturer in unjha gujarat',
+      'spices manufacturer in gujarat india',
       'indian curry blends exporter',
       'fcl container spice orders'
     ].join(', '),
