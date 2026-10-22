@@ -73,6 +73,7 @@ import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
 import { compressImage, compressDataUrl } from '../utils/imageCompressor';
 import { slugify } from '../utils/slugify';
+import { BlogEditorView } from '../components/admin/BlogEditorView';
 
 interface AdminPageProps {
   onNavigate: (page: string) => void;
@@ -185,6 +186,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [isSavingProduct, setIsSavingProduct] = useState(false);
 
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
+  const [blogViewMode, setBlogViewMode] = useState<'list' | 'editor'>('list');
   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
   const [blogPreviewPost, setBlogPreviewPost] = useState<BlogPost | null>(null);
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
@@ -511,7 +513,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       relatedSlugs: []
     });
     setIsSlugManuallyEdited(false);
-    setIsBlogModalOpen(true);
+    setBlogViewMode('editor');
+    setIsBlogModalOpen(false);
   };
 
   const handleOpenEditBlogPost = (post: BlogPost) => {
@@ -529,7 +532,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     }
     setEditingBlogPost(copy);
     setIsSlugManuallyEdited(Boolean(copy.slug && copy.slug !== slugify(copy.title)));
-    setIsBlogModalOpen(true);
+    setBlogViewMode('editor');
+    setIsBlogModalOpen(false);
   };
 
   const handleSaveBlogPost = (e: React.FormEvent) => {
@@ -1123,7 +1127,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* Blog & Articles */}
           {canAccessBlog && (
             <button
-              onClick={() => { setActiveTab('blog'); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab('blog'); setBlogViewMode('list'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'blog'
                   ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
@@ -2195,6 +2199,35 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* TAB 3: BLOG & ARTICLES MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'blog' && (
+            blogViewMode === 'editor' && editingBlogPost ? (
+              <BlogEditorView
+                initialPost={editingBlogPost}
+                mode={editingBlogPost.slug && !editingBlogPost.slug.startsWith('new-article-') ? 'edit' : 'create'}
+                currentUser={currentUser}
+                users={users}
+                onSave={(updatedPost) => {
+                  AdminStorage.saveBlogPost(updatedPost);
+                  setBlogPosts(AdminStorage.getBlogPosts());
+                  setBlogViewMode('list');
+                  setEditingBlogPost(null);
+                  showToast(`Article "${updatedPost.title}" successfully saved & published!`);
+                }}
+                onCancel={() => {
+                  setBlogViewMode('list');
+                  setEditingBlogPost(null);
+                }}
+                onOpenMediaGallery={handleOpenBlogImageGallery}
+                onUploadImageFile={async (file) => {
+                  try {
+                    const serverUrl = await AdminStorage.uploadImageFile(file);
+                    if (serverUrl) return serverUrl;
+                  } catch {}
+                  const base64 = await compressImage(file, 1200, 0.82);
+                  return base64;
+                }}
+                selectedGalleryImage={editingBlogPost.image}
+              />
+            ) : (
             <div className="space-y-6">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2331,6 +2364,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               )}
 
             </div>
+            )
           )}
 
           {/* ======================================= */}

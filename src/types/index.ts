@@ -87,23 +87,30 @@ export interface BlogPost {
   id: string;
   slug: string;
   title: string;
-  category: 'Global Trade' | 'Indian Spices' | 'Export Insights' | 'Market Trends' | 'Sourcing' | 'Logistics' | 'Business Updates';
+  category: 'Global Trade' | 'Indian Spices' | 'Export Insights' | 'Market Trends' | 'Sourcing' | 'Logistics' | 'Business Updates' | string;
+  categories?: string[];
+  status?: 'Published' | 'Draft' | 'Scheduled';
   date: string;
   rawDate?: string;
+  publishDate?: string;
+  publishTime?: string;
   readTime: string;
   author: string;
   authorRole: string;
   authorId?: string;
   excerpt: string;
   image: string;
-  seoTitle: string;
-  metaDescription: string;
-  tableOfContents: string[];
+  seoTitle?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
+  tableOfContents?: string[];
   content: {
     heading?: string;
     paragraphs: string[];
   }[];
-  relatedSlugs: string[];
+  contentHtml?: string;
+  relatedSlugs?: string[];
 }
 
 export interface TeamMember {
