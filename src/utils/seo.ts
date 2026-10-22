@@ -100,6 +100,7 @@ export const ORGANIZATION_SCHEMA = {
   'name': 'Origintra Exim',
   'legalName': 'Origintra Exim',
   'alternateName': [
+    'Spices Exporter in India',
     'Origintra Indian Spices Exporter',
     'Origintra Agro Exim',
     'Origintra Spices Exporter India'
@@ -418,7 +419,7 @@ export function updatePageSeo(config: SeoConfig) {
 
 export function getHomeSeo(): SeoConfig {
   return {
-    title: 'Origintra Exim | Leading Spices Exporter in India',
+    title: 'Spices Exporter in India | Origintra Exim',
     description: 'Leading spices exporter in India offering bulk whole spices, sortex seeds, ground powders & agricultural staples with certified quality and reliable global B2B supply. Spices Board & APEDA registered exporter shipping containerized FCL orders worldwide. Get a quote today.',
     keywords: [
       'origintra exim',
