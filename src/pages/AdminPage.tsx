@@ -24,6 +24,8 @@ import {
   Sliders,
   Sparkles,
   ArrowUpRight,
+  ArrowLeft,
+  Save,
   X,
   Layers,
   Phone,
@@ -511,7 +513,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       relatedSlugs: []
     });
     setIsSlugManuallyEdited(false);
-    setIsBlogModalOpen(true);
+    // setIsBlogModalOpen(true);
   };
 
   const handleOpenEditBlogPost = (post: BlogPost) => {
@@ -529,7 +531,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     }
     setEditingBlogPost(copy);
     setIsSlugManuallyEdited(Boolean(copy.slug && copy.slug !== slugify(copy.title)));
-    setIsBlogModalOpen(true);
+    // setIsBlogModalOpen(true);
   };
 
   const handleSaveBlogPost = (e: React.FormEvent) => {
@@ -559,7 +561,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     }
 
     AdminStorage.saveBlogPost(editingBlogPost);
-    setIsBlogModalOpen(false);
+    // setIsBlogModalOpen(false);
     setEditingBlogPost(null);
     showToast(`Article "${editingBlogPost.title}" published with clean SEO URL (/blog/${editingBlogPost.slug})!`);
   };
@@ -2195,7 +2197,414 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* TAB 3: BLOG & ARTICLES MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'blog' && (
-            <div className="space-y-6">
+            editingBlogPost ? (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                {/* Header Card matching screenshot */}
+                <div className="bg-[#0A1C3E] rounded-2xl px-6 py-5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setEditingBlogPost(null)}
+                      className="text-xs text-[#38BDF8] hover:text-white flex items-center space-x-1.5 font-semibold mb-2 transition cursor-pointer"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back to All Articles</span>
+                    </button>
+                    <span className="text-[10px] uppercase font-bold text-[#38BDF8] tracking-wider block">
+                      Blog & Article Editor
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-bold font-display text-white mt-0.5">
+                      {editingBlogPost.title ? ('Edit Article: ' + editingBlogPost.title) : 'Write New Export Insight Article'}
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setEditingBlogPost(null)}
+                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveBlogPost}
+                      className="px-5 py-2 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer shadow-sm flex items-center space-x-1.5"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Publish Article</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Main Full Page Form */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                  <form onSubmit={handleSaveBlogPost} className="space-y-5 text-xs">
+
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="font-semibold text-slate-700 block mb-1">Article Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingBlogPost.title}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      const updates: Partial<BlogPost> = { title: newTitle };
+                      if (!isSlugManuallyEdited) {
+                        updates.slug = slugify(newTitle);
+                      }
+                      setEditingBlogPost({ ...editingBlogPost, ...updates });
+                    }}
+                    placeholder="e.g. Navigating Indian Spice Harvest Calendars & Pricing Cycles"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-[#0070E0]"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700 block">
+                      Article URL Slug (Permalink) *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSlugManuallyEdited(false);
+                        setEditingBlogPost({
+                          ...editingBlogPost,
+                          slug: slugify(editingBlogPost.title)
+                        });
+                      }}
+                      className="text-[11px] text-[#0070E0] hover:underline font-semibold cursor-pointer"
+                    >
+                      Auto-Generate from Title
+                    </button>
+                  </div>
+                  <div className="flex items-center rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 focus-within:ring-2 focus-within:ring-[#0070E0] focus-within:bg-white">
+                    <span className="text-slate-400 font-mono text-xs select-none shrink-0">
+                      /blog/
+                    </span>
+                    <input
+                      type="text"
+                      required
+                      value={editingBlogPost.slug}
+                      onChange={(e) => {
+                        setIsSlugManuallyEdited(true);
+                        setEditingBlogPost({
+                          ...editingBlogPost,
+                          slug: slugify(e.target.value)
+                        });
+                      }}
+                      placeholder="e.g. how-to-import-spices-from-india"
+                      className="w-full bg-transparent text-xs font-mono font-semibold text-slate-800 focus:outline-none pl-1"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1 flex flex-wrap items-center justify-between gap-1">
+                    <span>Clean URL: <span className="font-mono text-slate-700 font-semibold">origintra.com/blog/{editingBlogPost.slug || slugify(editingBlogPost.title) || 'article-name'}</span></span>
+                    <span className="text-slate-500">Name-based clean permalink</span>
+                  </p>
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Category *</label>
+                  <select
+                    value={editingBlogPost.category}
+                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, category: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
+                  >
+                    <option value="Global Trade">Global Trade</option>
+                    <option value="Indian Spices">Indian Spices</option>
+                    <option value="Export Insights">Export Insights</option>
+                    <option value="Market Trends">Market Trends</option>
+                    <option value="Sourcing">Sourcing</option>
+                    <option value="Logistics">Logistics</option>
+                    <option value="Business Updates">Business Updates</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700 block">Author Name *</label>
+                    {currentUser && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingBlogPost({
+                          ...editingBlogPost,
+                          author: currentUser.name,
+                          authorRole: currentUser.department || `${currentUser.role.toUpperCase()} Contributor`,
+                          authorId: currentUser.id
+                        })}
+                        className="text-[11px] text-[#0070E0] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      >
+                        <UserIcon className="w-3 h-3" />
+                        <span>Stamp My Name ({currentUser.name.split(' ')[0]})</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={editingBlogPost.author}
+                      onChange={(e) => setEditingBlogPost({ ...editingBlogPost, author: e.target.value })}
+                      placeholder="e.g. Vikram Malhotra"
+                      className="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] font-semibold"
+                    />
+                    {users.length > 0 && (
+                      <select
+                        value={users.some(u => u.name === editingBlogPost.author) ? editingBlogPost.author : ''}
+                        onChange={(e) => {
+                          const foundUser = users.find(u => u.name === e.target.value);
+                          if (foundUser) {
+                            setEditingBlogPost({
+                              ...editingBlogPost,
+                              author: foundUser.name,
+                              authorRole: foundUser.department || `${foundUser.role.toUpperCase()} Author`,
+                              authorId: foundUser.id
+                            });
+                          }
+                        }}
+                        className="w-36 px-2 py-2 rounded-lg border border-slate-300 bg-slate-50 text-[11px] text-slate-700"
+                        title="Pick registered user as author"
+                      >
+                        <option value="">Pick Author...</option>
+                        {users.map(u => (
+                          <option key={u.id} value={u.name}>
+                            {u.name} ({u.role})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Estimated Read Time</label>
+                  <input
+                    type="text"
+                    value={editingBlogPost.readTime}
+                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, readTime: e.target.value })}
+                    placeholder="e.g. 6 min read"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700 block">Publication Date *</label>
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const raw = now.toISOString().split('T')[0];
+                          const formatted = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                          setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
+                        }}
+                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+                      >
+                        Today
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const yest = new Date();
+                          yest.setDate(yest.getDate() - 1);
+                          const raw = yest.toISOString().split('T')[0];
+                          const formatted = yest.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                          setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
+                        }}
+                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+                      >
+                        Yesterday
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <input
+                        type="date"
+                        value={editingBlogPost.rawDate || ''}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw) {
+                            const [y, m, d] = raw.split('-').map(Number);
+                            const dateObj = new Date(y, m - 1, d);
+                            const formatted = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                            setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
+                          } else {
+                            setEditingBlogPost({ ...editingBlogPost, rawDate: raw });
+                          }
+                        }}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] text-xs font-mono"
+                        title="Interactive Calendar Date Picker"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        required
+                        value={editingBlogPost.date}
+                        onChange={(e) => setEditingBlogPost({ ...editingBlogPost, date: e.target.value })}
+                        placeholder="e.g. October 5, 2026"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] text-xs font-semibold"
+                        title="Display publication date"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Pick from calendar or edit text to change date.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-semibold text-slate-700 block">Cover Image URL *</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleOpenBlogImageGallery}
+                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#0070E0] hover:bg-blue-100 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" />
+                      Select from Gallery
+                    </button>
+                    <label className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer">
+                      <Upload className="w-3.5 h-3.5" />
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleDevicePhotoUpload(f, 'blog');
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {editingBlogPost.image && (
+                    <div
+                      onClick={handleOpenBlogImageGallery}
+                      className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0070E0] transition bg-slate-100"
+                      title="Click to select from gallery"
+                    >
+                      <img src={editingBlogPost.image} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    value={editingBlogPost.image}
+                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, image: e.target.value })}
+                    placeholder="https://images.unsplash.com/... or /assets/..."
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-300 font-mono text-[11px] focus:ring-2 focus:ring-[#0070E0]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Article Excerpt (Summary) *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={editingBlogPost.excerpt}
+                  onChange={(e) => setEditingBlogPost({ ...editingBlogPost, excerpt: e.target.value })}
+                  placeholder="Brief synopsis appearing on article cards..."
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
+                />
+              </div>
+
+              {/* Dynamic Sections */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800 text-xs">Article Content Sections ({editingBlogPost.content.length})</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingBlogPost({
+                        ...editingBlogPost,
+                        content: [
+                          ...editingBlogPost.content,
+                          { heading: 'New Heading', paragraphs: ['Write your paragraph text here...'] }
+                        ]
+                      });
+                    }}
+                    className="text-xs font-semibold text-[#0070E0] hover:underline flex items-center space-x-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Section</span>
+                  </button>
+                </div>
+
+                {editingBlogPost.content.map((sec, secIdx) => (
+                  <div key={secIdx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <input
+                        type="text"
+                        value={sec.heading || ''}
+                        onChange={(e) => {
+                          const updated = [...editingBlogPost.content];
+                          updated[secIdx].heading = e.target.value;
+                          setEditingBlogPost({ ...editingBlogPost, content: updated });
+                        }}
+                        placeholder={`Section ${secIdx + 1} Heading`}
+                        className="font-bold text-xs bg-white px-2.5 py-1.5 rounded border border-slate-300 w-3/4"
+                      />
+                      {editingBlogPost.content.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = editingBlogPost.content.filter((_, i) => i !== secIdx);
+                            setEditingBlogPost({ ...editingBlogPost, content: updated });
+                          }}
+                          className="text-red-500 hover:text-red-700 text-xs"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <textarea
+                      rows={3}
+                      value={sec.paragraphs.join('\n\n')}
+                      onChange={(e) => {
+                        const updated = [...editingBlogPost.content];
+                        updated[secIdx].paragraphs = e.target.value.split('\n\n').filter(Boolean);
+                        setEditingBlogPost({ ...editingBlogPost, content: updated });
+                      }}
+                      placeholder="Write paragraph text here (separate paragraphs with blank line)..."
+                      className="w-full bg-white px-2.5 py-1.5 rounded border border-slate-300 text-xs leading-relaxed"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingBlogPost(null)}
+                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-lg bg-[#0070E0] hover:bg-blue-600 text-white font-semibold transition shadow-sm"
+                >
+                  Publish Article
+                </button>
+              </div>
+
+            
+                  </form>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -2331,9 +2740,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               )}
 
             </div>
+            )
           )}
 
-          {/* ======================================= */}
           {/* TAB 4: LEADERSHIP & TEAM MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'team' && (
@@ -4108,395 +4517,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 >
                   {isSavingProduct && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isSavingProduct ? 'Saving Spice...' : 'Save Spice'}
-                </button>
-              </div>
-
-            </form>
-
-          </div>
-        </div>
-      )}
-
-      {/* ======================================= */}
-      {/* MODAL 2: ADD/EDIT BLOG ARTICLE */}
-      {/* ======================================= */}
-      {isBlogModalOpen && editingBlogPost && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8">
-            
-            <div className="bg-[#0A1C3E] px-6 py-4 text-white flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-[#38BDF8] tracking-wider">
-                  Blog & Article Editor
-                </span>
-                <h3 className="text-lg font-bold font-display text-white">
-                  {editingBlogPost.title ? `Edit Article: ${editingBlogPost.title}` : 'Write New Export Insight Article'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsBlogModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveBlogPost} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="font-semibold text-slate-700 block mb-1">Article Title *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingBlogPost.title}
-                    onChange={(e) => {
-                      const newTitle = e.target.value;
-                      const updates: Partial<BlogPost> = { title: newTitle };
-                      if (!isSlugManuallyEdited) {
-                        updates.slug = slugify(newTitle);
-                      }
-                      setEditingBlogPost({ ...editingBlogPost, ...updates });
-                    }}
-                    placeholder="e.g. Navigating Indian Spice Harvest Calendars & Pricing Cycles"
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-semibold text-slate-700 block">
-                      Article URL Slug (Permalink) *
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSlugManuallyEdited(false);
-                        setEditingBlogPost({
-                          ...editingBlogPost,
-                          slug: slugify(editingBlogPost.title)
-                        });
-                      }}
-                      className="text-[11px] text-[#0070E0] hover:underline font-semibold cursor-pointer"
-                    >
-                      Auto-Generate from Title
-                    </button>
-                  </div>
-                  <div className="flex items-center rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 focus-within:ring-2 focus-within:ring-[#0070E0] focus-within:bg-white">
-                    <span className="text-slate-400 font-mono text-xs select-none shrink-0">
-                      /blog/
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={editingBlogPost.slug}
-                      onChange={(e) => {
-                        setIsSlugManuallyEdited(true);
-                        setEditingBlogPost({
-                          ...editingBlogPost,
-                          slug: slugify(e.target.value)
-                        });
-                      }}
-                      placeholder="e.g. how-to-import-spices-from-india"
-                      className="w-full bg-transparent text-xs font-mono font-semibold text-slate-800 focus:outline-none pl-1"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1 flex flex-wrap items-center justify-between gap-1">
-                    <span>Clean URL: <span className="font-mono text-slate-700 font-semibold">origintra.com/blog/{editingBlogPost.slug || slugify(editingBlogPost.title) || 'article-name'}</span></span>
-                    <span className="text-slate-500">Name-based clean permalink</span>
-                  </p>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Category *</label>
-                  <select
-                    value={editingBlogPost.category}
-                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, category: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  >
-                    <option value="Global Trade">Global Trade</option>
-                    <option value="Indian Spices">Indian Spices</option>
-                    <option value="Export Insights">Export Insights</option>
-                    <option value="Market Trends">Market Trends</option>
-                    <option value="Sourcing">Sourcing</option>
-                    <option value="Logistics">Logistics</option>
-                    <option value="Business Updates">Business Updates</option>
-                  </select>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-semibold text-slate-700 block">Author Name *</label>
-                    {currentUser && (
-                      <button
-                        type="button"
-                        onClick={() => setEditingBlogPost({
-                          ...editingBlogPost,
-                          author: currentUser.name,
-                          authorRole: currentUser.department || `${currentUser.role.toUpperCase()} Contributor`,
-                          authorId: currentUser.id
-                        })}
-                        className="text-[11px] text-[#0070E0] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
-                      >
-                        <UserIcon className="w-3 h-3" />
-                        <span>Stamp My Name ({currentUser.name.split(' ')[0]})</span>
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      required
-                      value={editingBlogPost.author}
-                      onChange={(e) => setEditingBlogPost({ ...editingBlogPost, author: e.target.value })}
-                      placeholder="e.g. Vikram Malhotra"
-                      className="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] font-semibold"
-                    />
-                    {users.length > 0 && (
-                      <select
-                        value={users.some(u => u.name === editingBlogPost.author) ? editingBlogPost.author : ''}
-                        onChange={(e) => {
-                          const foundUser = users.find(u => u.name === e.target.value);
-                          if (foundUser) {
-                            setEditingBlogPost({
-                              ...editingBlogPost,
-                              author: foundUser.name,
-                              authorRole: foundUser.department || `${foundUser.role.toUpperCase()} Author`,
-                              authorId: foundUser.id
-                            });
-                          }
-                        }}
-                        className="w-36 px-2 py-2 rounded-lg border border-slate-300 bg-slate-50 text-[11px] text-slate-700"
-                        title="Pick registered user as author"
-                      >
-                        <option value="">Pick Author...</option>
-                        {users.map(u => (
-                          <option key={u.id} value={u.name}>
-                            {u.name} ({u.role})
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Estimated Read Time</label>
-                  <input
-                    type="text"
-                    value={editingBlogPost.readTime}
-                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, readTime: e.target.value })}
-                    placeholder="e.g. 6 min read"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-semibold text-slate-700 block">Publication Date *</label>
-                    <div className="flex items-center gap-1.5 text-[11px]">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const now = new Date();
-                          const raw = now.toISOString().split('T')[0];
-                          const formatted = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                          setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
-                        }}
-                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
-                      >
-                        Today
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const yest = new Date();
-                          yest.setDate(yest.getDate() - 1);
-                          const raw = yest.toISOString().split('T')[0];
-                          const formatted = yest.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                          setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
-                        }}
-                        className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
-                      >
-                        Yesterday
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <input
-                        type="date"
-                        value={editingBlogPost.rawDate || ''}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw) {
-                            const [y, m, d] = raw.split('-').map(Number);
-                            const dateObj = new Date(y, m - 1, d);
-                            const formatted = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                            setEditingBlogPost({ ...editingBlogPost, rawDate: raw, date: formatted });
-                          } else {
-                            setEditingBlogPost({ ...editingBlogPost, rawDate: raw });
-                          }
-                        }}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] text-xs font-mono"
-                        title="Interactive Calendar Date Picker"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        required
-                        value={editingBlogPost.date}
-                        onChange={(e) => setEditingBlogPost({ ...editingBlogPost, date: e.target.value })}
-                        placeholder="e.g. October 5, 2026"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] text-xs font-semibold"
-                        title="Display publication date"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Pick from calendar or edit text to change date.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-semibold text-slate-700 block">Cover Image URL *</label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleOpenBlogImageGallery}
-                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#0070E0] hover:bg-blue-100 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
-                    >
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      Select from Gallery
-                    </button>
-                    <label className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer">
-                      <Upload className="w-3.5 h-3.5" />
-                      Upload
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleDevicePhotoUpload(f, 'blog');
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {editingBlogPost.image && (
-                    <div
-                      onClick={handleOpenBlogImageGallery}
-                      className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0070E0] transition bg-slate-100"
-                      title="Click to select from gallery"
-                    >
-                      <img src={editingBlogPost.image} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <input
-                    type="text"
-                    value={editingBlogPost.image}
-                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, image: e.target.value })}
-                    placeholder="https://images.unsplash.com/... or /assets/..."
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-300 font-mono text-[11px] focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Article Excerpt (Summary) *</label>
-                <textarea
-                  rows={2}
-                  required
-                  value={editingBlogPost.excerpt}
-                  onChange={(e) => setEditingBlogPost({ ...editingBlogPost, excerpt: e.target.value })}
-                  placeholder="Brief synopsis appearing on article cards..."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                />
-              </div>
-
-              {/* Dynamic Sections */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-xs">Article Content Sections ({editingBlogPost.content.length})</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingBlogPost({
-                        ...editingBlogPost,
-                        content: [
-                          ...editingBlogPost.content,
-                          { heading: 'New Heading', paragraphs: ['Write your paragraph text here...'] }
-                        ]
-                      });
-                    }}
-                    className="text-xs font-semibold text-[#0070E0] hover:underline flex items-center space-x-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Section</span>
-                  </button>
-                </div>
-
-                {editingBlogPost.content.map((sec, secIdx) => (
-                  <div key={secIdx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <input
-                        type="text"
-                        value={sec.heading || ''}
-                        onChange={(e) => {
-                          const updated = [...editingBlogPost.content];
-                          updated[secIdx].heading = e.target.value;
-                          setEditingBlogPost({ ...editingBlogPost, content: updated });
-                        }}
-                        placeholder={`Section ${secIdx + 1} Heading`}
-                        className="font-bold text-xs bg-white px-2.5 py-1.5 rounded border border-slate-300 w-3/4"
-                      />
-                      {editingBlogPost.content.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updated = editingBlogPost.content.filter((_, i) => i !== secIdx);
-                            setEditingBlogPost({ ...editingBlogPost, content: updated });
-                          }}
-                          className="text-red-500 hover:text-red-700 text-xs"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-
-                    <textarea
-                      rows={3}
-                      value={sec.paragraphs.join('\n\n')}
-                      onChange={(e) => {
-                        const updated = [...editingBlogPost.content];
-                        updated[secIdx].paragraphs = e.target.value.split('\n\n').filter(Boolean);
-                        setEditingBlogPost({ ...editingBlogPost, content: updated });
-                      }}
-                      placeholder="Write paragraph text here (separate paragraphs with blank line)..."
-                      className="w-full bg-white px-2.5 py-1.5 rounded border border-slate-300 text-xs leading-relaxed"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsBlogModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#0070E0] hover:bg-blue-600 text-white font-semibold transition shadow-sm"
-                >
-                  Publish Article
                 </button>
               </div>
 
