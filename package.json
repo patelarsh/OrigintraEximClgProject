@@ -9,7 +9,7 @@
     "start": "node server/index.js",
     "sitemap": "node scripts/build-sitemap.js",
     "indexnow": "node scripts/submit-indexnow.js",
-    "build": "node scripts/build-sitemap.js && tsc && vite build",
+    "build": "node scripts/build-sitemap.js && tsc && vite build && node scripts/prerender.js",
     "preview": "vite preview --host --port 4173",
     "mail-server": "node server/server.js"
   },

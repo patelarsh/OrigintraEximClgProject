@@ -191,11 +191,6 @@ export const WEBSITE_SCHEMA = {
   'description': 'B2B export portal for Indian spices, whole commodities, sortex seeds, and agricultural trading.',
   'publisher': {
     '@id': `${BASE_URL}/#organization`
-  },
-  'potentialAction': {
-    '@type': 'SearchAction',
-    'target': `${BASE_URL}/products?search={search_term_string}`,
-    'query-input': 'required name=search_term_string'
   }
 };
 

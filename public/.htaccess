@@ -27,6 +27,13 @@
   # 2.3 Redirect friendly /sitemap and /site-map directly to /sitemap.xml
   RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
 
+  # 2.4 Clean up any legacy search query parameters to canonical /products
+  RewriteCond %{QUERY_STRING} (?:^|&)search=.* [NC]
+  RewriteRule ^products/?$ /products? [R=301,L]
+
+  # 2.4.1 Redirect discontinued or legacy product URLs to catalog
+  RewriteRule ^products/mustard-seeds/?$ /products [R=301,L]
+
   # 2.5 Set environment variable to trigger X-Robots-Tag noindex on admin portal only
   RewriteRule ^(admin)(/.*)?$ - [E=NOINDEX_PAGE:1]
 
