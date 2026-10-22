@@ -41,6 +41,8 @@ import {
   Building2,
   Flag,
   Award,
+  Tag,
+  FolderTree,
   Camera,
   UserPlus,
   Crown,
@@ -70,6 +72,7 @@ import { MailService, WelcomeEmailPayload, EmailCredentials } from '../services/
 import { PRODUCT_CATEGORIES } from '../data/products';
 import { MediaGalleryModal } from '../components/MediaGalleryModal';
 import { SupabaseModal } from '../components/SupabaseModal';
+import { BlogEditorView } from '../components/admin/BlogEditorView';
 import { GalleryImage } from '../data/gallery';
 import { compressImage, compressDataUrl } from '../utils/imageCompressor';
 import { slugify } from '../utils/slugify';
@@ -79,7 +82,7 @@ interface AdminPageProps {
   onOpenProductDetail: (product: Product) => void;
 }
 
-type AdminTab = 'dashboard' | 'products' | 'blog' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings';
+type AdminTab = 'dashboard' | 'products' | 'categories' | 'blog' | 'blog-categories' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings' | 'certificates';
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductDetail }) => {
   // === AUTH STATE ===
@@ -185,6 +188,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [isSavingProduct, setIsSavingProduct] = useState(false);
 
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
+  const [blogEditorMode, setBlogEditorMode] = useState<'create' | 'edit' | null>(null);
+  const [blogEditorSelectedGalleryImage, setBlogEditorSelectedGalleryImage] = useState<string | null>(null);
   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
   const [blogPreviewPost, setBlogPreviewPost] = useState<BlogPost | null>(null);
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
@@ -466,6 +471,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
   // === BLOG POST CRUD HANDLERS ===
   const handleOpenAddBlogPost = () => {
+    setEditingBlogPost(null);
+    setBlogEditorMode('create');
+    setBlogEditorSelectedGalleryImage(null);
+  };
+
+  const handleOpenEditBlogPost = (post: BlogPost) => {
+    setEditingBlogPost(post);
+    setBlogEditorMode('edit');
+    setBlogEditorSelectedGalleryImage(null);
+  };
+
+  const handleSaveBlogPostFromEditor = (post: BlogPost) => {
+    AdminStorage.saveBlogPost(post);
+    setBlogEditorMode(null);
+    setEditingBlogPost(null);
+    setBlogEditorSelectedGalleryImage(null);
+    showToast(`Article "${post.title}" saved & published successfully!`);
+  };
+
+  const handleCancelBlogEditor = () => {
+    setBlogEditorMode(null);
+    setEditingBlogPost(null);
+    setBlogEditorSelectedGalleryImage(null);
+  };
+
+  const _legacyHandleOpenAddBlogPost = () => {
     const now = new Date();
     const formattedToday = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const rawToday = now.toISOString().split('T')[0];
@@ -514,7 +545,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     setIsBlogModalOpen(true);
   };
 
-  const handleOpenEditBlogPost = (post: BlogPost) => {
+  const _legacyHandleOpenEditBlogPost = (post: BlogPost) => {
     const copy: BlogPost = JSON.parse(JSON.stringify(post));
     if (copy.slug && copy.slug.startsWith('new-article-')) {
       copy.slug = slugify(copy.title);
@@ -810,8 +841,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     } else if (galleryModalTarget === 'product' && editingProduct) {
       setEditingProduct({ ...editingProduct, image: url });
       showToast(`Selected photo: ${title || 'Product Image'}`);
-    } else if (galleryModalTarget === 'blog' && editingBlogPost) {
-      setEditingBlogPost({ ...editingBlogPost, image: url });
+    } else if (galleryModalTarget === 'blog') {
+      setBlogEditorSelectedGalleryImage(url);
+      if (editingBlogPost) {
+        setEditingBlogPost({ ...editingBlogPost, image: url });
+      }
       showToast(`Selected cover: ${title || 'Blog Cover'}`);
     } else if (galleryModalTarget === 'testimonial' && editingTestimonial) {
       setEditingTestimonial({ ...editingTestimonial, avatar: url });
@@ -1082,193 +1116,270 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         </div>
 
         {/* Middle: Navigation Menu Items */}
-        <div className="flex-1 overflow-y-auto p-3.5 space-y-1.5 scrollbar-thin">
-          {/* Dashboard */}
-          <button
-            onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-              activeTab === 'dashboard'
-                ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                : 'text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <div className="flex items-center space-x-3">
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-4 scrollbar-thin">
+
+          {/* SECTION: DASHBOARD */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Dashboard
             </div>
-          </button>
-
-          {/* Product Catalog */}
-          {canAccessProducts && (
             <button
-              onClick={() => { setActiveTab('products'); setMobileMenuOpen(false); }}
+              onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'products'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
+                activeTab === 'dashboard'
+                  ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
                   : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
               <div className="flex items-center space-x-3">
-                <Package className="w-4 h-4" />
-                <span>Product Catalog</span>
+                <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                <span>Dashboard</span>
               </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'products' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
-              }`}>
-                {products.length}
-              </span>
             </button>
-          )}
+          </div>
 
-          {/* Blog & Articles */}
-          {canAccessBlog && (
-            <button
-              onClick={() => { setActiveTab('blog'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'blog'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="w-4 h-4" />
-                <span>Blog & Articles</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'blog' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
-              }`}>
-                {blogPosts.length}
-              </span>
-            </button>
-          )}
+          {/* SECTION: PRODUCT MANAGEMENT */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Product Management
+            </div>
+            {canAccessProducts && (
+              <>
+                <button
+                  onClick={() => { setActiveTab('products'); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                    activeTab === 'products'
+                      ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Package className={`w-4 h-4 ${activeTab === 'products' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                    <span>Products</span>
+                  </div>
+                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                    activeTab === 'products' ? 'bg-[#0070E0] text-white' : 'bg-sky-100 text-[#0070E0]'
+                  }`}>
+                    {products.length}
+                  </span>
+                </button>
 
-          {/* Leadership Team */}
-          {canAccessTeam && (
-            <button
-              onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'team'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Users className="w-4 h-4" />
-                <span>Leadership Team</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'team' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
-              }`}>
-                {teamMembers.length}
-              </span>
-            </button>
-          )}
+                <button
+                  onClick={() => { setActiveTab('products'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Tag className="w-4 h-4 text-slate-500" />
+                    <span>Categories</span>
+                  </div>
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600">
+                    {PRODUCT_CATEGORIES.length}
+                  </span>
+                </button>
+              </>
+            )}
+          </div>
 
-          {/* Client Reviews */}
-          {canAccessTestimonials && (
-            <button
-              onClick={() => { setActiveTab('testimonials'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'testimonials'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Quote className="w-4 h-4" />
-                <span>Client Reviews</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'testimonials' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
-              }`}>
-                {testimonials.length}
-              </span>
-            </button>
-          )}
+          {/* SECTION: BLOG & CONTENT */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Blog & Content
+            </div>
+            {canAccessBlog && (
+              <>
+                <button
+                  onClick={() => { setActiveTab('blog'); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                    activeTab === 'blog'
+                      ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FileText className={`w-4 h-4 ${activeTab === 'blog' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                    <span>Blogs & Articles</span>
+                  </div>
+                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                    activeTab === 'blog' ? 'bg-[#0070E0] text-white' : 'bg-slate-100 text-slate-700'
+                  }`}>
+                    {blogPosts.length}
+                  </span>
+                </button>
 
-          {/* Media Gallery */}
-          {canAccessGallery && (
-            <button
-              onClick={() => { setActiveTab('gallery'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'gallery'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <ImageIcon className="w-4 h-4" />
-                <span>Media Gallery</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'gallery' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'
-              }`}>
-                {galleryImages.length}
-              </span>
-            </button>
-          )}
+                <button
+                  onClick={() => { setActiveTab('blog-categories'); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                    activeTab === 'blog-categories'
+                      ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FolderTree className={`w-4 h-4 ${activeTab === 'blog-categories' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                    <span>Blog Categories</span>
+                  </div>
+                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                    activeTab === 'blog-categories' ? 'bg-[#0070E0] text-white' : 'bg-slate-100 text-slate-700'
+                  }`}>
+                    {AdminStorage.getBlogCategories().length}
+                  </span>
+                </button>
+              </>
+            )}
+          </div>
 
-          {/* Inquiries & Leads */}
-          {canAccessInquiries && (
-            <button
-              onClick={() => { setActiveTab('inquiries'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'inquiries'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Inbox className="w-4 h-4" />
-                <span>Inquiries & Leads</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'inquiries' ? 'bg-white/20 text-white' : 'bg-sky-100 text-[#0070E0]'
-              }`}>
-                {inquiries.length}
-              </span>
-            </button>
-          )}
+          {/* SECTION: ENQUIRIES & LEADS */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Enquiries & Leads
+            </div>
+            {canAccessInquiries && (
+              <button
+                onClick={() => { setActiveTab('inquiries'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'inquiries'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Inbox className={`w-4 h-4 ${activeTab === 'inquiries' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Buyer Inquiries</span>
+                </div>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'inquiries' ? 'bg-[#0070E0] text-white' : 'bg-sky-100 text-[#0070E0]'
+                }`}>
+                  {inquiries.length}
+                </span>
+              </button>
+            )}
 
-          {/* User Management */}
-          {canAccessUsers && (
-            <button
-              onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'users'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <UserCheck className="w-4 h-4" />
-                <span>User Management</span>
-              </div>
-              <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'users' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'
-              }`}>
-                {users.length}
-              </span>
-            </button>
-          )}
+            {canAccessTestimonials && (
+              <button
+                onClick={() => { setActiveTab('testimonials'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'testimonials'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Quote className={`w-4 h-4 ${activeTab === 'testimonials' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Client Reviews</span>
+                </div>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'testimonials' ? 'bg-[#0070E0] text-white' : 'bg-amber-100 text-amber-800'
+                }`}>
+                  {testimonials.length}
+                </span>
+              </button>
+            )}
+          </div>
 
-          {/* Website & Contact */}
-          {canAccessSettings && (
+          {/* SECTION: MEDIA */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Media
+            </div>
+            {canAccessGallery && (
+              <button
+                onClick={() => { setActiveTab('gallery'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'gallery'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <ImageIcon className={`w-4 h-4 ${activeTab === 'gallery' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Media Gallery</span>
+                </div>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'gallery' ? 'bg-[#0070E0] text-white' : 'bg-indigo-100 text-indigo-700'
+                }`}>
+                  {galleryImages.length}
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* SECTION: OTHERS */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3.5 py-1">
+              Others
+            </div>
             <button
               onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
             >
               <div className="flex items-center space-x-3">
-                <Settings className="w-4 h-4" />
-                <span>Website & Contact</span>
+                <Award className="w-4 h-4 text-slate-500" />
+                <span>Certificates</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600">
+                6
+              </span>
             </button>
-          )}
+
+            {canAccessTeam && (
+              <button
+                onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'team'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Users className={`w-4 h-4 ${activeTab === 'team' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Team Members</span>
+                </div>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'team' ? 'bg-[#0070E0] text-white' : 'bg-sky-100 text-[#0070E0]'
+                }`}>
+                  {teamMembers.length}
+                </span>
+              </button>
+            )}
+
+            {canAccessSettings && (
+              <button
+                onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'settings'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Website Settings</span>
+                </div>
+              </button>
+            )}
+
+            {canAccessUsers && (
+              <button
+                onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'users'
+                    ? 'bg-blue-50 text-[#0070E0] font-bold shadow-2xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <UserCheck className={`w-4 h-4 ${activeTab === 'users' ? 'text-[#0070E0]' : 'text-slate-500'}`} />
+                  <span>Users & Roles</span>
+                </div>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'users' ? 'bg-[#0070E0] text-white' : 'bg-purple-100 text-purple-700'
+                }`}>
+                  {users.length}
+                </span>
+              </button>
+            )}
+          </div>
+
         </div>
 
         {/* Bottom: Sidebar System Meta */}
@@ -2195,7 +2306,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* TAB 3: BLOG & ARTICLES MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'blog' && (
-            <div className="space-y-6">
+            blogEditorMode !== null ? (
+              <BlogEditorView
+                initialPost={editingBlogPost}
+                mode={blogEditorMode}
+                currentUser={currentUser}
+                users={users}
+                onSave={handleSaveBlogPostFromEditor}
+                onCancel={handleCancelBlogEditor}
+                onOpenMediaGallery={handleOpenBlogImageGallery}
+                selectedGalleryImage={blogEditorSelectedGalleryImage}
+              />
+            ) : (
+              <div className="space-y-6">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -2331,9 +2454,87 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               )}
 
             </div>
+            )
           )}
 
           {/* ======================================= */}
+          {/* TAB 3B: BLOG CATEGORIES MANAGEMENT */}
+          {/* ======================================= */}
+          {activeTab === 'blog-categories' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-[#0F172A]">
+                    Blog Categories
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Organize trade guides, market intelligence reports, and procurement articles by category.
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      const newCat = prompt('Enter new blog category name:');
+                      if (newCat && newCat.trim()) {
+                        AdminStorage.saveBlogCategory(newCat.trim());
+                        showToast('Category "' + newCat.trim() + '" added successfully!');
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add New Category</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {AdminStorage.getBlogCategories().map((cat) => {
+                  const count = blogPosts.filter(p =>
+                    p.category === cat || (p.categories && p.categories.includes(cat))
+                  ).length;
+
+                  return (
+                    <div
+                      key={cat}
+                      className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md transition flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0070E0] flex items-center justify-center shrink-0 font-bold">
+                          <FolderTree className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold text-slate-900 truncate">
+                            {cat}
+                          </h4>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {count} {count === 1 ? 'article' : 'articles'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-1 shrink-0">
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete category "' + cat + '"? (Articles in this category will remain preserved)')) {
+                              AdminStorage.deleteBlogCategory(cat);
+                              showToast('Category "' + cat + '" deleted.');
+                            }
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* TAB 4: LEADERSHIP & TEAM MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'team' && (

@@ -40,6 +40,7 @@ export interface DatabaseStatusInfo {
 const STORAGE_KEYS = {
   PRODUCTS: 'origintra_admin_products_v3',
   BLOG_POSTS: 'origintra_admin_blog_posts_v1',
+  BLOG_CATEGORIES: 'origintra_admin_blog_categories_v1',
   TEAM_MEMBERS: 'origintra_admin_team_members_v1',
   INQUIRIES: 'origintra_admin_inquiries_v1',
   COMPANY: 'origintra_admin_company_v1',
@@ -1324,6 +1325,61 @@ export const AdminStorage = {
     }
   },
 
+  // === BLOG CATEGORIES (Dynamic Multi-Category System) ===
+  getBlogCategories(): string[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+
+    const defaults = [
+      'Export Guide',
+      'Spice Market',
+      'International Trade',
+      'Quality & Certification',
+      'Logistics & Shipping',
+      'Industry Insights',
+      'Indian Spices',
+      'Global Trade',
+      'Market Trends',
+      'Sourcing'
+    ];
+    try {
+      localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(defaults));
+    } catch {}
+    return defaults;
+  },
+
+  saveBlogCategory(newCategory: string): string[] {
+    const trimmed = (newCategory || '').trim();
+    if (!trimmed) return this.getBlogCategories();
+    const current = this.getBlogCategories();
+    if (!current.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      const updated = [...current, trimmed];
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(updated));
+        window.dispatchEvent(new Event('origintra_blog_categories_updated'));
+        notifyCrossTab('origintra_blog_categories_updated');
+      } catch {}
+      return updated;
+    }
+    return current;
+  },
+
+  deleteBlogCategory(catToDelete: string): string[] {
+    const current = this.getBlogCategories();
+    const updated = current.filter(c => c.toLowerCase() !== catToDelete.toLowerCase());
+    try {
+      localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(updated));
+      window.dispatchEvent(new Event('origintra_blog_categories_updated'));
+      notifyCrossTab('origintra_blog_categories_updated');
+    } catch {}
+    return updated;
+  },
+
   // === TEAM MEMBERS ===
   getTeamMembers(): TeamMember[] {
     try {
@@ -1970,6 +2026,7 @@ if (typeof window !== 'undefined') {
     if (!e.key) return;
     if (e.key === STORAGE_KEYS.PRODUCTS || e.key === STORAGE_KEYS.DELETED_PRODUCTS) window.dispatchEvent(new Event('origintra_products_updated'));
     if (e.key === STORAGE_KEYS.BLOG_POSTS) window.dispatchEvent(new Event('origintra_blog_updated'));
+    if (e.key === STORAGE_KEYS.BLOG_CATEGORIES) window.dispatchEvent(new Event('origintra_blog_categories_updated'));
     if (e.key === STORAGE_KEYS.TEAM_MEMBERS) window.dispatchEvent(new Event('origintra_team_updated'));
     if (e.key === STORAGE_KEYS.INQUIRIES) window.dispatchEvent(new Event('origintra_inquiries_updated'));
     if (e.key === STORAGE_KEYS.COMPANY) window.dispatchEvent(new Event('origintra_company_updated'));

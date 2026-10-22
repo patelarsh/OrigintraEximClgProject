@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
   ArrowRight, 
@@ -50,16 +50,14 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     }
   }, [initialSlug]);
 
-  const categories = [
-    'All',
-    'Global Trade',
-    'Indian Spices',
-    'Export Insights',
-    'Market Trends',
-    'Sourcing',
-    'Logistics',
-    'Business Updates'
-  ];
+  const categories = useMemo(() => {
+    const catsFromPosts = posts.flatMap(p => [
+      ...(p.categories || []),
+      p.category
+    ]).filter(Boolean);
+    const storedCats = AdminStorage.getBlogCategories();
+    return Array.from(new Set(['All', ...catsFromPosts, ...storedCats]));
+  }, [posts]);
 
   const activePost = activeSlug 
     ? (posts.find((p) => p.slug === activeSlug) || 
@@ -68,7 +66,9 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     : null;
 
   const filteredPosts = posts.filter((post) => {
-    const matchesCat = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchesCat = selectedCategory === 'All' ||
+      post.category?.toLowerCase() === selectedCategory.toLowerCase() ||
+      post.categories?.some(c => c.toLowerCase() === selectedCategory.toLowerCase());
     const matchesSearch = 
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
@@ -106,9 +106,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({
               <span>Back to All Articles</span>
             </a>
 
-            <span className="text-xs font-semibold text-[#0070E0] bg-blue-50 px-3 py-1 rounded-full">
-              {activePost.category}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {(activePost.categories && activePost.categories.length > 0 ? activePost.categories : [activePost.category]).map(c => (
+                <span key={c} className="text-xs font-semibold text-[#0070E0] bg-blue-50 px-3 py-1 rounded-full">
+                  {c}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Article Header */}
@@ -124,7 +128,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100">
               <span className="flex items-center gap-1">
                 <User className="w-3.5 h-3.5 text-slate-400" />
-                <strong className="text-slate-700">{activePost.author}</strong> ({activePost.authorRole})
+                <strong className="text-slate-700">{activePost.author}</strong> ({activePost.authorRole || 'Admin'})
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">

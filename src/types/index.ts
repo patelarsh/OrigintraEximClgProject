@@ -87,9 +87,13 @@ export interface BlogPost {
   id: string;
   slug: string;
   title: string;
-  category: 'Global Trade' | 'Indian Spices' | 'Export Insights' | 'Market Trends' | 'Sourcing' | 'Logistics' | 'Business Updates';
+  category: string;
+  categories?: string[];
+  status?: 'Published' | 'Draft' | 'Scheduled';
   date: string;
   rawDate?: string;
+  publishDate?: string;
+  publishTime?: string;
   readTime: string;
   author: string;
   authorRole: string;
@@ -97,12 +101,15 @@ export interface BlogPost {
   excerpt: string;
   image: string;
   seoTitle: string;
+  metaTitle?: string;
   metaDescription: string;
+  tags?: string[];
   tableOfContents: string[];
   content: {
     heading?: string;
     paragraphs: string[];
   }[];
+  contentHtml?: string;
   relatedSlugs: string[];
 }
 
