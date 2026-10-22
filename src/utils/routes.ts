@@ -15,6 +15,7 @@ export const ROUTES = {
   shipping: '/shipping-policy',
   cookies: '/cookie-policy',
   sitemap: '/sitemap.xml',
+  noInternet: '/no-internet',
   notFound: '/404'
 } as const;
 
@@ -28,12 +29,13 @@ export type RouteTarget =
   | 'contact'
   | 'meeting'
   | 'admin'
+  | 'no-internet'
   | 'not-found'
   | '404'
   | string;
 
 export interface ParsedRoute {
-  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal' | 'not-found';
+  page: 'home' | 'about' | 'products' | 'product-detail' | 'global-reach' | 'quality' | 'blog' | 'contact' | 'meeting' | 'admin' | 'legal' | 'no-internet' | 'not-found';
   productSlug?: string;
   blogSlug?: string;
   legalType?: 'privacy' | 'terms' | 'shipping' | 'cookies';
@@ -73,6 +75,7 @@ export function getHref(target: string): string {
   if (clean === 'legal-shipping' || clean === 'shipping') return ROUTES.shipping;
   if (clean === 'legal-cookies' || clean === 'cookies') return ROUTES.cookies;
   if (clean === 'sitemap' || clean === 'site-map' || clean === 'sitemap.xml') return '/sitemap.xml';
+  if (clean === 'no-internet' || clean === 'offline') return ROUTES.noInternet;
   if (clean === '404' || clean === 'not-found') return ROUTES.notFound;
 
   return `/${clean}`;
@@ -174,6 +177,10 @@ export function parseCurrentRoute(): ParsedRoute {
       window.location.replace('/sitemap.xml');
     }
     return { page: 'home', path: '/sitemap.xml' };
+  }
+
+  if (pathname === '/no-internet' || pathname === '/offline') {
+    return { page: 'no-internet', path: '/no-internet' };
   }
 
   if (pathname === '/404' || pathname === '/not-found') {

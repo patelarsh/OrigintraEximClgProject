@@ -36,6 +36,7 @@ const MeetingPage = lazy(() => import('./pages/MeetingPage').then(m => ({ defaul
 const AdminPage = lazy(() => import('./pages/AdminPage').then(m => ({ default: m.AdminPage })));
 const LegalPage = lazy(() => import('./pages/LegalPage').then(m => ({ default: m.LegalPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const NoInternetPage = lazy(() => import('./pages/NoInternetPage').then(m => ({ default: m.NoInternetPage })));
 const QuoteModal = lazy(() => import('./components/QuoteModal').then(m => ({ default: m.QuoteModal })));
 const LegalModal = lazy(() => import('./components/LegalModal').then(m => ({ default: m.LegalModal })));
 
@@ -59,6 +60,23 @@ export const App: React.FC = () => {
   const [legalModalOpen, setLegalModalOpen] = useState<boolean>(false);
   const [activeLegalType, setActiveLegalType] = useState<'privacy' | 'terms' | 'shipping' | 'cookies'>('privacy');
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(() => {
+    if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+      return navigator.onLine;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Sync server-backed site settings & products on mount so all devices have current global state
   useEffect(() => {
@@ -159,6 +177,14 @@ export const App: React.FC = () => {
       case 'legal':
         updatePageSeo(getLegalSeo(route.legalType || 'privacy'));
         break;
+      case 'no-internet':
+        updatePageSeo({
+          title: 'No Internet Connection | Origintra Exim',
+          description: 'You are currently offline. Please check your network connection.',
+          canonicalPath: '/no-internet',
+          noIndex: true
+        });
+        break;
       case 'not-found':
         updatePageSeo({
           title: '404 - Page Not Found | Origintra Exim',
@@ -254,6 +280,11 @@ export const App: React.FC = () => {
       }
       setLegalModalOpen(false);
       applyRouteSeo(route);
+    } else if (route.page === 'no-internet') {
+      setCurrentPage('no-internet');
+      setSelectedProduct(null);
+      setBlogArticleSlug(null);
+      applyRouteSeo(route);
     } else if (route.page === 'not-found') {
       setCurrentPage('not-found');
       setSelectedProduct(null);
@@ -327,6 +358,27 @@ export const App: React.FC = () => {
       syncRouteState();
     }
   };
+
+  if (!isOnline || currentPage === 'no-internet') {
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <NoInternetPage
+          onRetry={() => {
+            if (typeof navigator !== 'undefined' && navigator.onLine) {
+              setIsOnline(true);
+              if (currentPage === 'no-internet') handleNavigate('home');
+            } else {
+              window.location.reload();
+            }
+          }}
+          onNavigate={(page) => {
+            setIsOnline(true);
+            handleNavigate(page);
+          }}
+        />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-slate-800 flex flex-col font-sans selection:bg-[#0070E0] selection:text-white antialiased">

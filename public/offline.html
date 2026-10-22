@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No Internet Connection | Origintra Exim</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      line-height: 1.5;
+    }
+    header, footer {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 16px 24px;
+    }
+    footer {
+      border-top: 1px solid #E2E8F0;
+      border-bottom: none;
+      text-align: center;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      color: #92400E;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #F59E0B;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+    .container {
+      max-width: 620px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon-box {
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #0A1C3E 0%, #0A2558 100%);
+      margin: 0 auto 24px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      box-shadow: 0 10px 25px -5px rgba(10, 28, 62, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .icon-box svg {
+      width: 54px;
+      height: 54px;
+      stroke: #FFFFFF;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: #FEE2E2;
+      border: 1px solid #FECACA;
+      color: #DC2626;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    p.desc {
+      font-size: 15px;
+      color: #64748B;
+      margin-bottom: 28px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: #0A1C3E;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(10, 28, 62, 0.15);
+    }
+    .btn-primary:hover {
+      background: #0070E0;
+    }
+    .btn-secondary {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+    }
+    .btn-secondary:hover {
+      background: #F1F5F9;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 600px) {
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 26px;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    .tip-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 16px;
+      border-radius: 16px;
+    }
+    .tip-step {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0070E0;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .tip-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-bottom: 4px;
+    }
+    .tip-desc {
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+    .hotline-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 16px 20px;
+      border-radius: 16px;
+      text-align: left;
+    }
+    .hotline-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .hotline-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .hotline-links a {
+      color: #0070E0;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <img src="/assets/logo/origintra-official-logo.png" alt="Origintra Exim" class="logo-img" onerror="this.src='/assets/logo/origintra-official-logo.webp'" />
+      <div class="badge">
+        <span class="dot"></span>
+        <span>Offline Mode</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="icon-box">
+        <svg viewBox="0 0 24 24">
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+      </div>
+
+      <div class="tag">No Internet Connection</div>
+      <h1>You are currently offline</h1>
+      <p class="desc">
+        We couldn&apos;t reach the Origintra Exim trading servers. Please check your network cables, Wi-Fi router, or mobile data connection.
+      </p>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="window.location.reload()">
+          <span>Try Reconnecting</span>
+        </button>
+        <button class="btn btn-secondary" onclick="checkStatus()">
+          <span id="check-text">Ping Server</span>
+        </button>
+      </div>
+
+      <div class="tips-grid">
+        <div class="tip-card">
+          <span class="tip-step">Step 1</span>
+          <div class="tip-title">Check Wi-Fi / Cable</div>
+          <div class="tip-desc">Make sure Wi-Fi is enabled or your Ethernet cable is plugged in securely.</div>
+        </div>
+        <div class="tip-card">
+          <span class="tip-step">Step 2</span>
+          <div class="tip-title">Restart Router</div>
+          <div class="tip-desc">Reboot your modem, fiber gateway, or mobile hotspot to renew your connection.</div>
+        </div>
+        <div class="tip-card">
+          <span class="tip-step">Step 3</span>
+          <div class="tip-title">Check VPN / Proxy</div>
+          <div class="tip-desc">Disable conflicting VPNs or corporate firewalls blocking outbound HTTPS requests.</div>
+        </div>
+      </div>
+
+      <div class="hotline-card">
+        <div class="hotline-header">
+          <span>Urgent Commercial Procurement Hotline</span>
+          <span style="color:#059669;font-size:10px;text-transform:uppercase;">Phone Always Active</span>
+        </div>
+        <div class="hotline-links">
+          <span>Phone: <a href="tel:+917069182990">+91 70691 82990</a></span>
+          <span>Email: <a href="mailto:export@origintra.com">export@origintra.com</a></span>
+          <span>Location: Gujarat, India</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Origintra Exim. International Spices & Agricultural Export Commodities.</p>
+  </footer>
+
+  <script>
+    window.addEventListener('online', function() {
+      window.location.reload();
+    });
+
+    function checkStatus() {
+      const btn = document.getElementById('check-text');
+      btn.innerText = 'Pinging...';
+      fetch('/favicon.ico?_t=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+        .then(() => {
+          btn.innerText = 'Online! Reloading...';
+          setTimeout(() => window.location.reload(), 500);
+        })
+        .catch(() => {
+          btn.innerText = 'Still Offline';
+          setTimeout(() => { btn.innerText = 'Ping Server'; }, 2000);
+        });
+    }
+  </script>
+</body>
+</html>

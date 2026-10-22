@@ -170,6 +170,14 @@ const staticPages = [
     h1: 'Cookie Policy',
     eyebrow: 'Digital Compliance',
     body: `<section class="max-w-4xl mx-auto px-4 py-12"><h1 class="text-3xl font-bold mb-4">Cookie Policy</h1><p>Zero third-party marketing tracking; essential technical cookies only.</p></section>`
+  },
+  {
+    path: 'no-internet',
+    title: 'No Internet Connection | Origintra Exim',
+    description: 'You are currently offline. Please check your network connection to resume live export operations.',
+    h1: 'You are currently offline',
+    eyebrow: 'Network Status',
+    body: `<section class="max-w-2xl mx-auto px-4 py-16 text-center"><h1 class="text-3xl font-bold mb-4">You are currently offline</h1><p class="text-slate-600 mb-6">Please check your internet connection to resume live export operations.</p></section>`
   }
 ];
 
