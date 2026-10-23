@@ -41,6 +41,8 @@ export interface CompanyConfig {
   linkedinUrl?: string;
   complianceStatement: string;
   sourcingStatement: string;
+  gstNumber?: string;
+  iecCode?: string;
 }
 
 export const COMPANY_CONFIG: CompanyConfig = {
@@ -101,7 +103,9 @@ export const COMPANY_CONFIG: CompanyConfig = {
     deskNote: 'Commercial enquiry responses dispatched within 24 to 48 business hours.'
   },
   complianceStatement: 'Documentation and certifications available according to product and destination requirements.',
-  sourcingStatement: 'Direct sourcing relationships across key Indian agricultural zones with emphasis on batch consistency, moisture control, and export-grade packing.'
+  sourcingStatement: 'Direct sourcing relationships across key Indian agricultural zones with emphasis on batch consistency, moisture control, and export-grade packing.',
+  gstNumber: '24ABCDE1234F1Z5',
+  iecCode: 'ABCDE1234F'
 };
 
 export interface ExportCertificate {
