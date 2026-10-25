@@ -106,11 +106,6 @@ export const RegulatoryNotification: React.FC<RegulatoryNotificationProps> = ({ 
               <p className="text-slate-300 text-[11px] sm:text-xs">
                 Please note that Origintra Exim is currently operating under valid Government of India <strong>GST Registration</strong>. Mandatory statutory export &amp; food safety licenses (<strong>IEC, Spices Board, FSSAI, APEDA</strong>) are currently under active application and regulatory processing, and will be completed as soon as possible.
               </p>
-
-              {/* Gujarati note for local clarity */}
-              <div className="mt-2 pt-2 border-t border-slate-700/50 text-[11px] text-amber-300/90 leading-normal">
-                <strong>સૂચના:</strong> હાલમાં અમારી પાસે GST રજીસ્ટ્રેશન ઉપલબ્ધ છે. અન્ય તમામ એક્સપોર્ટ લાયસન્સ પ્રોસેસિંગ હેઠળ છે જે ટૂંક સમયમાં ઉપલબ્ધ થશે.
-              </div>
             </div>
 
             {/* Expandable Breakdown of Statuses */}
