@@ -75,6 +75,7 @@ import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
 import { compressImage, compressDataUrl } from '../utils/imageCompressor';
 import { slugify } from '../utils/slugify';
+import { getCountryFlag } from '../utils/countryFlags';
 
 interface AdminPageProps {
   onNavigate: (page: string) => void;
@@ -3044,87 +3045,120 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </button>
               </div>
 
-              {/* Testimonials Grid */}
+              {/* Testimonials Grid (Homepage Synced Live Preview Design) */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredTestimonials.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group overflow-hidden"
-                  >
-                    <div className="p-6">
+                {filteredTestimonials.map((item) => {
+                  const countryFlag = getCountryFlag(item.country);
 
-                      {/* Commodity & Volume */}
-                      <div className="mb-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-[#0070E0] mb-0.5">
-                          {item.volumeOrType || 'Commercial FCL Consignment'}
-                        </div>
-                        <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                          {item.commodity}
-                        </h4>
-                      </div>
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_36px_rgba(0,0,0,0.08)] hover:border-slate-300 transition-all duration-300 flex flex-col justify-between group overflow-hidden"
+                    >
+                      {/* Top Section with Verified Testimonial Content */}
+                      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between">
+                        <div>
+                          {/* Top Row: 5 Golden Stars + Trade Commodity Badge */}
+                          <div className="flex items-center justify-between gap-2 mb-4">
+                            <div className="flex items-center space-x-1">
+                              {[...Array(item.rating || 5)].map((_, sIdx) => (
+                                <Star key={sIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                              ))}
+                            </div>
 
-                      {/* Testimonial Quote */}
-                      <blockquote className="my-3 pl-3 border-l-2 border-[#0070E0]/30 text-xs text-slate-600 leading-relaxed font-normal">
-                        "{item.testimonial}"
-                      </blockquote>
-
-                      {/* Buyer Identity */}
-                      <div className="pt-3.5 mt-3 border-t border-slate-100 flex items-center space-x-3">
-                        {item.avatar ? (
-                          <img
-                            src={item.avatar}
-                            alt={item.author}
-                            className="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-9 h-9 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0 tracking-wider">
-                            {item.author.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                            {(item.volumeOrType || item.commodity) && (
+                              <span className="text-[10px] font-semibold text-[#0070E0] bg-blue-50 border border-blue-100/80 px-2.5 py-0.5 rounded-full truncate max-w-[190px]">
+                                {item.volumeOrType || item.commodity}
+                              </span>
+                            )}
                           </div>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-bold text-slate-900 truncate">
-                            {item.author}
-                          </h4>
-                          <p className="text-[11px] text-slate-500 truncate">
-                            {item.role}
+
+                          {/* Testimonial Quote with Typographic Quotes */}
+                          <p className="text-sm sm:text-[15px] text-[#0F172A] leading-relaxed font-normal">
+                            <span className="font-serif text-lg text-[#0F172A] mr-1 select-none">“</span>
+                            {item.testimonial}
+                            <span className="font-serif text-lg text-[#0F172A] ml-1 select-none">”</span>
                           </p>
-                          <p className="text-[11px] font-medium text-slate-700 truncate flex items-center gap-1 mt-0.5">
-                            <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span className="truncate">{item.company}</span>
-                            <span className="text-slate-400 font-normal shrink-0">({item.country})</span>
-                          </p>
+                        </div>
+
+                        {/* Thin Horizontal Divider */}
+                        <div className="border-t border-slate-100 my-5" />
+
+                        {/* Bottom Row: Avatar & Author on Left, Country Flag Pill on Right */}
+                        <div className="flex items-center justify-between gap-3 pt-0.5">
+                          {/* Left: Avatar + Author Info */}
+                          <div className="flex items-center space-x-3 min-w-0">
+                            {item.avatar ? (
+                              <img
+                                src={item.avatar}
+                                alt={item.author}
+                                width="44"
+                                height="44"
+                                className="w-11 h-11 rounded-full object-cover shrink-0 shadow-2xs border border-slate-100"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-11 h-11 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0 tracking-wider shadow-2xs">
+                                {item.author.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-bold text-[#0F172A] truncate tracking-tight leading-snug">
+                                {item.author}
+                              </h4>
+                              <p className="text-xs text-slate-500 font-normal truncate mt-0.5">
+                                {item.role || item.company}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right: Modern Country Pill with National Flag */}
+                          <div className="bg-slate-100/90 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1.5 border border-slate-200/60 shrink-0">
+                            <img
+                              src={`https://flagcdn.com/w40/${countryFlag.code}.png`}
+                              srcSet={`https://flagcdn.com/w80/${countryFlag.code}.png 2x`}
+                              alt={countryFlag.name}
+                              width="18"
+                              height="12"
+                              className="w-4.5 h-3 object-cover rounded-[2px] shadow-2xs shrink-0"
+                              loading="lazy"
+                            />
+                            <span className="text-xs font-semibold text-slate-700">
+                              {countryFlag.name}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Actions Bar (Admin Management) */}
+                      <div className="px-6 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          ID: {item.id}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleOpenEditTestimonial(item)}
+                            className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#0070E0] hover:border-blue-300 text-xs font-semibold transition cursor-pointer flex items-center space-x-1 shadow-2xs"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTestimonial(item)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            title="Delete Review"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     </div>
-
-                    {/* Bottom Actions Bar */}
-                    <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        ID: {item.id}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleOpenEditTestimonial(item)}
-                          className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#0070E0] hover:border-blue-300 text-xs font-semibold transition cursor-pointer flex items-center space-x-1 shadow-2xs"
-                        >
-                          <Edit3 className="w-3 h-3" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteTestimonial(item)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                          title="Delete Review"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
 
               {filteredTestimonials.length === 0 && (
                 <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 text-xs">
@@ -5229,83 +5263,88 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     </span>
                   </div>
 
-                  {/* The Preview Card (identical to homepage) */}
-                  <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-md flex flex-col justify-between">
+                  {/* The Preview Card (identical to homepage infinite marquee) */}
+                  <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex flex-col justify-between">
                     <div>
-                      {/* Commodity & Volume */}
-                      <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100 text-xs">
-                        <span className="font-bold text-[#0070E0] truncate">
-                          {editingTestimonial.commodity || 'Indian Whole Spices'}
-                        </span>
-                        <span className="text-slate-500 font-mono text-[10px] bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60 shrink-0">
-                          {editingTestimonial.volumeOrType || 'FCL Container'}
-                        </span>
-                      </div>
-
-                      {/* Port & Star Rating */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <div className="text-slate-400 font-mono text-[11px] flex items-center gap-1 truncate">
-                          <MapPin className="w-3 h-3 text-[#0070E0] shrink-0" />
-                          <span className="truncate">{editingTestimonial.destinationPort || 'Port of Destination'}</span>
-                        </div>
-                        <div className="flex items-center gap-0.5 shrink-0">
-                          {Array.from({ length: 5 }).map((_, sIdx) => (
-                            <Star
-                              key={sIdx}
-                              className={`w-3.5 h-3.5 ${
-                                sIdx < (editingTestimonial.rating || 5)
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'text-slate-200'
-                              }`}
-                            />
+                      {/* Top Row: Stars + Trade Commodity Badge */}
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <div className="flex items-center space-x-1">
+                          {[...Array(editingTestimonial.rating || 5)].map((_, sIdx) => (
+                            <Star key={sIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
+
+                        {(editingTestimonial.volumeOrType || editingTestimonial.commodity) && (
+                          <span className="text-[10px] font-semibold text-[#0070E0] bg-blue-50 border border-blue-100/80 px-2.5 py-0.5 rounded-full truncate max-w-[200px]">
+                            {editingTestimonial.volumeOrType || editingTestimonial.commodity}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Quote Statement */}
-                      <Quote className="w-6 h-6 text-blue-100 mb-2 shrink-0" />
-                      <p className="text-xs text-slate-700 leading-relaxed italic line-clamp-5">
-                        "{editingTestimonial.testimonial || 'Commercial buyer feedback statement will appear here as you type in the form.'}"
+                      {/* Testimonial Quote with Typographic Quotes */}
+                      <p className="text-sm sm:text-base text-[#0F172A] leading-relaxed font-normal">
+                        <span className="font-serif text-lg text-[#0F172A] mr-1 select-none">“</span>
+                        {editingTestimonial.testimonial || 'Commercial buyer feedback statement will appear here as you type in the form.'}
+                        <span className="font-serif text-lg text-[#0F172A] ml-1 select-none">”</span>
                       </p>
                     </div>
 
-                    {/* Author Bottom Row */}
-                    <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <div className="flex items-center space-x-2.5 min-w-0">
+                    {/* Thin Horizontal Divider */}
+                    <div className="border-t border-slate-100 my-5" />
+
+                    {/* Bottom Metadata: Avatar & Author on Left, Country Flag Pill on Right */}
+                    <div className="flex items-center justify-between gap-3 pt-0.5">
+                      {/* Avatar + Author Info */}
+                      <div className="flex items-center space-x-3 min-w-0">
                         {editingTestimonial.avatar ? (
                           <img
                             src={editingTestimonial.avatar}
                             alt="Avatar"
-                            className="w-9 h-9 rounded-full object-cover border border-slate-200 shrink-0 shadow-2xs"
+                            width="44"
+                            height="44"
+                            className="w-11 h-11 rounded-full object-cover border border-slate-100 shrink-0 shadow-2xs"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = 'none';
                             }}
                           />
                         ) : (
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0A1C3E] to-[#0070E0] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-11 h-11 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0 tracking-wider shadow-2xs">
                             {(editingTestimonial.author || 'Buyer').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
                           </div>
                         )}
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 truncate">
+                          <h4 className="text-sm sm:text-base font-bold text-[#0F172A] truncate tracking-tight leading-snug">
                             {editingTestimonial.author || 'Buyer Author Name'}
                           </h4>
-                          <p className="text-[10px] text-slate-500 truncate">
-                            {editingTestimonial.role || 'Designation'}
-                          </p>
-                          <p className="text-[10px] font-semibold text-[#0A1C3E] truncate flex items-center gap-1 mt-0.5">
-                            <Building2 className="w-2.5 h-2.5 text-slate-400 shrink-0" />
-                            <span className="truncate">{editingTestimonial.company || 'Enterprise Company'}</span>
-                            <span className="text-slate-400 font-normal shrink-0">({editingTestimonial.country || 'Country'})</span>
+                          <p className="text-xs text-slate-500 font-normal truncate mt-0.5">
+                            {editingTestimonial.role || editingTestimonial.company || 'VP Sourcing & Procurement'}
                           </p>
                         </div>
                       </div>
 
-                      <div className="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0" title="Verified Trade Consignment">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                      </div>
+                      {/* Right: Modern Country Pill with National Flag */}
+                      {(() => {
+                        const modalFlag = getCountryFlag(editingTestimonial.country);
+                        return (
+                          <div className="bg-slate-100/90 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1.5 border border-slate-200/60 shrink-0">
+                            <img
+                              src={`https://flagcdn.com/w40/${modalFlag.code}.png`}
+                              srcSet={`https://flagcdn.com/w80/${modalFlag.code}.png 2x`}
+                              alt={modalFlag.name}
+                              width="18"
+                              height="12"
+                              className="w-4.5 h-3 object-cover rounded-[2px] shadow-2xs shrink-0"
+                              loading="lazy"
+                            />
+                            <span className="text-xs font-semibold text-slate-700">
+                              {modalFlag.name}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
+
 
                   <p className="text-[11px] text-slate-400 text-center italic">
                     This card will seamlessly loop inside the infinite marquee on the homepage.
