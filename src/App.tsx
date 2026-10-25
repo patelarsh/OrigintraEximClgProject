@@ -556,7 +556,7 @@ export const App: React.FC = () => {
       )}
 
 {/* Statutory Licensing & GST Push Notification Toast / Persistent Floating Pill */}
-      {currentPage !== 'admin' && (
+      {currentPage !== 'admin' && companyConfig.licensingNoticeEnabled !== false && (
         <RegulatoryNotification onNavigate={setCurrentPage} />
       )}
 

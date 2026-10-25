@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCompanyConfig } from '../hooks/useCompanyConfig';
 import { 
   AlertTriangle, 
   Clock, 
@@ -16,6 +17,8 @@ interface RegulatoryNotificationProps {
 }
 
 export const RegulatoryNotification: React.FC<RegulatoryNotificationProps> = ({ onNavigate }) => {
+  const companyConfig = useCompanyConfig();
+  if (companyConfig.licensingNoticeEnabled === false) return null;
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);

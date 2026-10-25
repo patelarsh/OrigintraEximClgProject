@@ -41,6 +41,7 @@ export interface CompanyConfig {
   linkedinUrl?: string;
   complianceStatement: string;
   sourcingStatement: string;
+  licensingNoticeEnabled?: boolean;
 }
 
 export const COMPANY_CONFIG: CompanyConfig = {
@@ -100,6 +101,7 @@ export const COMPANY_CONFIG: CompanyConfig = {
     timezone: 'UTC +05:30 (Indian Standard Time)',
     deskNote: 'Commercial enquiry responses dispatched within 24 to 48 business hours.'
   },
+  licensingNoticeEnabled: true,
   complianceStatement: 'Documentation and certifications available according to product and destination requirements.',
   sourcingStatement: 'Direct sourcing relationships across key Indian agricultural zones with emphasis on batch consistency, moisture control, and export-grade packing.'
 };

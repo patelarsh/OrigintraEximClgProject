@@ -36,6 +36,7 @@ import {
   User as UserIcon,
   Users,
   ShieldCheck,
+  ShieldAlert,
   Image as ImageIcon,
   Upload,
   CheckCheck,
@@ -886,6 +887,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     e.preventDefault();
     AdminStorage.saveCompanyConfig(companyConfig);
     showToast('Company profile & contact details updated!');
+  };
+
+  // Toggle Statutory Licensing Notice (push toast & header alert strip)
+  const handleToggleLicensingNotice = (enabled: boolean) => {
+    const updated = { ...companyConfig, licensingNoticeEnabled: enabled };
+    setCompanyConfig(updated);
+    AdminStorage.saveCompanyConfig(updated);
+    showToast(enabled ? 'Statutory licensing notice enabled (visible to visitors).' : 'Statutory licensing notice disabled (hidden from website).');
   };
 
   // ==========================================
@@ -3559,6 +3568,122 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   </button>
                   <span className={`text-xs font-bold ${leadershipVisible ? 'text-[#0070E0]' : 'text-slate-600'}`}>
                     {leadershipVisible ? 'Show' : 'Hide'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Statutory Licensing & GST Push Notification Banner Control */}
+              <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                companyConfig.licensingNoticeEnabled !== false
+                  ? 'bg-amber-50/80 border-amber-200 shadow-2xs'
+                  : 'bg-emerald-50/70 border-emerald-200 shadow-2xs'
+              }`}>
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    companyConfig.licensingNoticeEnabled !== false ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-emerald-600 text-white shadow-sm'
+                  }`}>
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#0F172A]">
+                        Statutory Licensing &amp; In-Process Push Notification Banner
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                        companyConfig.licensingNoticeEnabled !== false 
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300' 
+                          : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      }`}>
+                        {companyConfig.licensingNoticeEnabled !== false ? 'ACTIVE NOTICE (Shown to Visitors)' : 'DISABLED (Certificates Granted / Hidden)'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                      {companyConfig.licensingNoticeEnabled !== false
+                        ? 'Active Mode: The Push Notification Toast and Header Alert Strip are actively shown across the website to disclose that export licenses (IEC, Spices Board, FSSAI, APEDA) are in process and the company operates under GST. This legally protects against false certification claims.'
+                        : 'Disabled Mode: The Push Notification Toast, Header Alert Strip, and Floating Pill are completely hidden from all website visitors. Turn this OFF when your official certificates are issued.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-auto bg-white/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLicensingNotice(companyConfig.licensingNoticeEnabled === false)}
+                    className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                      companyConfig.licensingNoticeEnabled !== false ? 'bg-amber-500' : 'bg-slate-300'
+                    }`}
+                    role="switch"
+                    aria-checked={companyConfig.licensingNoticeEnabled !== false}
+                    title={companyConfig.licensingNoticeEnabled !== false ? 'Click to turn OFF licensing notice' : 'Click to turn ON licensing notice'}
+                  >
+                    <span className="sr-only">Toggle statutory licensing notice</span>
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        companyConfig.licensingNoticeEnabled !== false ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-bold ${companyConfig.licensingNoticeEnabled !== false ? 'text-amber-800' : 'text-slate-600'}`}>
+                    {companyConfig.licensingNoticeEnabled !== false ? 'Enabled' : 'Disabled'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Statutory Licensing & GST Push Notification Banner Control */}
+              <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                companyConfig.licensingNoticeEnabled !== false
+                  ? 'bg-amber-50/80 border-amber-200 shadow-2xs'
+                  : 'bg-emerald-50/70 border-emerald-200 shadow-2xs'
+              }`}>
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    companyConfig.licensingNoticeEnabled !== false ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-emerald-600 text-white shadow-sm'
+                  }`}>
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#0F172A]">
+                        Statutory Licensing &amp; In-Process Push Notification Banner
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                        companyConfig.licensingNoticeEnabled !== false 
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300' 
+                          : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      }`}>
+                        {companyConfig.licensingNoticeEnabled !== false ? 'ACTIVE NOTICE (Shown to Visitors)' : 'DISABLED (Certificates Granted / Hidden)'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                      {companyConfig.licensingNoticeEnabled !== false
+                        ? 'Active Mode: The Push Notification Toast and Header Alert Strip are actively shown across the website to disclose that export licenses (IEC, Spices Board, FSSAI, APEDA) are in process and the company operates under GST. This legally protects against false certification claims.'
+                        : 'Disabled Mode: The Push Notification Toast, Header Alert Strip, and Floating Pill are completely hidden from all website visitors. Turn this OFF when your official certificates are issued.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-auto bg-white/80 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLicensingNotice(companyConfig.licensingNoticeEnabled === false)}
+                    className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                      companyConfig.licensingNoticeEnabled !== false ? 'bg-amber-500' : 'bg-slate-300'
+                    }`}
+                    role="switch"
+                    aria-checked={companyConfig.licensingNoticeEnabled !== false}
+                    title={companyConfig.licensingNoticeEnabled !== false ? 'Click to turn OFF licensing notice' : 'Click to turn ON licensing notice'}
+                  >
+                    <span className="sr-only">Toggle statutory licensing notice</span>
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        companyConfig.licensingNoticeEnabled !== false ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-bold ${companyConfig.licensingNoticeEnabled !== false ? 'text-amber-800' : 'text-slate-600'}`}>
+                    {companyConfig.licensingNoticeEnabled !== false ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
               </div>
