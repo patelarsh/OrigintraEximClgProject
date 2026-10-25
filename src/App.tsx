@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { ChevronUp } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { RegulatoryNotification } from './components/RegulatoryNotification';
 import { HomePage } from './pages/HomePage';
 import { PRODUCTS } from './data/products';
 import { BLOG_POSTS } from './data/blog';
@@ -552,6 +553,11 @@ export const App: React.FC = () => {
             </div>
           </a>
         </div>
+      )}
+
+{/* Statutory Licensing & GST Push Notification Toast / Persistent Floating Pill */}
+      {currentPage !== 'admin' && (
+        <RegulatoryNotification onNavigate={setCurrentPage} />
       )}
 
       {/* Floating Scroll to Top Action Button (Right Side - hidden on admin page, raised above sticky footer on product-detail) */}

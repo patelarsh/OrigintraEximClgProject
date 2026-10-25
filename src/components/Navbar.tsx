@@ -96,6 +96,30 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 w-full transform-gpu">
+      {/* Top Statutory Licensing & GST Alert Banner */}
+      <div className="w-full bg-gradient-to-r from-[#191103] via-[#241705] to-[#191103] border-b border-amber-500/40 text-amber-200 text-[10px] sm:text-xs py-1 px-3">
+        <div className="container-x mx-auto max-w-[1440px] flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className="bg-amber-500 text-slate-950 font-extrabold px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] uppercase tracking-wider shrink-0 shadow-sm">
+              IMPORTANT NOTICE
+            </span>
+            <span className="truncate text-slate-200 text-[10px] sm:text-[11px]">
+              <strong className="text-amber-300">Licensing Status:</strong> Export licenses (IEC, Spices Board, FSSAI, APEDA) are currently under application/processing. Operating under active GST Registration.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open_regulatory_notice'));
+            }}
+            className="text-[10px] sm:text-[11px] underline text-amber-300 hover:text-white shrink-0 font-bold cursor-pointer transition-colors"
+            title="Read full licensing disclosure"
+          >
+            Details
+          </button>
+        </div>
+      </div>
+
       {/* Top Utility Information Bar (Collapses smoothly on scroll to maximize viewport) */}
       <div 
         className={`w-full bg-[#0A1C3E] text-slate-300 border-b border-blue-900/50 text-[11px] sm:text-xs overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-in-out transform-gpu ${

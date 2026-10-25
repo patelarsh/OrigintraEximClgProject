@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Eye,
   X,
-  ShieldCheck
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 import { EXPORT_CERTIFICATIONS, ExportCertificate } from '../data/company';
 
@@ -124,8 +125,19 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
               Export Registrations & Certifications<span className="text-[#0070E0]">.</span>
             </h2>
             <p className="text-base text-slate-600 mt-3">
-              Origintra Exim operates in full compliance with Indian export governing councils, food safety authorities, and international trade bodies.
+              Origintra Exim operates in full compliance with Indian trade authorities. Currently operating under active GST Registration, with statutory export licenses (IEC, Spices Board, FSSAI, APEDA) under active regulatory processing.
             </p>
+          </div>
+
+          {/* Statutory Licensing Status Notice */}
+          <div className="mb-8 rounded-2xl bg-amber-50 border border-amber-300/80 p-4 sm:p-5 flex items-start gap-3.5 text-amber-950">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="text-xs sm:text-sm">
+              <span className="font-bold text-amber-900 block mb-0.5">Important Regulatory Disclosure:</span>
+              <p className="text-amber-800 leading-relaxed">
+                Origintra Exim currently holds an active <strong>GST Registration</strong> (Goods and Services Tax). Mandatory statutory export accreditations—including <strong>IEC (DGFT), Spices Board of India, FSSAI, and APEDA</strong>—are currently under active application and processing. In strict adherence to Government of India regulations, commercial export shipments will be executed upon final statutory license issuance.
+              </p>
+            </div>
           </div>
 
           {/* 3x2 Grid for the 6 Statutory Certificates matching user mockup */}
@@ -162,7 +174,11 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
                 {/* Content Right */}
                 <div className="flex-1 flex flex-col justify-between min-h-[175px] w-full text-left">
                   <div className="space-y-1.5">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-sky-50 text-[#0070E0] border border-sky-100/90 text-[10px] sm:text-[11px] font-bold tracking-wide">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wide border ${
+                      cert.id === 'gst'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-amber-50 text-amber-800 border-amber-200'
+                    }`}>
                       {cert.badge}
                     </span>
                     <h3 className="text-xl sm:text-2xl font-display font-bold text-slate-900 tracking-tight">
@@ -177,10 +193,17 @@ export const QualityPage: React.FC<QualityPageProps> = ({ onNavigate, onOpenQuot
                   </div>
 
                   <div className="pt-3 mt-auto flex items-center justify-between border-t border-slate-100 text-xs">
-                    <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50 shrink-0" />
-                      <span>Verified</span>
-                    </div>
+                    {cert.id === 'gst' ? (
+                      <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-50 shrink-0" />
+                        <span>Active GST</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1.5 text-amber-700 font-bold">
+                        <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>In Process</span>
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={() => setPreviewCert(cert)}

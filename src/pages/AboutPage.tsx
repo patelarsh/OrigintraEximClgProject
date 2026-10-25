@@ -462,7 +462,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onOpenQuote })
                 Government Verified & Certified for Global Trade<span className="text-[#38BDF8]">.</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
-                Origintra Exim is a licensed Indian merchant exporter. Commercial spice consignments are governed by statutory food safety standards, lab clearances, and official trade certifications.
+                Origintra Exim is currently operating under valid GST registration, with mandatory statutory export licenses (IEC, Spices Board, FSSAI, APEDA) under active application and processing. Commercial consignments will be governed by statutory food safety standards and official trade certifications upon issuance.
               </p>
             </div>
 
