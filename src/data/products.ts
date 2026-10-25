@@ -59,7 +59,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": true,
     "partUsed": "Sun-dried fruit (pod)",
     "shortDescription": "Sun-dried export chillies with calibrated SHU heat, high ASTA color, and stemless options.",
-    "fullDescription": "Origin Exim's whole red chillies are sourced direct from contracted farmers across the Guntur, Khammam and Warangal belts — the largest contiguous chilli growing region in Asia. Each lot is sun-dried on raised platforms, hand-graded for colour and length, and held in cold storage to preserve volatile oil and natural pigment. Buyers can specify Teja S17 for high pungency, Sannam S4 for balanced colour and heat, 334 for export-grade thickness, or Byadgi for deep red colour with low heat. Stems-on, stemless, and crushed forms are available, and steam-sterilised material is supplied for buyers requiring EU and US FDA microbial compliance.",
+    "fullDescription": "Origintra Exim's whole red chillies are sourced direct from contracted farmers across the Guntur, Khammam and Warangal belts — the largest contiguous chilli growing region in Asia. Each lot is sun-dried on raised platforms, hand-graded for colour and length, and held in cold storage to preserve volatile oil and natural pigment. Buyers can specify Teja S17 for high pungency, Sannam S4 for balanced colour and heat, 334 for export-grade thickness, or Byadgi for deep red colour with low heat. Stems-on, stemless, and crushed forms are available, and steam-sterilised material is supplied for buyers requiring EU and US FDA microbial compliance.",
     "origin": "Guntur, Khammam, Warangal — Andhra Pradesh & Telangana",
     "grade": "Teja S17 · Sannam S4 · 334 · Wonder Hot · Byadgi",
     "availableForms": [
@@ -147,7 +147,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": true,
     "partUsed": "Dried whole pod",
     "shortDescription": "High-altitude Western Ghats bold green pods (6.5mm–8mm) with high essential oil content.",
-    "fullDescription": "Our Indian green cardamom is harvested from the high-elevation plantations of the Western Ghats, where cool nights concentrate the essential oils that buyers in the Gulf and Europe pay a premium for. Pods are dried under controlled heat to retain the bright green husk, then graded by mechanical sieve into 6.5mm, 7mm, 7.5mm and 8mm bold counts. Origin Exim supplies hand-picked, single-origin lots with documented volatile oil content and zero pesticide residue beyond destination MRLs.",
+    "fullDescription": "Our Indian green cardamom is harvested from the high-elevation plantations of the Western Ghats, where cool nights concentrate the essential oils that buyers in the Gulf and Europe pay a premium for. Pods are dried under controlled heat to retain the bright green husk, then graded by mechanical sieve into 6.5mm, 7mm, 7.5mm and 8mm bold counts. Origintra Exim supplies hand-picked, single-origin lots with documented volatile oil content and zero pesticide residue beyond destination MRLs.",
     "origin": "Idukki, Kerala & Western Ghats",
     "grade": "6.5mm · 7mm · 7.5mm · 8mm bold green",
     "availableForms": [
@@ -230,7 +230,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Sun-dried mature berry",
     "shortDescription": "Malabar & Tellicherry garbled black pepper with high piperine content and high bulk density.",
-    "fullDescription": "Origin Exim's black pepper comes from smallholder estates along India's Malabar coast — the original home of the spice trade. Berries are vine-ripened, sun-dried on coir mats, and machine-cleaned before mechanical grading by bulk density. We supply 500 GL and 550 GL specifications, hand-picked TGSEB (Tellicherry Garbled Special Extra Bold), and steam-sterilised material for ready-to-use industrial customers.",
+    "fullDescription": "Origintra Exim's black pepper comes from smallholder estates along India's Malabar coast — the original home of the spice trade. Berries are vine-ripened, sun-dried on coir mats, and machine-cleaned before mechanical grading by bulk density. We supply 500 GL and 550 GL specifications, hand-picked TGSEB (Tellicherry Garbled Special Extra Bold), and steam-sterilised material for ready-to-use industrial customers.",
     "origin": "Malabar coast, Kerala & Karnataka",
     "grade": "MG1 · 550 GL · 500 GL · TGSEB · Garbled / Ungarbled",
     "availableForms": [
@@ -309,7 +309,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Dried inner bark",
     "shortDescription": "Estate-sourced true Ceylon and cassia quills, machine-graded for essential cinnamaldehyde.",
-    "fullDescription": "Cinnamon is supplied as long, tightly rolled quills (true Ceylon cinnamomum verum) and as cassia broken / split for industrial buyers. Bark is harvested in the monsoon shoulder season when peeling is cleanest, then sun-cured in shaded yards. Origin Exim grades by quill length and oil content and tests every lot for coumarin where destination markets impose limits.",
+    "fullDescription": "Cinnamon is supplied as long, tightly rolled quills (true Ceylon cinnamomum verum) and as cassia broken / split for industrial buyers. Bark is harvested in the monsoon shoulder season when peeling is cleanest, then sun-cured in shaded yards. Origintra Exim grades by quill length and oil content and tests every lot for coumarin where destination markets impose limits.",
     "origin": "Kerala & sourced Cassia from Indonesia for blending lots",
     "grade": "Quills · Broken · Split · Powder",
     "availableForms": [
@@ -388,7 +388,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Dried fruit (whole star)",
     "shortDescription": "Intact eight-point stars with verified anethole volatile oil and low broken fraction.",
-    "fullDescription": "Origin Exim supplies cleaned, sorted star anise with full eight-point stars, low broken percentage and verified anethole content. Lots are sieved, manually picked for foreign matter and tested for shikimic acid yield where requested by pharmaceutical buyers.",
+    "fullDescription": "Origintra Exim supplies cleaned, sorted star anise with full eight-point stars, low broken percentage and verified anethole content. Lots are sieved, manually picked for foreign matter and tested for shikimic acid yield where requested by pharmaceutical buyers.",
     "origin": "Sourced & cleaned in India for export",
     "grade": "Whole star · Broken · Powder",
     "availableForms": [
@@ -466,7 +466,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Dried unopened flower bud",
     "shortDescription": "Hand-picked whole dried cloves with intact flower heads and rich natural eugenol oil.",
-    "fullDescription": "Cloves are harvested by hand at the unopened bud stage, sun-dried until they turn the characteristic deep brown, then hand-sorted to remove khoker (head-less) and stem fractions. Origin Exim supplies premium hand-picked stemless lots and bulk machine-cleaned grades with documented eugenol content for pharmaceutical and food-industry buyers.",
+    "fullDescription": "Cloves are harvested by hand at the unopened bud stage, sun-dried until they turn the characteristic deep brown, then hand-sorted to remove khoker (head-less) and stem fractions. Origintra Exim supplies premium hand-picked stemless lots and bulk machine-cleaned grades with documented eugenol content for pharmaceutical and food-industry buyers.",
     "origin": "Nilgiris & Kerala",
     "grade": "Hand-picked · Machine-cleaned · Stemless · With stem",
     "availableForms": [
@@ -628,7 +628,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Dried rhizome",
     "shortDescription": "High-pungency Cochin & Calicut dry ginger fingers with high gingerol and low crude fiber.",
-    "fullDescription": "Dry ginger is sourced from the high-pungency Cochin and Calicut belts of Kerala and the increasingly important North-East Indian crop. Rhizomes are washed, peeled, sun-dried and sortex-cleaned. Origin Exim supplies whole, split, and milled grades, and offers sulphur-free unbleached material for organic and clean-label buyers.",
+    "fullDescription": "Dry ginger is sourced from the high-pungency Cochin and Calicut belts of Kerala and the increasingly important North-East Indian crop. Rhizomes are washed, peeled, sun-dried and sortex-cleaned. Origintra Exim supplies whole, split, and milled grades, and offers sulphur-free unbleached material for organic and clean-label buyers.",
     "origin": "Kerala, Karnataka & North-East India",
     "grade": "Cochin sortex · Calicut · Bleached · Unbleached · Whole · Split",
     "availableForms": [
@@ -707,7 +707,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Dried leaf",
     "shortDescription": "Sun-cured whole Indian tej patta leaves with authentic spicy-sweet aroma and intact leaf structure.",
-    "fullDescription": "Indian bay leaf — Cinnamomum tamala — is botanically and aromatically distinct from the Mediterranean Laurus nobilis. Origin Exim supplies whole hand-picked leaves with intact three-vein structure, plus broken and powdered material for industrial buyers.",
+    "fullDescription": "Indian bay leaf — Cinnamomum tamala — is botanically and aromatically distinct from the Mediterranean Laurus nobilis. Origintra Exim supplies whole hand-picked leaves with intact three-vein structure, plus broken and powdered material for industrial buyers.",
     "origin": "Uttarakhand & North-East India foothills",
     "grade": "Hand-picked whole · Semi-broken · Powder",
     "availableForms": [
@@ -785,7 +785,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground dried chilli",
     "shortDescription": "Cryogenic-milled pure red chilli powder (40–80 mesh) with calibrated ASTA color and heat.",
-    "fullDescription": "Red chilli powder is milled to buyer-specified mesh — typically 40, 60 or 80 mesh — from sortex-cleaned, stemless chillies. Origin Exim offers Byadgi-based blends for deep colour without aggressive heat, Teja for high pungency, and custom ASTA / SHU blends matched to your finished-product target. Steam-sterilised material is available for buyers shipping into the EU and US.",
+    "fullDescription": "Red chilli powder is milled to buyer-specified mesh — typically 40, 60 or 80 mesh — from sortex-cleaned, stemless chillies. Origintra Exim offers Byadgi-based blends for deep colour without aggressive heat, Teja for high pungency, and custom ASTA / SHU blends matched to your finished-product target. Steam-sterilised material is available for buyers shipping into the EU and US.",
     "origin": "Andhra Pradesh & Telangana",
     "grade": "Stemless · Stemmed · Byadgi (high colour) · Teja (high heat) · Sannam blend",
     "availableForms": [
@@ -1045,7 +1045,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground dried fruit",
     "shortDescription": "Freshly milled from sortex-cleaned Eagle-grade coriander seeds with high volatile oil retention.",
-    "fullDescription": "Coriander powder is milled from sortex-cleaned Eagle and Parrot grade seeds, with mesh and bulk density adjusted to buyer specification. Origin Exim offers low-microbial steam-treated material for industrial customers in regulated markets.",
+    "fullDescription": "Coriander powder is milled from sortex-cleaned Eagle and Parrot grade seeds, with mesh and bulk density adjusted to buyer specification. Origintra Exim offers low-microbial steam-treated material for industrial customers in regulated markets.",
     "origin": "Rajasthan, Madhya Pradesh & Gujarat",
     "grade": "Eagle · Single Parrot · Double Parrot · Scooter",
     "availableForms": [
@@ -1119,7 +1119,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground dried fruit",
     "shortDescription": "Temperature-controlled fine milled cumin powder with preserved cuminaldehyde aroma.",
-    "fullDescription": "Cumin powder is milled from Singapore- and Europe-quality cleaned seed at controlled temperature to preserve cuminaldehyde. Origin Exim supplies steam-sterilised material with verified Salmonella-negative status for EU buyers.",
+    "fullDescription": "Cumin powder is milled from Singapore- and Europe-quality cleaned seed at controlled temperature to preserve cuminaldehyde. Origintra Exim supplies steam-sterilised material with verified Salmonella-negative status for EU buyers.",
     "origin": "Unjha, Gujarat & Rajasthan",
     "grade": "Singapore quality · Europe quality · 99% machine cleaned",
     "availableForms": [
@@ -1197,7 +1197,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground dried mature berry",
     "shortDescription": "Fresh-ground black pepper powder with verified piperine pungency and custom mesh sizing.",
-    "fullDescription": "Origin Exim mills black pepper at controlled cryogenic and ambient temperatures to preserve piperine and oleoresin. Mesh sizes from coarse to fine table grind are supplied with consistent bulk density.",
+    "fullDescription": "Origintra Exim mills black pepper at controlled cryogenic and ambient temperatures to preserve piperine and oleoresin. Mesh sizes from coarse to fine table grind are supplied with consistent bulk density.",
     "origin": "Malabar coast, Kerala",
     "grade": "Coarse · Fine · Table grind",
     "availableForms": [
@@ -1275,7 +1275,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": true,
     "partUsed": "Dried fruit",
     "shortDescription": "Unjha trade hub sortex-cleaned cumin seeds (99.5% purity) complying with strict EU/US MRLs.",
-    "fullDescription": "Origin Exim sources cumin from the Unjha mandi — the world's largest cumin trading hub — and supplies machine-cleaned, sortex-cleaned and Europe-quality material with documented purity and pesticide residue compliance for EU MRL.",
+    "fullDescription": "Origintra Exim sources cumin from the Unjha mandi — the world's largest cumin trading hub — and supplies machine-cleaned, sortex-cleaned and Europe-quality material with documented purity and pesticide residue compliance for EU MRL.",
     "origin": "Unjha, Gujarat & Rajasthan",
     "grade": "Singapore quality · Europe quality · 99% machine cleaned · Sortex cleaned",
     "availableForms": [
@@ -1586,7 +1586,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend",
     "shortDescription": "Custom export-grade master blend of premium whole roasted spices for commercial food service.",
-    "fullDescription": "Garam masala is blended from cumin, coriander, black pepper, cardamom, cinnamon, clove, nutmeg and bay leaf — proportions tuned to buyer recipe. Origin Exim manages dry-roast, mill, blend and pack in a single facility under documented hygiene controls.",
+    "fullDescription": "Garam masala is blended from cumin, coriander, black pepper, cardamom, cinnamon, clove, nutmeg and bay leaf — proportions tuned to buyer recipe. Origintra Exim manages dry-roast, mill, blend and pack in a single facility under documented hygiene controls.",
     "origin": "Blended in India to buyer recipe",
     "grade": "Standard recipe · Custom private label · Salt-free",
     "availableForms": [
@@ -1660,7 +1660,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend with roasted lentils",
     "shortDescription": "Traditional South Indian roast formulation of lentils, spices, and curry leaves for foodservice.",
-    "fullDescription": "Sambar masala combines roasted toor dal, chana dal, coriander seed, fenugreek, cumin, mustard, dry red chilli and curry leaf, milled to a fine consistency. Origin Exim formulates to regional recipe — Tamil, Karnataka or Andhra style — under buyer instruction.",
+    "fullDescription": "Sambar masala combines roasted toor dal, chana dal, coriander seed, fenugreek, cumin, mustard, dry red chilli and curry leaf, milled to a fine consistency. Origintra Exim formulates to regional recipe — Tamil, Karnataka or Andhra style — under buyer instruction.",
     "origin": "Blended in India",
     "grade": "Standard · Custom recipe · No-onion-no-garlic",
     "availableForms": [
@@ -1734,7 +1734,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend",
     "shortDescription": "Pepper and cumin dominant South Indian digestive broth spice blend with aromatic roasted notes.",
-    "fullDescription": "Rasam powder is dominated by black pepper, cumin and coriander, balanced with toor dal, mustard, dry red chilli and curry leaf. Origin Exim mills at controlled temperature to retain pepper volatiles.",
+    "fullDescription": "Rasam powder is dominated by black pepper, cumin and coriander, balanced with toor dal, mustard, dry red chilli and curry leaf. Origintra Exim mills at controlled temperature to retain pepper volatiles.",
     "origin": "Blended in India",
     "grade": "Standard · Custom · Pepper-forward",
     "availableForms": [
@@ -1808,7 +1808,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend",
     "shortDescription": "Royal whole-spice blend dominated by green cardamom, mace, nutmeg, and cloves for culinary use.",
-    "fullDescription": "Biryani masala is built around saffron-aromatic whole spices — green cardamom, black cardamom, mace, nutmeg, star anise, clove, cinnamon and bay leaf — milled and blended to regional recipe. Origin Exim offers Hyderabadi (chilli-forward), Lucknowi (sweet-aromatic) and Kolkata (with kewra) profiles.",
+    "fullDescription": "Biryani masala is built around saffron-aromatic whole spices — green cardamom, black cardamom, mace, nutmeg, star anise, clove, cinnamon and bay leaf — milled and blended to regional recipe. Origintra Exim offers Hyderabadi (chilli-forward), Lucknowi (sweet-aromatic) and Kolkata (with kewra) profiles.",
     "origin": "Blended in India",
     "grade": "Hyderabadi · Lucknowi · Kolkata · Custom",
     "availableForms": [
@@ -1882,7 +1882,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend",
     "shortDescription": "Vibrant marinade spice formulation with natural paprika color, toasted aromatics, and grill heat.",
-    "fullDescription": "Tandoori masala combines red chilli, coriander, cumin, ginger, garlic, fenugreek leaf, garam masala spices and natural beetroot or paprika colour. Origin Exim supplies Sudan-dye-free, natural-colour formulations compliant with EU regulations.",
+    "fullDescription": "Tandoori masala combines red chilli, coriander, cumin, ginger, garlic, fenugreek leaf, garam masala spices and natural beetroot or paprika colour. Origintra Exim supplies Sudan-dye-free, natural-colour formulations compliant with EU regulations.",
     "origin": "Blended in India",
     "grade": "With natural colour · No added colour · Custom heat",
     "availableForms": [
@@ -1956,7 +1956,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice blend",
     "shortDescription": "Madras-style authentic mild and hot curry powders blended for international food processors.",
-    "fullDescription": "Curry powder is the original international introduction to Indian flavour. Origin Exim formulates Mild, Medium, Hot and Madras profiles — coriander- and turmeric-led, with controlled chilli and a stable colour for finished-product consistency in retail packs.",
+    "fullDescription": "Curry powder is the original international introduction to Indian flavour. Origintra Exim formulates Mild, Medium, Hot and Madras profiles — coriander- and turmeric-led, with controlled chilli and a stable colour for finished-product consistency in retail packs.",
     "origin": "Blended in India to international recipe",
     "grade": "Mild · Medium · Hot · Madras · Custom",
     "availableForms": [
@@ -2030,7 +2030,7 @@ export const PRODUCTS: Product[] = [
     "isFlagship": false,
     "partUsed": "Ground multi-spice & salt blend",
     "shortDescription": "Specialty tangy seasoning blend with high-grade kala namak, amchoor, and toasted cumin.",
-    "fullDescription": "Chaat masala combines black salt (kala namak), amchoor (dry mango), cumin, black pepper, chilli, ginger, coriander and asafoetida. Origin Exim offers standard and low-sodium formulations, with documented iron and sulphur values from kala namak.",
+    "fullDescription": "Chaat masala combines black salt (kala namak), amchoor (dry mango), cumin, black pepper, chilli, ginger, coriander and asafoetida. Origintra Exim offers standard and low-sodium formulations, with documented iron and sulphur values from kala namak.",
     "origin": "Blended in India",
     "grade": "Standard · Low-sodium · Custom",
     "availableForms": [
