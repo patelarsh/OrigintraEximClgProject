@@ -166,6 +166,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => AdminStorage.getGalleryImages());
   const [dbStatus, setDbStatus] = useState(() => AdminStorage.getDatabaseStatus());
 
+  // === REAL-TIME DYNAMIC METRICS FOR DASHBOARD KPI CARDS ===
+  const productCategoriesCount = useMemo(() => {
+    return new Set(products.map(p => p.category).filter(Boolean)).size || 1;
+  }, [products]);
+
+  const blogTopicsCount = useMemo(() => {
+    return new Set(blogPosts.map(b => b.category).filter(Boolean)).size || 1;
+  }, [blogPosts]);
+
+  const galleryStats = useMemo(() => {
+    const prod = galleryImages.filter(i => i.category === 'products').length;
+    const team = galleryImages.filter(i => i.category === 'team').length;
+    const other = galleryImages.length - prod - team;
+    return { prod, team, other };
+  }, [galleryImages]);
+
+  const newInquiriesCount = useMemo(() => {
+    return inquiries.filter(i => i.status === 'new').length;
+  }, [inquiries]);
+
+  const testimonialsRating = useMemo(() => {
+    if (!testimonials.length) return '5.0';
+    const sum = testimonials.reduce((acc, t) => acc + (Number(t.rating) || 5), 0);
+    return (sum / testimonials.length).toFixed(1);
+  }, [testimonials]);
+
   // === GLOBAL DASHBOARD SEARCH RESULTS ===
   const searchResults = useMemo(() => {
     const q = dashboardSearchQuery.trim().toLowerCase();
@@ -1692,8 +1718,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {products.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-emerald-600 font-semibold">4 Categories</span>
-                    <span>• 27 Spices</span>
+                    <span className="text-emerald-600 font-semibold">{productCategoriesCount} Categories</span>
+                    <span>• {products.length} Spices</span>
                   </div>
                   <Package className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1713,8 +1739,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {blogPosts.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-emerald-600 font-semibold">SEO Guides</span>
-                    <span>• Sourcing</span>
+                    <span className="text-purple-600 font-semibold">{blogTopicsCount} Topics</span>
+                    <span>• {blogPosts.length} Articles</span>
                   </div>
                   <FileText className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1734,8 +1760,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {teamMembers.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-[#0070E0] font-semibold">About Us</span>
-                    <span>• Photos & Bios</span>
+                    <span className={`font-semibold ${leadershipVisible ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {leadershipVisible ? 'Live on Site' : 'Hidden'}
+                    </span>
+                    <span>• {teamMembers.length} Leaders</span>
                   </div>
                   <Users className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1755,8 +1783,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {galleryImages.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-indigo-600 font-semibold">9 Leaders</span>
-                    <span>• 32 Products</span>
+                    <span className="text-indigo-600 font-semibold">{galleryStats.prod} Products</span>
+                    <span>• {galleryStats.team} Leaders</span>
                   </div>
                   <ImageIcon className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1776,10 +1804,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {inquiries.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-orange-600 font-semibold">
-                      {inquiries.filter(i => i.status === 'new').length || 2} New
-                    </span>
-                    <span>leads</span>
+                    <span className="text-orange-600 font-semibold">{newInquiriesCount} New</span>
+                    <span>{newInquiriesCount === 1 ? 'lead' : 'leads'} • {inquiries.length} Total</span>
                   </div>
                   <Mail className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1799,8 +1825,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     {testimonials.length}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center space-x-1">
-                    <span className="text-amber-600 font-semibold">Live Marquee</span>
-                    <span>• 5-Star</span>
+                    <span className="text-amber-600 font-semibold">{testimonialsRating}★ Rating</span>
+                    <span>• {testimonials.length} Reviews</span>
                   </div>
                   <Quote className="w-12 h-12 text-slate-100 absolute -right-2 -bottom-2 pointer-events-none group-hover:scale-110 transition-transform" />
                 </div>
@@ -1843,7 +1869,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {inquiries.slice(0, 5).map((inq, idx) => (
+                        {inquiries.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="py-8 text-center text-slate-400">
+                              <Inbox className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                              <p className="font-semibold text-xs text-slate-600">No buyer inquiries yet.</p>
+                              <p className="text-[11px] text-slate-400 mt-0.5">Incoming RFQs submitted through website forms appear here in real time.</p>
+                            </td>
+                          </tr>
+                        ) : (
+                          inquiries.slice(0, 5).map((inq, idx) => (
                           <tr key={inq.id} className="hover:bg-slate-50/70 transition">
                             <td className="py-3 text-slate-500 font-semibold">{idx + 1}</td>
                             <td className="py-3">
@@ -1867,7 +1902,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                               </button>
                             </td>
                           </tr>
-                        ))}
+                        ))
+                      )}
                       </tbody>
                     </table>
                   </div>
