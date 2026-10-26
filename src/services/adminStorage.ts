@@ -66,6 +66,11 @@ if (typeof window !== 'undefined') {
     if (localStorage.getItem('origintra_admin_products_v2')) {
       localStorage.removeItem('origintra_admin_products_v2');
     }
+    const currentProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    if (currentProducts && /Origin\s+Exim/i.test(currentProducts)) {
+      const sanitized = currentProducts.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, sanitized);
+    }
   } catch {}
 }
 
@@ -320,11 +325,21 @@ export const AdminStorage = {
             const deletedSet = new Set([...deletedIds, 'mustard-seeds', 'nutmeg']);
             let sanitized = products.filter((p: Product) => !deletedSet.has(p.id) && !deletedSet.has(p.slug));
             sanitized = sanitized.map((p: Product) => {
-              if (!p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds') || p.image === '/assets/products/cumin.jpg' || p.image === '/assets/products/coriander.jpg'))) {
-                const def = DEFAULT_PRODUCTS.find(dp => dp.id === p.id || dp.slug === p.slug);
-                return { ...p, image: def?.image || '/assets/products/cumin-seeds.jpg' };
+              let updated = { ...p };
+              if (updated.fullDescription && /Origin\s+Exim/i.test(updated.fullDescription)) {
+                updated.fullDescription = updated.fullDescription.replace(/Origin\s+Exim/gi, 'Origintra Exim');
               }
-              return p;
+              if (updated.shortDescription && /Origin\s+Exim/i.test(updated.shortDescription)) {
+                updated.shortDescription = updated.shortDescription.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+              }
+              if (updated.name && /Origin\s+Exim/i.test(updated.name)) {
+                updated.name = updated.name.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+              }
+              if (!updated.image || updated.image.length < 5 || updated.image === 'undefined' || updated.image === 'null' || (typeof updated.image === 'string' && (updated.image.includes('_1792319') || updated.image.includes('_1792321556') || updated.image.includes('/uploads/cumin-seeds') || updated.image === '/assets/products/cumin.jpg' || updated.image === '/assets/products/coriander.jpg'))) {
+                const def = DEFAULT_PRODUCTS.find(dp => dp.id === updated.id || dp.slug === updated.slug);
+                return { ...updated, image: def?.image || '/assets/products/cumin-seeds.jpg' };
+              }
+              return updated;
             });
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(sanitized));
             window.dispatchEvent(new Event('origintra_products_updated'));
@@ -842,8 +857,33 @@ export const AdminStorage = {
       if (data) {
         let parsed = JSON.parse(data) as Product[];
 
+        let needsMigrationSave = false;
         // Always purge nutmeg and mustard-seeds
         parsed = parsed.filter(p => p.id !== 'nutmeg' && p.slug !== 'nutmeg' && p.id !== 'mustard-seeds' && p.slug !== 'mustard-seeds');
+
+        // Sanitize any legacy cached firm brand name to Origintra Exim
+        let hasOriginExim = false;
+        parsed = parsed.map(p => {
+          let updated = { ...p };
+          let changed = false;
+          if (updated.fullDescription && /Origin\s+Exim/i.test(updated.fullDescription)) {
+            updated.fullDescription = updated.fullDescription.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+            changed = true;
+          }
+          if (updated.shortDescription && /Origin\s+Exim/i.test(updated.shortDescription)) {
+            updated.shortDescription = updated.shortDescription.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+            changed = true;
+          }
+          if (updated.name && /Origin\s+Exim/i.test(updated.name)) {
+            updated.name = updated.name.replace(/Origin\s+Exim/gi, 'Origintra Exim');
+            changed = true;
+          }
+          if (changed) hasOriginExim = true;
+          return updated;
+        });
+        if (hasOriginExim) {
+          needsMigrationSave = true;
+        }
 
         // Always filter out any explicitly deleted product
         if (deletedSet.size > 0) {
@@ -854,8 +894,6 @@ export const AdminStorage = {
         const turmericItem = parsed.find(p => p.id === 'turmeric' || p.slug === 'turmeric');
         const needsTurmericPowderUpdate = turmericItem && turmericItem.name === 'Turmeric';
         const hasBrokenImages = parsed.some(p => !p.image || p.image.length < 5 || p.image === 'undefined' || p.image === 'null' || (typeof p.image === 'string' && (p.image.includes('_1792319') || p.image.includes('_1792321556') || p.image.includes('/uploads/cumin-seeds') || p.image === '/assets/products/cumin.jpg' || p.image === '/assets/products/coriander.jpg')));
-
-        let needsMigrationSave = false;
 
         // Only add whole-turmeric if it has not been deleted by the user!
         if (!hasWholeTurmeric && !deletedSet.has('whole-turmeric')) {
