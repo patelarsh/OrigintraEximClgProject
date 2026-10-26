@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutDashboard,
   Activity,
@@ -84,7 +84,7 @@ interface AdminPageProps {
   onOpenProductDetail: (product: Product) => void;
 }
 
-type AdminTab = 'dashboard' | 'products' | 'blog' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings';
+type AdminTab = 'dashboard' | 'products' | 'blog' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings' | 'profile';
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductDetail }) => {
   // === AUTH STATE ===
@@ -175,6 +175,50 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // === PROFILE FORM STATE ===
+  const [profileForm, setProfileForm] = useState({
+    name: currentUser?.name || 'Patel Arsh',
+    email: currentUser?.email || 'arsh@origintra.com',
+    department: currentUser?.department || 'Corporate Admin & Global Trading Desk',
+    phone: currentUser?.phone || '+91 70691 82990',
+    avatar: currentUser?.avatar || '/assets/team/director.jpg',
+    bio: currentUser?.bio || 'Founder & Global Head of International Trade at Origintra Exim, spearheading bulk spice sourcing, supply chain integrity, and worldwide export operations.',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showProfilePassword, setShowProfilePassword] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfileForm(prev => ({
+        ...prev,
+        name: currentUser.name || 'Patel Arsh',
+        email: currentUser.email || 'arsh@origintra.com',
+        department: currentUser.department || 'MD & Founder',
+        phone: currentUser.phone || '+91 70691 82990',
+        avatar: currentUser.avatar || '/assets/team/director.jpg',
+        bio: currentUser.bio || '',
+      }));
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (activeTab === 'settings') {
@@ -934,7 +978,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     }
   };
 
-  const handleDevicePhotoUpload = async (file: File, target: 'team' | 'product' | 'blog' | 'testimonial') => {
+  const handleDevicePhotoUpload = async (file: File, target: 'team' | 'product' | 'blog' | 'testimonial' | 'profile') => {
     if (!file.type.startsWith('image/')) {
       showToast('Please select a valid image file');
       return;
@@ -961,7 +1005,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         url: finalImageUrl,
         title: cleanName,
         category: target === 'team' ? 'team' : target === 'product' ? 'products' : 'uploads',
-        tag: target === 'team' ? 'Leader' : target === 'testimonial' ? 'Buyer' : 'Upload'
+        tag: target === 'team' ? 'Leader' : target === 'testimonial' ? 'Buyer' : target === 'profile' ? 'Avatar' : 'Upload'
       });
       if (target === 'team' && editingTeamMember) {
         setEditingTeamMember({ ...editingTeamMember, photo: newImg.url });
@@ -971,11 +1015,68 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         setEditingBlogPost({ ...editingBlogPost, image: newImg.url });
       } else if (target === 'testimonial' && editingTestimonial) {
         setEditingTestimonial({ ...editingTestimonial, avatar: newImg.url });
+      } else if (target === 'profile') {
+        setProfileForm(prev => ({ ...prev, avatar: newImg.url }));
       }
       showToast('Photo uploaded and set successfully!');
     } catch (err) {
       console.error('Photo upload failed:', err);
       showToast('Failed to upload photo. Please try again.');
+    }
+  };
+
+  // === PROFILE SAVE HANDLER ===
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    if (!profileForm.name.trim()) {
+      showToast('Profile name cannot be blank.');
+      return;
+    }
+    if (!profileForm.email.trim() || !profileForm.email.includes('@')) {
+      showToast('Please enter a valid corporate email address.');
+      return;
+    }
+    if (profileForm.newPassword) {
+      if (profileForm.newPassword.length < 6) {
+        showToast('New password must be at least 6 characters.');
+        return;
+      }
+      if (profileForm.newPassword !== profileForm.confirmPassword) {
+        showToast('New passwords do not match. Please verify.');
+        return;
+      }
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const updated = await AdminStorage.updateUserProfile(currentUser.id, {
+        name: profileForm.name,
+        email: profileForm.email,
+        department: profileForm.department,
+        phone: profileForm.phone,
+        bio: profileForm.bio,
+        avatar: profileForm.avatar,
+        newPassword: profileForm.newPassword || undefined,
+      });
+
+      if (updated) {
+        setCurrentUser(updated);
+        setProfileForm(prev => ({
+          ...prev,
+          newPassword: '',
+          confirmPassword: '',
+        }));
+        showToast('Profile updated successfully!');
+      } else {
+        showToast('Failed to update profile.');
+      }
+    } catch (err: any) {
+      console.error('Profile update error:', err);
+      showToast(err?.message || 'Error updating profile');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -1392,6 +1493,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               <ChevronRight className="w-3.5 h-3.5 opacity-60" />
             </button>
           )}
+          {/* Edit Profile */}
+          <button
+            onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+              activeTab === 'profile'
+                ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <UserIcon className="w-4 h-4" />
+              <span>Edit Profile</span>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/50">
+              Account
+            </span>
+          </button>
         </div>
 
         {/* Bottom: Sidebar System Meta */}
@@ -1635,30 +1753,113 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               )}
             </div>
 
-            {/* User Profile Pill */}
-            <div className="flex items-center space-x-2 pl-1.5 sm:pl-3 border-l border-slate-200">
-              <img
-                src={currentUser?.avatar || '/assets/team/director.jpg'}
-                alt={currentUser?.name || 'Patel Arsh'}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-slate-100 bg-slate-100 shrink-0"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
-                }}
-              />
-              <div className="hidden md:block text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
-                    {currentUser?.name || 'Patel Arsh'}
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300/40">
-                    {currentUser?.role?.toUpperCase() || 'ADMIN'}
-                  </span>
+            {/* User Profile Pill with Interactive Dropdown */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen(prev => !prev)}
+                className={`flex items-center space-x-2 pl-1.5 sm:pl-2.5 pr-2 py-1.5 border-l border-slate-200 rounded-xl hover:bg-slate-100/70 transition cursor-pointer select-none text-left ${
+                  userMenuOpen ? 'bg-slate-100/90 ring-1 ring-slate-300' : ''
+                }`}
+                title="Account Settings & Profile"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={currentUser?.avatar || '/assets/team/director.jpg'}
+                    alt={currentUser?.name || 'Patel Arsh'}
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-slate-100 bg-slate-100 shadow-2xs"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
+                    }}
+                  />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                 </div>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  {currentUser?.department || 'MD & Founder'}
-                </p>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
+                <div className="hidden md:block text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 leading-tight max-w-[130px] truncate">
+                      {currentUser?.name || 'Patel Arsh'}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300/40">
+                      {currentUser?.role?.toUpperCase() || 'ADMIN'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-medium max-w-[150px] truncate">
+                    {currentUser?.department || 'MD & Founder'}
+                  </p>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 hidden lg:block transition-transform duration-200 ${userMenuOpen ? 'rotate-180 text-blue-600' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu Popup */}
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 divide-y divide-slate-100">
+                  {/* User Overview */}
+                  <div className="px-4 py-3 bg-gradient-to-br from-slate-50 to-blue-50/40 rounded-t-2xl">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={currentUser?.avatar || '/assets/team/director.jpg'}
+                        alt={currentUser?.name || 'Patel Arsh'}
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-2xs shrink-0"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-900 truncate">
+                          {currentUser?.name || 'Patel Arsh'}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {currentUser?.email || 'arsh@origintra.com'}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span className="text-[10px] font-semibold text-slate-600 truncate">
+                            {currentUser?.department || 'MD & Founder'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2 Options as explicitly requested: Edit Profile & Logout */}
+                  <div className="p-1.5 space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('profile');
+                        setUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-blue-50/80 transition cursor-pointer text-left group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                        <UserIcon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block font-bold text-slate-800 group-hover:text-blue-700">Edit Profile</span>
+                        <span className="block text-[10px] text-slate-400 font-normal">Name, photo, email, phone & designation</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50/80 transition cursor-pointer text-left group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                        <LogOut className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block font-bold text-red-600">Logout</span>
+                        <span className="block text-[10px] text-red-400 font-normal">Sign out of admin session</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Live Site */}
@@ -4618,6 +4819,416 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
               </div>
 
+            </div>
+          )}
+
+
+          {/* ======================================= */}
+          {/* TAB: EDIT PROFILE (DEDICATED PROFILE PAGE) */}
+          {/* ======================================= */}
+          {activeTab === 'profile' && (
+            <div className="space-y-6 max-w-6xl animate-in fade-in duration-200">
+              {/* Breadcrumb Navigation & Top Action */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mb-1">
+                    <button
+                      onClick={() => setActiveTab('dashboard')}
+                      className="hover:text-[#0070E0] transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Back to Dashboard</span>
+                    </button>
+                    <span>/</span>
+                    <span className="text-slate-800 font-semibold">Account Settings</span>
+                    <span>/</span>
+                    <span className="text-blue-600 font-bold">Edit Profile</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#0A1C3E] tracking-tight">
+                    Edit Admin Profile
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    Update your corporate identity, profile photo, contact details, designation, and login credentials.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('dashboard')}
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Return to Dashboard</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleSaveProfile(e as any)}
+                    disabled={isSavingProfile}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0070E0] to-[#0A1C3E] hover:from-blue-600 hover:to-slate-900 text-white text-xs font-bold transition cursor-pointer flex items-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50"
+                  >
+                    {isSavingProfile ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    <span>{isSavingProfile ? 'Saving Changes...' : 'Save Profile Changes'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Main 2-Column Responsive Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Column: Avatar & Account Meta (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
+                  {/* Avatar Card */}
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs text-center space-y-4">
+                    <div className="relative inline-block mx-auto">
+                      <img
+                        src={profileForm.avatar || '/assets/team/director.jpg'}
+                        alt={profileForm.name}
+                        className="w-32 h-32 rounded-full object-cover ring-4 ring-blue-500/20 bg-slate-100 shadow-md mx-auto"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/assets/team/director.jpg';
+                        }}
+                      />
+                      <label className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-[#0070E0] hover:bg-blue-600 text-white flex items-center justify-center cursor-pointer shadow-md transition-transform hover:scale-105 ring-2 ring-white">
+                        <Camera className="w-4 h-4" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleDevicePhotoUpload(file, 'profile');
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">{profileForm.name || 'Patel Arsh'}</h3>
+                      <p className="text-xs text-slate-500 font-medium">{profileForm.department || 'MD & Founder'}</p>
+                      <div className="mt-2 flex items-center justify-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300/40">
+                          {currentUser?.role?.toUpperCase() || 'ADMIN'}
+                        </span>
+                        <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          Active Session
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 space-y-2">
+                      <label className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-blue-700 text-xs font-bold transition cursor-pointer border border-blue-200/60">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload New Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleDevicePhotoUpload(file, 'profile');
+                          }}
+                        />
+                      </label>
+
+                      {/* Direct Avatar URL Input */}
+                      <div className="text-left pt-2">
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                          Or Paste Avatar Photo URL:
+                        </label>
+                        <input
+                          type="text"
+                          value={profileForm.avatar}
+                          onChange={(e) => setProfileForm(prev => ({ ...prev, avatar: e.target.value }))}
+                          placeholder="https://... or /assets/team/director.jpg"
+                          className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-[#0070E0] bg-slate-50/50"
+                        />
+                      </div>
+
+                      {/* Preset Avatars */}
+                      <div className="text-left pt-2">
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1.5">
+                          Quick Presets:
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setProfileForm(prev => ({ ...prev, avatar: '/assets/team/director.jpg' }))}
+                            className="px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 hover:border-blue-400 bg-white font-medium text-slate-700 cursor-pointer transition hover:bg-blue-50"
+                            title="Director Photo"
+                          >
+                            Director Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setProfileForm(prev => ({ ...prev, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' }))}
+                            className="px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 hover:border-blue-400 bg-white font-medium text-slate-700 cursor-pointer transition hover:bg-blue-50"
+                            title="Executive Portrait"
+                          >
+                            Executive 2
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setProfileForm(prev => ({ ...prev, avatar: '/assets/team/director.jpg' }))}
+                            className="px-2 py-1 text-[11px] rounded-lg border border-red-200 text-red-600 font-medium cursor-pointer transition hover:bg-red-50"
+                            title="Reset to default"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Security Meta Info */}
+                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-3 text-xs">
+                    <div className="flex items-center gap-2 text-slate-800 font-bold">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <span>Security & Corporate Privileges</span>
+                    </div>
+                    <div className="space-y-2 text-slate-600">
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                        <span className="text-slate-500">Security Encryption:</span>
+                        <strong className="text-slate-800 font-mono text-[11px]">SHA-256 Validated</strong>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                        <span className="text-slate-500">Firm Affiliation:</span>
+                        <strong className="text-slate-800 font-semibold">Origintra Exim</strong>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                        <span className="text-slate-500">Access Scope:</span>
+                        <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">FULL ACCESS</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-slate-500">Account ID:</span>
+                        <span className="font-mono text-[10px] text-slate-500 truncate max-w-[140px]">{currentUser?.id}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Profile Edit Form (8 cols) */}
+                <div className="lg:col-span-8 space-y-6">
+                  <form onSubmit={handleSaveProfile} className="space-y-6">
+                    {/* Card 1: Personal & Designation Details */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <UserIcon className="w-4 h-4 text-[#0070E0]" />
+                          <h3 className="text-sm font-bold text-slate-800">
+                            Corporate Identity & Contact Information
+                          </h3>
+                        </div>
+                        <span className="text-[11px] text-slate-400">* Required fields</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Profile Name */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Full Name <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input
+                              type="text"
+                              required
+                              value={profileForm.name}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                              placeholder="e.g. Patel Arsh"
+                              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-1">Appears across quotes, emails, and header.</p>
+                        </div>
+
+                        {/* Email Address */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Corporate Email <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input
+                              type="email"
+                              required
+                              value={profileForm.email}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
+                              placeholder="e.g. arsh@origintra.com"
+                              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-1">Used for signing in and receiving RFQ notifications.</p>
+                        </div>
+
+                        {/* Designation / Role Title */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Designation / Job Title <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input
+                              type="text"
+                              required
+                              value={profileForm.department}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, department: e.target.value }))}
+                              placeholder="e.g. MD & Founder / Global Trade Head"
+                              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-1">Shown beneath your name in the Admin header.</p>
+                        </div>
+
+                        {/* Contact Number / WhatsApp */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Contact Phone / WhatsApp <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input
+                              type="tel"
+                              required
+                              value={profileForm.phone}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, phone: e.target.value }))}
+                              placeholder="+91 70691 82990"
+                              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-1">Official phone number for trade correspondence.</p>
+                        </div>
+                      </div>
+
+                      {/* Bio / Professional Summary */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Professional Bio & Executive Summary
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={profileForm.bio}
+                          onChange={(e) => setProfileForm(prev => ({ ...prev, bio: e.target.value }))}
+                          placeholder="Brief summary of your responsibilities at Origintra Exim..."
+                          className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium leading-relaxed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Card 2: Security & Password Update */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-600" />
+                          <h3 className="text-sm font-bold text-slate-800">
+                            Security Credentials & Password
+                          </h3>
+                        </div>
+                        <span className="text-[11px] text-slate-500">Optional — leave blank to keep current</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* New Password */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            New Password
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showProfilePassword ? 'text' : 'password'}
+                              value={profileForm.newPassword}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                              placeholder="Enter minimum 6 characters..."
+                              className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowProfilePassword(prev => !prev)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                              title={showProfilePassword ? 'Hide password' : 'Show password'}
+                            >
+                              {showProfilePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Confirm New Password */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                            Confirm New Password
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showProfilePassword ? 'text' : 'password'}
+                              value={profileForm.confirmPassword}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                              placeholder="Re-type new password to verify..."
+                              className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition font-medium"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword && (
+                        <p className="text-[11px] text-red-500 font-semibold flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          <span>Passwords do not match yet.</span>
+                        </p>
+                      )}
+
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Tip: Leaving password fields empty will retain your existing credentials intact. If changing password, it will be cryptographically updated immediately.
+                      </p>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (currentUser) {
+                              setProfileForm({
+                                name: currentUser.name || 'Patel Arsh',
+                                email: currentUser.email || 'arsh@origintra.com',
+                                department: currentUser.department || 'MD & Founder',
+                                phone: currentUser.phone || '+91 70691 82990',
+                                avatar: currentUser.avatar || '/assets/team/director.jpg',
+                                bio: currentUser.bio || '',
+                                newPassword: '',
+                                confirmPassword: '',
+                              });
+                              showToast('Form reset to saved profile.');
+                            }
+                          }}
+                          className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                        >
+                          Discard Changes
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <button
+                          type="submit"
+                          disabled={isSavingProfile}
+                          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0070E0] to-[#0A1C3E] hover:from-blue-600 hover:to-slate-900 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50"
+                        >
+                          {isSavingProfile ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Check className="w-4 h-4" />
+                          )}
+                          <span>{isSavingProfile ? 'Saving Profile...' : 'Save Profile Changes'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           )}
 

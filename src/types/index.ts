@@ -74,6 +74,8 @@ export interface User {
   role: UserRole;
   avatar?: string;
   department?: string;
+  phone?: string;
+  bio?: string;
   createdAt: string;
   lastLogin?: string;
 }

@@ -93,6 +93,8 @@ const DEFAULT_USERS: User[] = [
     role: 'admin',
     avatar: '/assets/team/director.jpg',
     department: 'Corporate Admin & Global Trading Desk',
+    phone: '+91 70691 82990',
+    bio: 'Founder & Global Head of International Trade at Origintra Exim, spearheading bulk spice sourcing, supply chain integrity, and worldwide export operations.',
     createdAt: '2026-10-05T06:58:00.000Z'
   },
   {
@@ -793,7 +795,7 @@ export const AdminStorage = {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
 
     const current = this.getCurrentUser();
-    if (current && current.id === id) {
+    if (current && (current.id === id || current.email.toLowerCase() === (users[idx]?.email || '').toLowerCase())) {
       localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updatedUser));
       window.dispatchEvent(new Event('origintra_auth_updated'));
     }
@@ -809,6 +811,31 @@ export const AdminStorage = {
     }
 
     return updatedUser;
+  },
+
+  async updateUserProfile(id: string, profileData: {
+    name: string;
+    email: string;
+    department?: string;
+    phone?: string;
+    bio?: string;
+    avatar?: string;
+    newPassword?: string;
+  }): Promise<User | null> {
+    const updates: Partial<User> = {
+      name: profileData.name.trim(),
+      email: profileData.email.trim().toLowerCase(),
+      department: profileData.department ? profileData.department.trim() : undefined,
+      phone: profileData.phone ? profileData.phone.trim() : undefined,
+      bio: profileData.bio ? profileData.bio.trim() : undefined,
+    };
+    if (profileData.avatar) {
+      updates.avatar = profileData.avatar;
+    }
+    if (profileData.newPassword && profileData.newPassword.trim().length >= 4) {
+      updates.password = await sha256Hash(profileData.newPassword.trim());
+    }
+    return this.updateUser(id, updates);
   },
 
   async deleteUser(id: string): Promise<boolean> {
