@@ -18,10 +18,10 @@
   RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
   RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
 
-  # 2. Pure Node.js Nodemailer Mail Engine (Strictly Pure Node.js - Zero PHP)
-  <IfModule mod_proxy.c>
-    RewriteRule ^api/(send-mail|verify-smtp|save-smtp|mail-queue|mail-logs)(/.*)?$ http://127.0.0.1:5000/api/$1$2 [P,L]
-  </IfModule>
+  # 2. Smooth Mail Engine: Direct PHP Handlers
+  RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
+  RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
+  RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
   RewriteRule ^api/settings/?$ /api/settings.php [L]
   RewriteRule ^api/products/?$ /api/products.php [L]
   RewriteRule ^api/upload/?$ /api/upload.php [L]

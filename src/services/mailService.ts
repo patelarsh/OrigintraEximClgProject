@@ -490,21 +490,19 @@ export const MailService = {
             adminAlertEmail: creds.adminAlertEmail
           });
 
-          const res: Response | null = await fetch('/api/save-smtp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload,
-            signal: controller.signal
-          }).catch(() => null);
-
-          clearTimeout(timeoutId);
-
-          if (res && res.ok) {
-            const data = await res.json().catch(() => null);
-            if (data?.success) {
-              return { success: true, message: 'SMTP credentials saved locally and synced to pure Nodemailer server!' };
-            }
+          const endpoints = ['/api/save-smtp', '/api/save-smtp.php'];
+          for (const ep of endpoints) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload,
+                signal: controller.signal
+              });
+              if (res.ok) break;
+            } catch {}
           }
+          clearTimeout(timeoutId);
         } catch (serverErr) {
           console.warn('[MailService] Could not sync SMTP credentials to server endpoint:', serverErr);
         }
@@ -571,48 +569,50 @@ export const MailService = {
       } : null
     };
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const endpoints = ['/api/send-mail', '/api/send-mail.php'];
+    let lastError = '';
 
-      const res = await fetch('/api/send-mail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+    for (const ep of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      const json = await res.json().catch(() => null);
+        const res = await fetch(ep, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
-      if (res.ok && json?.success) {
-        this.flushPendingClientQueue().catch(() => {});
-        return {
-          success: true,
-          message: json.message || `Email dispatched successfully to ${options.to}`,
-          method: json.method || 'Pure Nodemailer Pooled Engine',
-          queueId: json.id || json.messageId
-        };
+        const json = await res.json().catch(() => null);
+
+        if (res.ok && json?.success) {
+          this.flushPendingClientQueue().catch(() => {});
+          return {
+            success: true,
+            message: json.message || `Email dispatched successfully to ${options.to}`,
+            method: json.method || 'Hostinger SMTP Engine',
+            queueId: json.id || json.messageId
+          };
+        }
+
+        if (json && !json.success) {
+          lastError = json.message || 'Server mailer reported failure.';
+          break;
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Network error';
       }
-
-      if (json && !json.success) {
-        throw new Error(json.message || 'Pure Nodemailer server reported failure.');
-      }
-
-      if (res.status === 502 || res.status === 503 || res.status === 504) {
-        throw new Error('Pure Node.js Nodemailer service is not running on port 5000.');
-      }
-
-      throw new Error(`Pure Nodemailer returned HTTP ${res.status}`);
-    } catch (e: any) {
-      console.warn('[MailService] Pure Nodemailer dispatch:', e?.message || e);
-      this.enqueueClientMail(payload);
-      return {
-        success: true,
-        message: 'Email registered in resilient queue and will dispatch as soon as the Node.js mail service is online.',
-        method: 'Client Resilient Queue'
-      };
     }
+
+    console.warn('[MailService] Live send attempt (' + lastError + '), storing in client resilient queue');
+    this.enqueueClientMail(payload);
+    return {
+      success: true,
+      message: 'Email registered in resilient queue and will dispatch automatically.',
+      method: 'Client Resilient Queue'
+    };
   },
 
   /**
@@ -671,55 +671,42 @@ export const MailService = {
       pass: creds.smtpPassword
     });
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const endpoints = ['/api/verify-smtp', '/api/verify-smtp.php'];
+    for (const ep of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-      const res = await fetch('/api/verify-smtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: payload,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+        const res = await fetch(ep, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
-      const data = await res.json().catch(() => null);
+        const data = await res.json().catch(() => null);
 
-      if (res.ok && data?.success) {
-        return {
-          success: true,
-          message: data.message || 'Pure Nodemailer SMTP connection verified successfully!',
-          latencyMs: data.latencyMs
-        };
+        if (res.ok && data?.success) {
+          return {
+            success: true,
+            message: data.message || 'Hostinger SMTP connection verified successfully!',
+            latencyMs: data.latencyMs
+          };
+        }
+
+        if (data && data.success === false && data.message) {
+          return { success: false, message: data.message };
+        }
+      } catch (err: any) {
+        // try next endpoint
       }
-
-      if (res.status === 502 || res.status === 503 || res.status === 504) {
-        return {
-          success: false,
-          message: 'Pure Node.js Nodemailer engine is offline on port 5000. Please start the Node server (npm run server).'
-        };
-      }
-
-      if (data?.message) {
-        return { success: false, message: data.message };
-      }
-
-      return {
-        success: false,
-        message: `Pure Nodemailer returned HTTP ${res.status}`
-      };
-    } catch (err: any) {
-      if (err?.name === 'AbortError') {
-        return {
-          success: false,
-          message: 'Verification timed out. Check your SMTP host/port or start the Node.js mail engine (npm run server).'
-        };
-      }
-      return {
-        success: false,
-        message: 'Could not connect to Pure Node.js Nodemailer service. Ensure Node server is running on port 5000 (npm run server).'
-      };
     }
+
+    return {
+      success: false,
+      message: 'Could not connect to SMTP server. Please check your credentials and internet connection.'
+    };
   },
 
   /**
