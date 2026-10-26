@@ -2102,15 +2102,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               <span className="hidden md:inline">Live Site</span>
             </button>
 
-            {/* Logout */}
-            <button
-              onClick={handleLogout}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/80 text-red-600 text-xs font-semibold transition flex items-center space-x-1.5 shadow-2xs cursor-pointer"
-              title="Sign Out"
-            >
-              <LogOut className="w-3.5 h-3.5 text-red-500" />
-              <span className="hidden md:inline">Logout</span>
-            </button>
           </div>
         </header>
 
