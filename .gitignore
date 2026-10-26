@@ -33,6 +33,7 @@ data/*.sqlite-wal
 .chrome-temp/
 *.zip
 data/backups/
+server/data/
 lighthouse-*-report.json
 test-lh.json
 # User uploads (protect dynamically uploaded files from git clean)

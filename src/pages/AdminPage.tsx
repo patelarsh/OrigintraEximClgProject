@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   LayoutDashboard,
+  Activity,
   FileText,
   Package,
   Inbox,
@@ -123,6 +124,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [verifySmtpResult, setVerifySmtpResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [mailLogs, setMailLogs] = useState<any[]>([]);
+  const [mailQueueStatus, setMailQueueStatus] = useState<any>(null);
+  const [isLoadingMailLogs, setIsLoadingMailLogs] = useState(false);
+
+  const refreshMailDiagnostics = useCallback(async () => {
+    setIsLoadingMailLogs(true);
+    try {
+      const [q, l] = await Promise.all([
+        MailService.getQueueStatus(),
+        MailService.getAuditLogs()
+      ]);
+      setMailQueueStatus(q);
+      setMailLogs(l || []);
+    } catch {} finally {
+      setIsLoadingMailLogs(false);
+    }
+  }, []);
 
   // === NAVIGATION & TABS ===
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -130,6 +148,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      refreshMailDiagnostics();
+    }
+  }, [activeTab, refreshMailDiagnostics]);
 
   // === DATA STATES (Synced with Supabase Cloud PostgreSQL) ===
   const [products, setProducts] = useState<Product[]>(() => AdminStorage.getProducts());

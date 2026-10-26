@@ -6,58 +6,51 @@ function nodemailerPlugin(): Plugin {
     name: 'vite-plugin-nodemailer',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.method === 'POST' && (req.url === '/api/send-mail' || req.url === '/api/send-mail.php')) {
+        const url = req.url ? req.url.split('?')[0] : '';
+
+        // Handle POST /api/send-mail
+        if (req.method === 'POST' && (url === '/api/send-mail' || url === '/api/send-mail.php')) {
           let body = '';
           req.on('data', (chunk) => { body += chunk; });
           req.on('end', async () => {
             try {
               const data = JSON.parse(body || '{}');
-              const { to, subject, body: bodyText, html, smtp, senderEmail, senderName } = data;
-              
-              if (!to) {
+              if (!data.to) {
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ success: false, message: 'Recipient email (to) is required.' }));
                 return;
               }
 
-              const nodemailerModule = await import('nodemailer');
-              const nodemailer = nodemailerModule.default || nodemailerModule;
-              
-              const host = smtp?.host || 'smtp.hostinger.com';
-              const port = Number(smtp?.port) || 465;
-              const secure = smtp?.secure !== undefined ? Boolean(smtp.secure) : (port === 465);
-              const user = smtp?.user || senderEmail || 'export@origintra.com';
-              const pass = smtp?.pass || '';
-              const fromName = senderName || 'Origintra Exim Administration';
-              const fromEmail = senderEmail || user;
+              const mailerModule = await import('./server/mailerEngine.js');
+              const mailer = mailerModule.default || mailerModule;
 
-              const transporter = nodemailer.createTransport({
-                host,
-                port,
-                secure,
-                auth: pass ? { user, pass } : undefined,
-                tls: {
-                  rejectUnauthorized: false
+              const isUrgent = data.sync === true || (data.subject && data.subject.includes('[Test Verification]'));
+              if (isUrgent) {
+                try {
+                  const result = await mailer.sendMailDirect(data);
+                  res.statusCode = 200;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify(result));
+                  return;
+                } catch (directErr: any) {
+                  const queued = await mailer.enqueueMail(data);
+                  res.statusCode = 200;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify({
+                    success: true,
+                    queued: true,
+                    id: queued.id,
+                    message: `Email queued for guaranteed delivery: ${directErr.message}`
+                  }));
+                  return;
                 }
-              });
+              }
 
-              const info = await transporter.sendMail({
-                from: `"${fromName}" <${fromEmail}>`,
-                to,
-                subject: subject || 'Origintra Exim Corporate Notification',
-                text: bodyText || '',
-                html: html || undefined
-              });
-
+              const result = await mailer.enqueueMail(data);
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({
-                success: true,
-                message: `Email dispatched successfully to ${to} via Nodemailer`,
-                method: `Nodemailer (${host}:${port})`,
-                messageId: info.messageId
-              }));
+              res.end(JSON.stringify(result));
             } catch (err: any) {
               console.error('[Nodemailer Dev Plugin Error]:', err);
               res.statusCode = 500;
@@ -71,33 +64,20 @@ function nodemailerPlugin(): Plugin {
           return;
         }
 
-        if (req.method === 'POST' && req.url === '/api/verify-smtp') {
+        // Handle POST /api/verify-smtp
+        if (req.method === 'POST' && (url === '/api/verify-smtp' || url === '/api/verify-smtp.php')) {
           let body = '';
           req.on('data', (chunk) => { body += chunk; });
           req.on('end', async () => {
             try {
               const data = JSON.parse(body || '{}');
-              const { host, port, secure, user, pass } = data;
+              const mailerModule = await import('./server/mailerEngine.js');
+              const mailer = mailerModule.default || mailerModule;
 
-              const nodemailerModule = await import('nodemailer');
-              const nodemailer = nodemailerModule.default || nodemailerModule;
-
-              const transporter = nodemailer.createTransport({
-                host: host || 'smtp.hostinger.com',
-                port: Number(port) || 465,
-                secure: secure !== undefined ? Boolean(secure) : (Number(port) === 465),
-                auth: { user, pass },
-                tls: { rejectUnauthorized: false }
-              });
-
-              await transporter.verify();
-
-              res.statusCode = 200;
+              const result = await mailer.verifySmtp(data);
+              res.statusCode = result.success ? 200 : 400;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({
-                success: true,
-                message: `SMTP connection to ${host}:${port} successfully verified!`
-              }));
+              res.end(JSON.stringify(result));
             } catch (err: any) {
               res.statusCode = 400;
               res.setHeader('Content-Type', 'application/json');
@@ -107,6 +87,51 @@ function nodemailerPlugin(): Plugin {
               }));
             }
           });
+          return;
+        }
+
+        // Handle POST /api/save-smtp
+        if (req.method === 'POST' && (url === '/api/save-smtp' || url === '/api/save-smtp.php')) {
+          let body = '';
+          req.on('data', (chunk) => { body += chunk; });
+          req.on('end', async () => {
+            try {
+              const data = JSON.parse(body || '{}');
+              const mailerModule = await import('./server/mailerEngine.js');
+              const mailer = mailerModule.default || mailerModule;
+
+              const result = mailer.saveConfig(data);
+              res.statusCode = result.success ? 200 : 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(result));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                success: false,
+                message: `Failed to save configuration: ${err.message || err}`
+              }));
+            }
+          });
+          return;
+        }
+
+        // Handle GET /api/mail-queue & /api/mail-logs
+        if (req.method === 'GET' && url === '/api/mail-queue') {
+          const mailerModule = await import('./server/mailerEngine.js');
+          const mailer = mailerModule.default || mailerModule;
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(mailer.getQueueStatus()));
+          return;
+        }
+
+        if (req.method === 'GET' && url === '/api/mail-logs') {
+          const mailerModule = await import('./server/mailerEngine.js');
+          const mailer = mailerModule.default || mailerModule;
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(mailer.getLogs()));
           return;
         }
 

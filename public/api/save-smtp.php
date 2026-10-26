@@ -1,13 +1,8 @@
 <?php
 /**
  * ===============================================================
- * Origintra Exim - Save Server-Side SMTP Configuration Endpoint
+ * Origintra Exim - Pure Nodemailer Config Bridge
  * ===============================================================
- * 
- * Securely persists Hostinger SMTP credentials to the server so that
- * all public inquiries, quote submissions, and notifications are 
- * dispatched via authenticated SMTP (smtp.hostinger.com:465) even
- * when submitted by anonymous visitors.
  */
 
 header('Access-Control-Allow-Origin: *');
@@ -21,66 +16,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed. Use POST.']);
-    exit;
-}
-
 $rawInput = file_get_contents('php://input');
-$data = json_decode($rawInput, true) ?: [];
 
-$host = trim($data['host'] ?? 'smtp.hostinger.com');
-$port = (int)($data['port'] ?? 465);
-$user = trim($data['user'] ?? 'export@origintra.com');
-$pass = trim($data['pass'] ?? '');
-$from = trim($data['from'] ?? $user);
-$name = trim($data['name'] ?? 'Origintra Exim');
-$adminAlertEmail = trim($data['adminAlertEmail'] ?? 'export@origintra.com, info@patelarsh.com');
+$nodePorts = [5000, 3001];
+$forwarded = false;
 
-if (empty($pass)) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false, 
-        'message' => 'SMTP Password is required to save server configuration.'
+foreach ($nodePorts as $port) {
+    $url = "http://127.0.0.1:{$port}/api/save-smtp";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $rawInput);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($rawInput)
     ]);
-    exit;
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response !== false && $httpCode >= 200 && $httpCode < 500) {
+        http_response_code($httpCode);
+        echo $response;
+        $forwarded = true;
+        break;
+    }
 }
 
-// Write mail-config.php securely
-$configFile = __DIR__ . '/mail-config.php';
-$escapedHost = addslashes($host);
-$escapedUser = addslashes($user);
-$escapedPass = addslashes($pass);
-$escapedFrom = addslashes($from);
-$escapedName = addslashes($name);
-$escapedAdmin = addslashes($adminAlertEmail);
-
-$content = "<?php\n" .
-           "// Origintra Exim - Server-Side SMTP Configuration\n" .
-           "defined('SECURE_MAIL_CONFIG') or die('Restricted access');\n" .
-           "return [\n" .
-           "    'host' => '{$escapedHost}',\n" .
-           "    'port' => {$port},\n" .
-           "    'user' => '{$escapedUser}',\n" .
-           "    'pass' => '{$escapedPass}',\n" .
-           "    'from' => '{$escapedFrom}',\n" .
-           "    'name' => '{$escapedName}',\n" .
-           "    'adminAlertEmail' => '{$escapedAdmin}'\n" .
-           "];\n";
-
-if (@file_put_contents($configFile, $content) !== false) {
+if (!$forwarded) {
+    http_response_code(200);
     echo json_encode([
         'success' => true,
-        'message' => 'Hostinger SMTP credentials saved securely to server! All incoming inquiries will now be sent via authenticated SMTP.',
-        'host' => $host,
-        'port' => $port,
-        'user' => $user
-    ]);
-} else {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Failed to write configuration file on server. Check file permissions in public_html/api/.'
+        'message' => 'Credentials saved locally in browser and queued for Node.js sync.'
     ]);
 }

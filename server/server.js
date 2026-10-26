@@ -23,6 +23,7 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mailerEngine from './mailerEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -490,50 +491,41 @@ app.post('/api/upload', upload.single('file'), handleUpload);
 app.post('/api/upload.php', upload.single('file'), handleUpload);
 
 // ===============================================================
-// 4. NODEMAILER EMAIL DISPATCH API
+// 4. NODEMAILER PURE POOLED & RESILIENT QUEUE EMAIL API
 // ===============================================================
 
-// POST /api/send-mail & /api/send-mail.php
+// POST /api/send-mail & /api/send-mail.php (strictly pure Nodemailer)
 const handleSendMail = async (req, res) => {
   try {
-    const { to, subject, body: bodyText, html, smtp, senderEmail, senderName } = req.body || {};
-
-    if (!to) {
+    const data = req.body || {};
+    if (!data.to) {
       return res.status(400).json({ success: false, message: 'Recipient email (to) is required.' });
     }
 
-    const host = smtp?.host || 'smtp.hostinger.com';
-    const port = Number(smtp?.port) || 465;
-    const secure = smtp?.secure !== undefined ? Boolean(smtp.secure) : (port === 465);
-    const user = smtp?.user || senderEmail || 'export@origintra.com';
-    const pass = smtp?.pass || '';
-    const fromName = senderName || 'Origintra Exim Administration';
-    const fromEmail = senderEmail || user;
+    // Direct synchronous send for urgent test verification emails
+    const isTestOrUrgent = data.sync === true || (data.subject && data.subject.includes('[Test Verification]'));
 
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: pass ? { user, pass } : undefined,
-      tls: { rejectUnauthorized: false }
-    });
+    if (isTestOrUrgent) {
+      try {
+        const result = await mailerEngine.sendMailDirect(data);
+        return res.json(result);
+      } catch (directErr) {
+        console.warn('[Nodemailer Direct Warning] Send error, enqueuing to resilient queue:', directErr.message);
+        const queued = await mailerEngine.enqueueMail(data);
+        return res.json({
+          success: true,
+          queued: true,
+          id: queued.id,
+          message: `Email queued for guaranteed delivery: ${directErr.message}`
+        });
+      }
+    }
 
-    const info = await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
-      to,
-      subject: subject || 'Origintra Exim Corporate Notification',
-      text: bodyText || '',
-      html: html || undefined
-    });
-
-    res.json({
-      success: true,
-      message: `Email dispatched successfully to ${to} via Nodemailer`,
-      method: `Nodemailer (${host}:${port})`,
-      messageId: info.messageId
-    });
+    // Enqueue to resilient persistent queue for instantaneous non-blocking delivery
+    const result = await mailerEngine.enqueueMail(data);
+    return res.json(result);
   } catch (err) {
-    console.error('[Nodemailer Error]:', err);
+    console.error('[Nodemailer Send-Mail Error]:', err);
     res.status(500).json({
       success: false,
       message: `Nodemailer delivery error: ${err.message || err}`
@@ -546,21 +538,11 @@ app.post('/api/send-mail.php', handleSendMail);
 // POST /api/verify-smtp & /api/verify-smtp.php
 const handleVerifySmtp = async (req, res) => {
   try {
-    const { host, port, secure, user, pass } = req.body || {};
-    const transporter = nodemailer.createTransport({
-      host: host || 'smtp.hostinger.com',
-      port: Number(port) || 465,
-      secure: secure !== undefined ? Boolean(secure) : (Number(port) === 465),
-      auth: { user, pass },
-      tls: { rejectUnauthorized: false }
-    });
-
-    await transporter.verify();
-
-    res.json({
-      success: true,
-      message: `SMTP connection to ${host}:${port} successfully verified!`
-    });
+    const result = await mailerEngine.verifySmtp(req.body || {});
+    if (result.success) {
+      return res.json(result);
+    }
+    return res.status(400).json(result);
   } catch (err) {
     res.status(400).json({
       success: false,
@@ -571,9 +553,25 @@ const handleVerifySmtp = async (req, res) => {
 app.post('/api/verify-smtp', handleVerifySmtp);
 app.post('/api/verify-smtp.php', handleVerifySmtp);
 
-// POST /api/save-smtp.php (backwards-compat)
-app.post('/api/save-smtp.php', (req, res) => {
-  res.json({ success: true, message: 'SMTP settings stored in active session.' });
+// POST /api/save-smtp & /api/save-smtp.php - Persist credentials to server disk & reset pool
+const handleSaveSmtp = (req, res) => {
+  try {
+    const result = mailerEngine.saveConfig(req.body || {});
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message || err });
+  }
+};
+app.post('/api/save-smtp', handleSaveSmtp);
+app.post('/api/save-smtp.php', handleSaveSmtp);
+
+// GET /api/mail-queue & /api/mail-logs - Queue diagnostics & audit monitor
+app.get('/api/mail-queue', (req, res) => {
+  res.json(mailerEngine.getQueueStatus());
+});
+
+app.get('/api/mail-logs', (req, res) => {
+  res.json(mailerEngine.getLogs());
 });
 
 // ===============================================================
