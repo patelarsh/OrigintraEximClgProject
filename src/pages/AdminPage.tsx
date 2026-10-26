@@ -73,6 +73,7 @@ import { supabase } from '../services/supabaseClient';
 import { MailService, WelcomeEmailPayload, EmailCredentials } from '../services/mailService';
 import { PRODUCT_CATEGORIES } from '../data/products';
 import { MediaGalleryModal } from '../components/MediaGalleryModal';
+import { ProductEditor } from '../components/ProductEditor';
 import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
 import { compressImage, compressDataUrl } from '../utils/imageCompressor';
@@ -577,44 +578,86 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       slug: '',
       name: '',
       botanicalName: '',
+      scientific: '',
       category: 'Whole Spices',
       categoryKey: 'whole-spices',
       tagline: 'Export grade quality spice from India',
       isFlagship: false,
+      isCustomSourcing: false,
+      partUsed: 'Whole Dried Pods / Seeds',
       origin: 'Guntur, Andhra Pradesh, India',
       shortDescription: '',
       fullDescription: '',
       availableForms: ['Whole Form', 'Powder Form (Ground)'],
-      packagingOptions: ['25kg Woven Bags', '50kg Jute Bags'],
-      applications: ['Culinary Seasoning', 'Food Processing'],
+      packagingOptions: ['25kg PP Bags with PE Liner', '50kg Seaworthy Jute Sacks', 'Customized Private Label'],
+      applications: ['Commercial Food Processing', 'Spice Blends & Seasonings', 'Retail Supermarket Packaging'],
       image: '/assets/products/whole-red-chili.jpg',
+      gallery: [],
       specifications: [
-        { label: 'Moisture', value: '10% Max' },
-        { label: 'Purity', value: '99% Min' }
+        { label: 'Moisture Content', value: '10.0% Max' },
+        { label: 'Sortex Cleanliness', value: '99.5% Min Cleaned' },
+        { label: 'Harvest Belts', value: 'Prime Indian Farmgate Mandis' },
+        { label: 'Extraneous Matter', value: '0.5% Max' }
       ],
-      qualityProcess: ['Machine Sorting', 'Metal Detection'],
+      qualityProcess: ['Machine Pre-Cleaning', 'Sortex Color Sorting', 'Metal Detection', 'Phytosanitary Fumigation'],
       exportInfo: {
-        minimumOrderQuantity: '1 x 20ft FCL',
-        packagingStandard: 'Seaworthy Export Grade',
-        containerCapacity: '14 to 18 MT per 20ft',
-        sampleAvailability: 'Available upon request',
-        leadTime: '15-20 Days',
-        incoterms: 'FOB / CIF / CFR'
+        minimumOrderQuantity: '1 x 20ft FCL (Full Container Load)',
+        packagingStandard: 'Multi-layer food-grade hermetic seaworthy packaging',
+        containerCapacity: '13-14 MT / 20ft FCL; 26 MT / 40ft HC',
+        sampleAvailability: 'Complimentary 200g-500g samples via DHL/FedEx',
+        leadTime: '7-12 working days from LC confirmation',
+        incoterms: 'FOB Mundra / Nhava Sheva, CIF, CFR any global port'
       },
       faqs: [
-        { question: 'What is the minimum order quantity?', answer: '1 x 20ft FCL container.' }
+        { question: 'What is your standard export lead time?', answer: 'We typically dispatch within 7 to 12 working days from formal Letter of Credit (LC) or TT confirmation.' },
+        { question: 'Do you provide laboratory certificate of analysis (COA) with each batch?', answer: 'Yes, every export shipment includes a full laboratory COA, Phytosanitary Certificate, and Certificate of Origin.' }
       ]
     });
-    setIsProductModalOpen(true);
+    setIsProductModalOpen(false);
+    setActiveTab('products');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenEditProduct = (prod: Product) => {
     const copy: Product = JSON.parse(JSON.stringify(prod));
-    if (copy.slug && copy.slug.startsWith('new-spice-')) {
+    if (copy.slug && (copy.slug.startsWith('new-spice-') || copy.slug.startsWith('product-'))) {
       copy.slug = slugify(copy.name);
     }
+    if (!copy.specifications || !Array.isArray(copy.specifications) || copy.specifications.length === 0) {
+      copy.specifications = [
+        { label: 'Moisture Content', value: '10.0% Max' },
+        { label: 'Sortex Purity', value: '99.5% Min Cleaned' }
+      ];
+    }
+    if (!copy.packagingOptions || !Array.isArray(copy.packagingOptions) || copy.packagingOptions.length === 0) {
+      copy.packagingOptions = ['25kg PP Bags with Liner', '50kg Jute Bags', 'Customized Private Label'];
+    }
+    if (!copy.applications || !Array.isArray(copy.applications) || copy.applications.length === 0) {
+      copy.applications = ['Commercial Food Processing', 'Spice Blends & Seasonings', 'Retail Packaging'];
+    }
+    if (!copy.availableForms || !Array.isArray(copy.availableForms)) {
+      copy.availableForms = ['Whole Form'];
+    }
+    if (!copy.exportInfo) {
+      copy.exportInfo = {
+        minimumOrderQuantity: '1 x 20ft FCL',
+        packagingStandard: 'Seaworthy Export Grade',
+        containerCapacity: '13-14 MT per 20ft FCL; 26 MT per 40ft HC',
+        sampleAvailability: 'Complimentary 200g-500g samples via DHL/FedEx',
+        leadTime: '7-12 working days from LC confirmation',
+        incoterms: 'FOB / CIF / CFR'
+      };
+    }
+    if (!copy.faqs || !Array.isArray(copy.faqs)) {
+      copy.faqs = [];
+    }
+    if (!copy.gallery || !Array.isArray(copy.gallery)) {
+      copy.gallery = [];
+    }
     setEditingProduct(copy);
-    setIsProductModalOpen(true);
+    setIsProductModalOpen(false);
+    setActiveTab('products');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSaveProduct = async (e?: React.FormEvent) => {
@@ -2583,6 +2626,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           {/* TAB 2: PRODUCT CATALOG MANAGEMENT */}
           {/* ======================================= */}
           {activeTab === 'products' && (
+            editingProduct ? (
+              <ProductEditor
+                product={editingProduct}
+                onChange={setEditingProduct}
+                onSave={handleSaveProduct}
+                onCancel={() => setEditingProduct(null)}
+                onOpenGallery={handleOpenProductImageGallery}
+                isSaving={isSavingProduct}
+              />
+            ) : (
             <div className="space-y-6">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2772,6 +2825,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               </div>
 
             </div>
+            )
           )}
 
           {/* ======================================= */}
@@ -5517,251 +5571,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         </main>
       </div>
 
-      {/* ======================================= */}
-      {/* MODAL 1: ADD/EDIT PRODUCT */}
-      {/* ======================================= */}
-      {isProductModalOpen && editingProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8">
-            
-            <div className="bg-[#0A1C3E] px-6 py-4 text-white flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-[#38BDF8] tracking-wider">
-                  Product CMS
-                </span>
-                <h3 className="text-lg font-bold font-display text-white">
-                  {editingProduct.name ? `Edit: ${editingProduct.name}` : 'Add New Export Spice'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsProductModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form noValidate onSubmit={handleSaveProduct} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Product Name *</label>
-                  <input
-                    type="text"
-                    value={editingProduct.name}
-                    onChange={(e) => {
-                      const newName = e.target.value;
-                      setEditingProduct(prev => {
-                        if (!prev) return null;
-                        const shouldUpdateSlug = !prev.slug || prev.slug.startsWith('new-spice-') || prev.slug === slugify(prev.name);
-                        return {
-                          ...prev,
-                          name: newName,
-                          slug: shouldUpdateSlug ? slugify(newName) : prev.slug
-                        };
-                      });
-                    }}
-                    placeholder="e.g. Green Cardamom Bold"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">
-                    Product URL Slug (Permalink)
-                  </label>
-                  <div className="flex rounded-lg shadow-2xs border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-[#0070E0] focus-within:border-transparent">
-                    <span className="inline-flex items-center px-2.5 bg-slate-100 text-slate-500 text-[11px] font-mono border-r border-slate-300 select-none">
-                      /products/
-                    </span>
-                    <input
-                      type="text"
-                      value={editingProduct.slug || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, slug: slugify(e.target.value) })}
-                      placeholder="e.g. green-cardamom-bold"
-                      className="flex-1 px-3 py-2 font-mono text-[11px] text-slate-800 focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Botanical / Scientific Name</label>
-                  <input
-                    type="text"
-                    value={editingProduct.botanicalName || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, botanicalName: e.target.value })}
-                    placeholder="e.g. Elettaria cardamomum"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 italic focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Category *</label>
-                  <select
-                    value={editingProduct.categoryKey || 'whole-spices'}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const catObj = PRODUCT_CATEGORIES.find(c => c.key === val);
-                      setEditingProduct({
-                        ...editingProduct,
-                        categoryKey: val,
-                        category: catObj ? catObj.label : 'Whole Spices'
-                      });
-                    }}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  >
-                    <option value="whole-spices">Whole Spices</option>
-                    <option value="ground-spices">Ground Spices</option>
-                    <option value="seeds">Seeds</option>
-                    <option value="blends">Blends & Seasonings</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Primary Harvest Origin</label>
-                  <input
-                    type="text"
-                    value={editingProduct.origin}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, origin: e.target.value })}
-                    placeholder="e.g. Idukki, Kerala, India"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-semibold text-slate-700 block">Product Image *</label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleOpenProductImageGallery}
-                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#0070E0] hover:bg-blue-100 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
-                    >
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      Select from Gallery
-                    </button>
-                    <label className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer">
-                      <Upload className="w-3.5 h-3.5" />
-                      Upload
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleDevicePhotoUpload(f, 'product');
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {editingProduct.image && (
-                    <div
-                      onClick={handleOpenProductImageGallery}
-                      className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0070E0] transition bg-slate-100"
-                      title="Click to select different photo from gallery"
-                    >
-                      <img
-                        src={editingProduct.image?.startsWith('/assets/products/') ? `${editingProduct.image.split('?')[0]}?v=20261019_drive` : editingProduct.image}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/assets/products/cumin-seeds.jpg?v=20261019_drive';
-                        }}
-                      />
-                    </div>
-                  )}
-                  <input
-                    type="text"
-                    value={editingProduct.image}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                    placeholder="/assets/products/your-spice.jpg"
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-300 font-mono text-[11px] focus:ring-2 focus:ring-[#0070E0]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Tagline</label>
-                <input
-                  type="text"
-                  value={editingProduct.tagline || ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, tagline: e.target.value })}
-                  placeholder="e.g. Export grade bold green pods with high volatile oil"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Short Description</label>
-                <textarea
-                  rows={2}
-                  value={editingProduct.shortDescription || ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, shortDescription: e.target.value })}
-                  placeholder="Summary of product grade, aroma, and commercial applications..."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Available Forms (Comma-separated)</label>
-                <input
-                  type="text"
-                  value={(editingProduct.availableForms || []).join(', ')}
-                  onChange={(e) => setEditingProduct({
-                    ...editingProduct,
-                    availableForms: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  })}
-                  placeholder="Whole Pods, Split, Ground Powder 80 Mesh"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                />
-              </div>
-
-              <div className="flex items-center space-x-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="flagship-check"
-                  checked={!!editingProduct.isFlagship}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, isFlagship: e.target.checked })}
-                  className="rounded text-[#0070E0] focus:ring-[#0070E0]"
-                />
-                <label htmlFor="flagship-check" className="font-semibold text-slate-700">
-                  Feature as Flagship Commodity (Displayed prominently on website)
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsProductModalOpen(false)}
-                  disabled={isSavingProduct}
-                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSavingProduct}
-                  className={`px-5 py-2 rounded-lg font-semibold transition shadow-sm flex items-center gap-2 ${
-                    isSavingProduct
-                      ? 'bg-blue-400 text-white cursor-not-allowed'
-                      : 'bg-[#0070E0] hover:bg-blue-600 text-white cursor-pointer'
-                  }`}
-                >
-                  {isSavingProduct && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSavingProduct ? 'Saving Spice...' : 'Save Spice'}
-                </button>
-              </div>
-
-            </form>
-
-          </div>
-        </div>
-      )}
-
-      {/* ======================================= */}
+            {/* ======================================= */}
       {/* MODAL 3: INQUIRY DETAILS VIEW */}
       {/* ======================================= */}
       {viewingInquiry && (
