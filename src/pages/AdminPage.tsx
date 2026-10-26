@@ -1773,7 +1773,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
             <button
               onClick={handleToggleSidebar}
-              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer shrink-0 border border-slate-200/80 shadow-2xs flex items-center justify-center"
+              className={`p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer shrink-0 border border-slate-200/80 shadow-2xs items-center justify-center ${sidebarOpen ? 'flex md:hidden' : 'flex'}`}
               aria-label="Toggle Sidebar"
               title={sidebarOpen ? "Close Sidebar (Hide)" : "Show Sidebar"}
             >

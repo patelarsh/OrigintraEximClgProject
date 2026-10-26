@@ -664,33 +664,40 @@ export const MailService = {
    */
   async verifySmtp(credsOverride?: Partial<EmailCredentials>): Promise<{ success: boolean; message: string; latencyMs?: number }> {
     const creds = { ...this.getCredentials(), ...(credsOverride || {}) };
-    try {
-      const res = await fetch('/api/verify-smtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          host: creds.smtpHost || 'smtp.hostinger.com',
-          port: Number(creds.smtpPort) || 465,
-          secure: creds.smtpSecure !== undefined ? creds.smtpSecure : (Number(creds.smtpPort) === 465),
-          user: creds.smtpUser || creds.senderEmail,
-          pass: creds.smtpPassword
-        })
-      });
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.success) {
-        return {
-          success: true,
-          message: data.message || 'Pure Nodemailer SMTP connection verified successfully!',
-          latencyMs: data.latencyMs
-        };
-      }
-      return {
-        success: false,
-        message: data?.message || `Verification returned HTTP ${res.status}`
-      };
-    } catch (e: any) {
-      return { success: false, message: e?.message || 'Could not connect to Nodemailer verification endpoint.' };
+    const payload = JSON.stringify({
+      host: creds.smtpHost || 'smtp.hostinger.com',
+      port: Number(creds.smtpPort) || 465,
+      secure: creds.smtpSecure !== undefined ? creds.smtpSecure : (Number(creds.smtpPort) === 465),
+      user: creds.smtpUser || creds.senderEmail,
+      pass: creds.smtpPassword
+    });
+
+    const endpoints = ['/api/verify-smtp', '/api/verify-smtp.php'];
+    for (const ep of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(ep, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success) {
+          return {
+            success: true,
+            message: data.message || 'SMTP connection verified successfully!',
+            latencyMs: data.latencyMs
+          };
+        }
+        if (data?.message) {
+          return { success: false, message: data.message };
+        }
+      } catch {}
     }
+    return { success: false, message: 'Could not connect to SMTP verification endpoint.' };
   },
 
   /**
