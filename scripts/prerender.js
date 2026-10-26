@@ -490,3 +490,29 @@ for (const b of blogPosts) {
 console.log(`Pre-rendered ${blogPosts.length} blog post pages.`);
 
 console.log('✅ Successfully pre-rendered all site pages with unique titles, canonical tags, and semantic HTML!');
+
+// Copy server files into dist for Node.js production deployment
+try {
+  const ROOT_DIR = path.resolve('.');
+  const distServerDir = path.join(DIST_DIR, 'server');
+  if (!fs.existsSync(distServerDir)) {
+    fs.mkdirSync(distServerDir, { recursive: true });
+  }
+  const serverFiles = fs.readdirSync(path.join(ROOT_DIR, 'server'));
+  for (const f of serverFiles) {
+    const srcPath = path.join(ROOT_DIR, 'server', f);
+    const destPath = path.join(distServerDir, f);
+    if (fs.statSync(srcPath).isDirectory()) {
+      fs.cpSync(srcPath, destPath, { recursive: true });
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+  fs.copyFileSync(path.join(ROOT_DIR, 'package.json'), path.join(DIST_DIR, 'package.json'));
+  if (fs.existsSync(path.join(ROOT_DIR, 'ecosystem.config.cjs'))) {
+    fs.copyFileSync(path.join(ROOT_DIR, 'ecosystem.config.cjs'), path.join(DIST_DIR, 'ecosystem.config.cjs'));
+  }
+  console.log('✅ Copied Node.js backend & Nodemailer server into dist/ for pure Node mail deployment!');
+} catch (e) {
+  console.warn('Could not copy server files to dist:', e.message);
+}
