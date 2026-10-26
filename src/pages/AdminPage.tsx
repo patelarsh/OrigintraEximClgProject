@@ -174,6 +174,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem('origintra_admin_sidebar_open');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const handleToggleSidebar = () => {
+    if (window.innerWidth < 768) {
+      setMobileMenuOpen(prev => !prev);
+    } else {
+      setSidebarOpen(prev => {
+        const next = !prev;
+        try {
+          localStorage.setItem('origintra_admin_sidebar_open', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    }
+  };
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -332,6 +354,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [productCategoryFilter, setProductCategoryFilter] = useState('all');
   const [blogSearch, setBlogSearch] = useState('');
   const [blogCategoryFilter, setBlogCategoryFilter] = useState('all');
+  const [customBlogCategories, setCustomBlogCategories] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('origintra_custom_blog_categories');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isCreatingNewBlogCategory, setIsCreatingNewBlogCategory] = useState(false);
+  const [newBlogCategoryInput, setNewBlogCategoryInput] = useState('');
   const [teamSearch, setTeamSearch] = useState('');
   const [testimonialSearch, setTestimonialSearch] = useState('');
   const [testimonialCommodityFilter, setTestimonialCommodityFilter] = useState('all');
@@ -455,6 +487,39 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       return matchesCat && matchesSearch;
     });
   }, [blogPosts, blogSearch, blogCategoryFilter]);
+
+  const allBlogCategories = useMemo(() => {
+    const defaults = [
+      'Global Trade',
+      'Indian Spices',
+      'Export Insights',
+      'Market Trends',
+      'Sourcing',
+      'Logistics',
+      'Business Updates'
+    ];
+    const fromPosts = blogPosts.map(b => b.category).filter(Boolean);
+    return Array.from(new Set([...defaults, ...fromPosts, ...customBlogCategories]));
+  }, [blogPosts, customBlogCategories]);
+
+  const handleAddNewBlogCategory = () => {
+    const trimmed = newBlogCategoryInput.trim();
+    if (!trimmed) {
+      showToast('Please enter a valid category name.');
+      return;
+    }
+    if (!customBlogCategories.includes(trimmed)) {
+      const updated = [...customBlogCategories, trimmed];
+      setCustomBlogCategories(updated);
+      localStorage.setItem('origintra_custom_blog_categories', JSON.stringify(updated));
+    }
+    if (editingBlogPost) {
+      setEditingBlogPost({ ...editingBlogPost, category: trimmed });
+    }
+    setIsCreatingNewBlogCategory(false);
+    setNewBlogCategoryInput('');
+    showToast(`Category "${trimmed}" created and selected!`);
+  };
 
   const filteredInquiries = useMemo(() => {
     return inquiries.filter(i => {
@@ -1395,29 +1460,33 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       )}
 
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-transform duration-300 ease-in-out
-        md:translate-x-0 md:static md:h-screen md:sticky md:top-0 md:z-30
-        ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
+        fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 transition-all duration-300 ease-in-out
+        md:static md:h-screen md:sticky md:top-0 md:z-30
+        ${mobileMenuOpen ? 'translate-x-0 w-64 shadow-2xl pointer-events-auto' : '-translate-x-full pointer-events-none md:pointer-events-auto'}
+        ${sidebarOpen ? 'md:translate-x-0 md:w-64 md:opacity-100' : 'md:w-0 md:border-r-0 md:opacity-0 md:overflow-hidden md:pointer-events-none'}
       `}>
-        {/* Top: Brand Logo Header */}
-        <div className="h-[70px] px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-          <div className="flex items-center">
-            <img
-              src="/assets/logo/origintra-official-logo.webp?v=2"
-              alt="Origintra Exim"
-              className="h-10 sm:h-11 w-auto max-w-[185px] object-contain block"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
-              }}
-            />
+        <div className="w-64 min-w-[256px] flex flex-col justify-between h-full">
+          {/* Top: Brand Logo Header */}
+          <div className="h-[70px] px-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div className="flex items-center min-w-0">
+              <img
+                src="/assets/logo/origintra-official-logo.webp?v=2"
+                alt="Origintra Exim"
+                className="h-10 sm:h-11 w-auto max-w-[170px] object-contain block"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
+                }}
+              />
+            </div>
+            <button
+              onClick={handleToggleSidebar}
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer shrink-0"
+              title="Close / Hide Sidebar"
+              aria-label="Close / Hide Sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
 
         {/* Middle: Navigation Menu Items */}
         <div className="flex-1 overflow-y-auto p-3.5 space-y-1.5 scrollbar-thin">
@@ -1644,6 +1713,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             <strong className="text-slate-700 font-mono font-semibold">{companyConfig.phone || '+917069182990'}</strong>
           </div>
         </div>
+        </div>
       </aside>
 
       {/* ========================================================= */}
@@ -1654,20 +1724,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         {/* Top Clean White Header Bar */}
         <header className="h-[70px] bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
           
-          {/* Left: Mobile Toggle & Global Search */}
+          {/* Left: 3-Line Sidebar Toggle & Global Search */}
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
             <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer shrink-0"
-              aria-label="Open Navigation"
+              onClick={handleToggleSidebar}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer shrink-0 border border-slate-200/80 shadow-2xs flex items-center justify-center"
+              aria-label="Toggle Sidebar"
+              title={sidebarOpen ? "Close Sidebar (Hide)" : "Show Sidebar"}
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-5 h-5 text-slate-700" />
             </button>
 
             <img
               src="/assets/logo/origintra-official-logo.webp?v=2"
               alt="Origintra Exim"
-              className="h-6 sm:h-7 w-auto object-contain md:hidden shrink-0"
+              className={`h-6 sm:h-7 w-auto object-contain shrink-0 ${sidebarOpen ? 'md:hidden' : 'block'}`}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/logo/origintra-official-logo.png?v=2';
               }}
@@ -2815,20 +2886,99 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Category *</label>
-                  <select
-                    value={editingBlogPost.category}
-                    onChange={(e) => setEditingBlogPost({ ...editingBlogPost, category: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0]"
-                  >
-                    <option value="Global Trade">Global Trade</option>
-                    <option value="Indian Spices">Indian Spices</option>
-                    <option value="Export Insights">Export Insights</option>
-                    <option value="Market Trends">Market Trends</option>
-                    <option value="Sourcing">Sourcing</option>
-                    <option value="Logistics">Logistics</option>
-                    <option value="Business Updates">Business Updates</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700 block text-xs sm:text-sm">Category *</label>
+                    {!isCreatingNewBlogCategory ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCreatingNewBlogCategory(true);
+                          setNewBlogCategoryInput('');
+                        }}
+                        className="text-xs font-semibold text-[#0070E0] hover:text-blue-700 flex items-center gap-1 transition cursor-pointer hover:underline"
+                        title="Create a new custom blog category"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ Create New Category</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCreatingNewBlogCategory(false);
+                          setNewBlogCategoryInput('');
+                        }}
+                        className="text-xs font-medium text-slate-500 hover:text-slate-700 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+
+                  {isCreatingNewBlogCategory ? (
+                    <div className="flex items-center gap-2 animate-in fade-in duration-150">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          autoFocus
+                          value={newBlogCategoryInput}
+                          onChange={(e) => setNewBlogCategoryInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddNewBlogCategory();
+                            } else if (e.key === 'Escape') {
+                              setIsCreatingNewBlogCategory(false);
+                            }
+                          }}
+                          placeholder="Type new category name and press Enter..."
+                          className="w-full px-3 py-2 rounded-lg border-2 border-[#0070E0] bg-blue-50/20 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-100 transition shadow-2xs"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddNewBlogCategory}
+                        disabled={!newBlogCategoryInput.trim()}
+                        className="px-3.5 py-2 rounded-lg bg-[#0070E0] hover:bg-blue-600 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 shadow-2xs disabled:opacity-50"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Add & Select</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCreatingNewBlogCategory(false);
+                          setNewBlogCategoryInput('');
+                        }}
+                        className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-xs font-medium transition cursor-pointer shrink-0"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={editingBlogPost.category}
+                      onChange={(e) => {
+                        if (e.target.value === '__create_new__') {
+                          setIsCreatingNewBlogCategory(true);
+                          setNewBlogCategoryInput('');
+                        } else {
+                          setEditingBlogPost({ ...editingBlogPost, category: e.target.value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#0070E0] text-xs sm:text-sm text-slate-800 font-medium bg-white"
+                    >
+                      {allBlogCategories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                      <option disabled value="">──────────────</option>
+                      <option value="__create_new__" className="text-[#0070E0] font-bold">
+                        ➕ + Create New Category...
+                      </option>
+                    </select>
+                  )}
                 </div>
 
                 <div>

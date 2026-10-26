@@ -89,7 +89,7 @@ export interface BlogPost {
   id: string;
   slug: string;
   title: string;
-  category: 'Global Trade' | 'Indian Spices' | 'Export Insights' | 'Market Trends' | 'Sourcing' | 'Logistics' | 'Business Updates';
+  category: 'Global Trade' | 'Indian Spices' | 'Export Insights' | 'Market Trends' | 'Sourcing' | 'Logistics' | 'Business Updates' | string;
   date: string;
   rawDate?: string;
   readTime: string;

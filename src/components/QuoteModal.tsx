@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle, ArrowUpRight, Lock, Loader2, Sparkles, Layers } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, ArrowUpRight, Lock, Loader2, Sparkles, Layers, Check } from 'lucide-react';
 import { QuoteFormData } from '../types';
 import { AdminStorage } from '../services/adminStorage';
 
@@ -41,6 +41,7 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [hasDataPermission, setHasDataPermission] = useState(true);
 
   // Sync prefill when modal opens
   useEffect(() => {
@@ -82,6 +83,7 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
     if (!formData.phoneWhatsApp.trim()) return 'Please enter your phone or WhatsApp number.';
     if (!formData.quantityRequired.trim()) return 'Please indicate the quantity or container volume required.';
     if (!formData.destinationPort.trim()) return 'Please enter your target destination discharge port.';
+    if (!hasDataPermission) return 'Please check the consent box to authorize commercial inquiry processing.';
     return null;
   };
 
@@ -388,10 +390,23 @@ export const QuoteModal: React.FC<QuoteModalProps> = ({
               </div>
 
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-                <div className="flex items-center text-[11px] text-slate-400 space-x-1.5">
-                  <Lock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Direct confidential commercial communication. No spam.</span>
-                </div>
+                <label className="flex items-center space-x-2 text-[11px] text-slate-600 cursor-pointer select-none group">
+                  <div className="relative flex items-center justify-center shrink-0">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={hasDataPermission}
+                      onChange={(e) => setHasDataPermission(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                      hasDataPermission ? 'bg-[#0070E0] border-[#0070E0] text-white shadow-2xs' : 'bg-white border-slate-300 group-hover:border-[#0070E0]'
+                    }`}>
+                      {hasDataPermission && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                  </div>
+                  <span>I authorize Origintra Exim to process my trade data for quotation purposes.</span>
+                </label>
 
                 <button
                   type="submit"

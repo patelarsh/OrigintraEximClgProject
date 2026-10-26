@@ -251,6 +251,14 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [blogPosts, setBlogPosts] = React.useState<BlogPost[]>(() => AdminStorage.getBlogPosts());
   const [testimonials, setTestimonials] = React.useState<Testimonial[]>(() => AdminStorage.getTestimonials());
 
+  const categoryCounts = React.useMemo(() => {
+    const whole = products.filter(p => p.categoryKey === 'whole-spices' || (p.category || '').toLowerCase().includes('whole')).length;
+    const ground = products.filter(p => p.categoryKey === 'ground-spices' || (p.category || '').toLowerCase().includes('ground') || (p.category || '').toLowerCase().includes('powder')).length;
+    const seeds = products.filter(p => p.categoryKey === 'seeds' || (p.category || '').toLowerCase().includes('seed')).length;
+    const blends = products.filter(p => p.categoryKey === 'blends' || (p.category || '').toLowerCase().includes('blend') || (p.category || '').toLowerCase().includes('masala') || (p.category || '').toLowerCase().includes('seasoning')).length;
+    return { whole, ground, seeds, blends };
+  }, [products]);
+
   React.useEffect(() => {
     const updateProds = () => setProducts(AdminStorage.getProducts());
     const updateBlogs = () => setBlogPosts(AdminStorage.getBlogPosts());
@@ -925,13 +933,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-14">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#0070E0]">
-                Indian Spices Exporter Catalog • 27 Export Commodities
+                Indian Spices Exporter Catalog • {products.length} Export Commodities
               </span>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-semibold text-[#0F172A] tracking-tight mt-1.5 sm:mt-2">
                 Export Quality Indian Spices & Agro Commodities<span className="text-[#0070E0]">.</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl">
-                Featured flagship commodities from our 27-product portfolio: Guntur dry red chillies, Salem turmeric fingers, Sortex cumin seeds, and Alleppey cardamom. Sourced directly from contracted regional farms across India.
+                Featured flagship commodities from our {products.length}-product portfolio: Guntur dry red chillies, Salem turmeric fingers, Sortex cumin seeds, and Alleppey cardamom. Sourced directly from contracted regional farms across India.
               </p>
             </div>
 
@@ -939,7 +947,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               onClick={() => onNavigate('products')}
               className="btn-pill border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-100 text-slate-800 hover:text-[#0A1C3E] px-5 py-2.5 sm:px-6 sm:py-3 min-h-[44px] text-xs sm:text-sm font-semibold shrink-0 cursor-pointer self-start md:self-auto inline-flex items-center shadow-2xs transition-all"
             >
-              <span className="text-slate-800 font-semibold">View All 27 Products</span>
+              <span className="text-slate-800 font-semibold">View All {products.length} Products</span>
               <ArrowUpRight className="w-4 h-4 ml-1 text-slate-700" />
             </button>
           </div>
@@ -1082,11 +1090,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               onClick={() => onNavigate('products')}
               className="btn-pill btn-pill-dark bg-[#0A1C3E] hover:bg-[#0070E0] text-white px-6 sm:px-8 py-3.5 sm:py-3.5 min-h-[44px] text-xs sm:text-sm font-semibold inline-flex items-center space-x-2 shadow-sm transition-all cursor-pointer"
             >
-              <span>Explore All 27 Export Products</span>
+              <span>Explore All {products.length} Export Products</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <p className="text-xs text-slate-600 mt-2">
-              Browse all 4 categories: Whole Spices (9) • Ground Spices (6) • Sortex Seeds (5) • Blends (7)
+              Browse all 4 categories: Whole Spices ({categoryCounts.whole}) • Ground Spices ({categoryCounts.ground}) • Sortex Seeds ({categoryCounts.seeds}) • Blends ({categoryCounts.blends})
             </p>
           </div>
 

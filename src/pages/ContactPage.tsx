@@ -45,6 +45,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [hasDataPermission, setHasDataPermission] = useState(true);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -62,6 +63,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.company.trim() || !formData.phone.trim()) {
       setErrorMsg('Please complete all required fields (*).');
+      return;
+    }
+
+    if (!hasDataPermission) {
+      setErrorMsg('Please check the permission box to authorize quotation data processing.');
       return;
     }
 
@@ -493,12 +499,29 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenQuot
 
                     {/* Footer Row: Confidentiality & Submit */}
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
-                      <div className="bg-sky-50/70 border border-sky-100/90 rounded-xl p-3 sm:p-3.5 flex items-center space-x-2.5 flex-1">
-                        <ShieldCheck className="w-4 h-4 text-[#0070E0] shrink-0" />
-                        <p className="text-[11px] sm:text-xs text-slate-600 leading-snug">
-                          Your information is kept strictly confidential and used only for commercial trade purposes.
-                        </p>
-                      </div>
+                      <label className="bg-sky-50/70 hover:bg-sky-50/90 border border-sky-200/90 rounded-xl p-3 sm:p-3.5 flex items-start sm:items-center space-x-3 flex-1 cursor-pointer select-none transition-all group">
+                        <div className="relative flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                          <input
+                            type="checkbox"
+                            required
+                            checked={hasDataPermission}
+                            onChange={(e) => setHasDataPermission(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                            hasDataPermission 
+                              ? 'bg-[#0070E0] border-[#0070E0] text-white shadow-2xs' 
+                              : 'bg-white border-slate-300 group-hover:border-[#0070E0]'
+                          }`}>
+                            {hasDataPermission && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        </div>
+                        <div className="text-[11px] sm:text-xs text-slate-700 leading-snug flex-1">
+                          <span className="font-semibold text-slate-800">I authorize Origintra Exim </span>
+                          <span>to process my trade inquiry data strictly for quotation purposes. </span>
+                          <span className="text-slate-500 font-medium">(Confidential)</span>
+                        </div>
+                      </label>
 
                       <button
                         type="submit"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
   ArrowRight, 
@@ -50,16 +50,20 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     }
   }, [initialSlug]);
 
-  const categories = [
-    'All',
-    'Global Trade',
-    'Indian Spices',
-    'Export Insights',
-    'Market Trends',
-    'Sourcing',
-    'Logistics',
-    'Business Updates'
-  ];
+  const categories = useMemo(() => {
+    const defaults = [
+      'All',
+      'Global Trade',
+      'Indian Spices',
+      'Export Insights',
+      'Market Trends',
+      'Sourcing',
+      'Logistics',
+      'Business Updates'
+    ];
+    const fromPosts = posts.map(p => p.category).filter(Boolean);
+    return Array.from(new Set([...defaults, ...fromPosts]));
+  }, [posts]);
 
   const activePost = activeSlug 
     ? (posts.find((p) => p.slug === activeSlug) || 
