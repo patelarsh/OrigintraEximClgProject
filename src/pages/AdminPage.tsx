@@ -3411,33 +3411,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
               </div>
 
-              {/* Live Marquee Synced Banner */}
-              <div className="bg-gradient-to-r from-blue-900 via-[#0A1C3E] to-slate-900 text-white p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs border border-blue-800/40">
-                <div className="flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-[#38BDF8] shrink-0">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                      <span>Homepage Infinite Marquee Synced</span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    </h4>
-                    <p className="text-[11px] text-blue-200">
-                      Changes saved here immediately update the continuous horizontal scrolling marquee on the public website with verified buyer credentials.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => onNavigate('home')}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition shrink-0 flex items-center space-x-1 cursor-pointer"
-                >
-                  <span>View on Homepage</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
               {/* Testimonials Grid (Homepage Synced Live Preview Design) */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredTestimonials.map((item) => {
