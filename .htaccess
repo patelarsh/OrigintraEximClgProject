@@ -18,11 +18,13 @@
   RewriteCond %{HTTP_HOST} ^origintra\.com$ [NC]
   RewriteRule ^(.*)$ https://www.origintra.com/$1 [R=301,L]
 
-  # 2. API Endpoints: Route clean API URLs directly to Pure Node.js Nodemailer Engine (Strictly NO PHP)
-  <IfModule mod_proxy.c>
-    RewriteRule ^api/(send-mail|verify-smtp|save-smtp|mail-queue|mail-logs)(/.*)?$ http://127.0.0.1:5000/api/$1$2 [P,L]
-  </IfModule>
+  # 2. API Endpoints: Route clean API URLs directly to PHP API handlers
+  RewriteRule ^api/verify-smtp/?$ /api/verify-smtp.php [L]
+  RewriteRule ^api/send-mail/?$ /api/send-mail.php [L]
+  RewriteRule ^api/save-smtp/?$ /api/save-smtp.php [L]
   RewriteRule ^api/settings/?$ /api/settings.php [L]
+  RewriteRule ^api/products/?$ /api/products.php [L]
+  RewriteRule ^api/upload/?$ /api/upload.php [L]
 
   # 2.3 Redirect friendly /sitemap and /site-map directly to /sitemap.xml
   RewriteRule ^(sitemap|site-map)/?$ /sitemap.xml [R=301,L]
@@ -70,7 +72,7 @@
 </FilesMatch>
 
 # Block access to sensitive files and configs
-<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$|mail-config\.php$)">
+<FilesMatch "(^\.|\.(sql|sqlite|db|env|log|md|sh|bak)$|mail-config\.php$|smtp-credentials\.json$)">
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>

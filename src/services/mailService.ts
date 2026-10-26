@@ -580,40 +580,51 @@ export const MailService = {
       } : null
     };
 
-    try {
-      const res = await fetch('/api/send-mail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+    const endpoints = ['/api/send-mail', '/api/send-mail.php'];
+    let lastError = '';
 
-      const json = await res.json().catch(() => null);
+    for (const ep of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      if (res.ok && json?.success) {
-        // Also flush any pending offline queue items if connection is restored
-        this.flushPendingClientQueue().catch(() => {});
-        return {
-          success: true,
-          message: json.message || `Email dispatched successfully to ${options.to}`,
-          method: json.method || 'Pure Nodemailer Pooled Engine',
-          queueId: json.id || json.messageId
-        };
+        const res = await fetch(ep, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const json = await res.json().catch(() => null);
+
+        if (res.ok && json?.success) {
+          this.flushPendingClientQueue().catch(() => {});
+          return {
+            success: true,
+            message: json.message || `Email dispatched successfully to ${options.to}`,
+            method: json.method || 'Hostinger SMTP Engine',
+            queueId: json.id || json.messageId
+          };
+        }
+
+        if (json && !json.success) {
+          lastError = json.message || 'Server mailer reported failure.';
+          // If explicit rejection, don't keep hammering
+          break;
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Network error';
       }
-
-      if (json && !json.success) {
-        throw new Error(json.message || 'Server mailer reported failure.');
-      }
-
-      throw new Error(`Server returned HTTP ${res.status}`);
-    } catch (e: any) {
-      console.warn('[MailService] Live send attempt failed, storing in client resilient queue:', e?.message || e);
-      this.enqueueClientMail(payload);
-      return {
-        success: true,
-        message: 'Email registered in resilient queue and will dispatch automatically.',
-        method: 'Client Resilient Queue'
-      };
     }
+
+    console.warn('[MailService] Live send attempt failed (' + lastError + '), storing in client resilient queue');
+    this.enqueueClientMail(payload);
+    return {
+      success: true,
+      message: 'Email registered in resilient queue and will dispatch automatically.',
+      method: 'Client Resilient Queue'
+    };
   },
 
   /**

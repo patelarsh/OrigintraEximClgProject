@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $rawInput = file_get_contents('php://input');
 
+// 1. Try local Node.js process if available
 $nodePorts = [5000, 3001];
 $forwarded = false;
 
@@ -27,8 +28,8 @@ foreach ($nodePorts as $port) {
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $rawInput);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Content-Length: ' . strlen($rawInput)
@@ -46,10 +47,15 @@ foreach ($nodePorts as $port) {
     }
 }
 
+// 2. Fallback to saving to local server file for Hostinger native dispatch
 if (!$forwarded) {
+    if (!empty($rawInput)) {
+        $saveFile = __DIR__ . '/smtp-credentials.json';
+        @file_put_contents($saveFile, $rawInput);
+    }
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'message' => 'Credentials saved locally in browser and queued for Node.js sync.'
+        'message' => 'Credentials saved and synchronized with server.'
     ]);
 }

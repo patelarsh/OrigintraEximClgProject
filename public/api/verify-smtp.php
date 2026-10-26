@@ -55,6 +55,19 @@ if (!$forwarded) {
     $user = !empty($body['user']) ? $body['user'] : '';
     $pass = !empty($body['pass']) ? $body['pass'] : '';
 
+    if (empty($pass)) {
+        $savedFile = __DIR__ . '/smtp-credentials.json';
+        if (file_exists($savedFile)) {
+            $savedData = json_decode(file_get_contents($savedFile), true);
+            if (!empty($savedData['smtpPassword'])) {
+                $pass = $savedData['smtpPassword'];
+            }
+            if (empty($user) && !empty($savedData['smtpUser'])) {
+                $user = $savedData['smtpUser'];
+            }
+        }
+    }
+
     $targetHost = ($port === 465) ? "ssl://{$host}" : "tcp://{$host}";
     $startTime = microtime(true);
     $errno = 0;
