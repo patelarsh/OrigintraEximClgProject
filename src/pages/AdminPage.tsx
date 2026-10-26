@@ -146,6 +146,33 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [dismissedNotificationIds, setDismissedNotificationIds] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('origintra_dismissed_notifications');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleDismissNotification = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setDismissedNotificationIds(prev => {
+      const next = [...new Set([...prev, id])];
+      localStorage.setItem('origintra_dismissed_notifications', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleClearAllNotifications = () => {
+    const allIds = activeNotifications.map(n => n.id);
+    setDismissedNotificationIds(prev => {
+      const next = [...new Set([...prev, ...allIds])];
+      localStorage.setItem('origintra_dismissed_notifications', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
@@ -162,6 +189,40 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [leadershipVisible, setLeadershipVisible] = useState(() => AdminStorage.getLeadershipVisibility());
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => AdminStorage.getTestimonials());
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => AdminStorage.getInquiries());
+
+  // === DYNAMIC BUYER NOTIFICATIONS WITH DISMISS / CANCEL SUPPORT ===
+  const activeNotifications = useMemo(() => {
+    const dismissedSet = new Set(dismissedNotificationIds);
+    return inquiries
+      .filter(inq => !dismissedSet.has(inq.id) && inq.status !== 'closed')
+      .map(inq => {
+        let relTime = 'Recently';
+        try {
+          if (inq.createdAt) {
+            const diffMs = Date.now() - new Date(inq.createdAt).getTime();
+            const diffMin = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMin / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffMin < 1) relTime = 'Just now';
+            else if (diffMin < 60) relTime = `${diffMin}m ago`;
+            else if (diffHours < 24) relTime = `${diffHours}h ago`;
+            else if (diffDays === 1) relTime = 'Yesterday';
+            else if (diffDays < 7) relTime = `${diffDays}d ago`;
+            else relTime = new Date(inq.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+          }
+        } catch {}
+
+        return {
+          id: inq.id,
+          title: `Buyer RFQ: ${inq.product}`,
+          message: `${inq.fullName}${inq.companyName ? ` (${inq.companyName})` : ''} requested ${inq.quantityRequired || 'FCL container'} rates.`,
+          time: relTime,
+          rawInquiry: inq,
+          isNew: inq.status === 'new'
+        };
+      })
+      .slice(0, 10);
+  }, [inquiries, dismissedNotificationIds]);
   const [companyConfig, setCompanyConfig] = useState(() => AdminStorage.getCompanyConfig());
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => AdminStorage.getGalleryImages());
   const [dbStatus, setDbStatus] = useState(() => AdminStorage.getDatabaseStatus());
@@ -1482,31 +1543,93 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 title="Notifications"
               >
                 <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-600" />
-                <span className="absolute top-1 right-1 min-w-3.5 h-3.5 sm:min-w-4 sm:h-4 px-0.5 sm:px-1 bg-red-500 text-white text-[8px] sm:text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
-                  1
-                </span>
+                {activeNotifications.length > 0 && (
+                  <span className="absolute top-1 right-1 min-w-3.5 h-3.5 sm:min-w-4 sm:h-4 px-0.5 sm:px-1 bg-red-500 text-white text-[8px] sm:text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-xs animate-in zoom-in">
+                    {activeNotifications.length}
+                  </span>
+                )}
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <span className="font-bold text-xs text-slate-900">Notifications</span>
-                    <button 
-                      onClick={() => setNotificationsOpen(false)}
-                      className="text-[10px] text-blue-600 font-semibold hover:underline cursor-pointer"
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <div className="py-2.5 space-y-2 text-xs">
-                    <div className="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 flex items-start gap-2.5">
-                      <Inbox className="w-4 h-4 text-[#0070E0] shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-semibold text-slate-900">Buyer RFQ Received</p>
-                        <p className="text-[11px] text-slate-600 mt-0.5">Daniel Edwards requested Bulk Indian Spices container rates.</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">Recently</span>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs text-slate-900">Notifications</span>
+                      {activeNotifications.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">
+                          {activeNotifications.length} New
+                        </span>
+                      )}
                     </div>
+                    <div className="flex items-center gap-2.5">
+                      {activeNotifications.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearAllNotifications}
+                          className="text-[10px] text-slate-500 hover:text-red-600 font-semibold transition cursor-pointer"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setNotificationsOpen(false)}
+                        className="text-[10px] text-[#0070E0] font-semibold hover:underline cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="py-2.5 space-y-2 text-xs max-h-80 overflow-y-auto scrollbar-thin">
+                    {activeNotifications.length === 0 ? (
+                      <div className="py-7 text-center text-slate-400">
+                        <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                        <p className="font-bold text-xs text-slate-800">All Caught Up!</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          No pending buyer inquiries or unread notifications.
+                        </p>
+                      </div>
+                    ) : (
+                      activeNotifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => {
+                            setViewingInquiry(notif.rawInquiry);
+                            setActiveTab('inquiries');
+                            setNotificationsOpen(false);
+                          }}
+                          className="p-3 rounded-xl bg-sky-50/70 hover:bg-sky-100/80 border border-sky-100 flex items-start gap-2.5 transition cursor-pointer group relative"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-[#0070E0]/10 text-[#0070E0] flex items-center justify-center shrink-0 mt-0.5">
+                            <Inbox className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-6">
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-bold text-slate-900 truncate">{notif.title}</p>
+                              {notif.isNew && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#0070E0] shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2 leading-relaxed">
+                              {notif.message}
+                            </p>
+                            <span className="text-[10px] text-slate-400 mt-1 block font-medium">
+                              {notif.time}
+                            </span>
+                          </div>
+
+                          {/* Cancel / Remove Option */}
+                          <button
+                            type="button"
+                            onClick={(e) => handleDismissNotification(notif.id, e)}
+                            className="absolute top-2.5 right-2.5 w-5 h-5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
+                            title="Cancel / Remove Notification"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
