@@ -355,6 +355,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
 
   const [viewingInquiry, setViewingInquiry] = useState<Inquiry | null>(null);
+  const [isReplyingEmail, setIsReplyingEmail] = useState(false);
+  const [emailReplySubject, setEmailReplySubject] = useState('');
+  const [emailReplyMessage, setEmailReplyMessage] = useState('');
+  const [isSendingEmailReply, setIsSendingEmailReply] = useState(false);
 
   // === TOAST NOTIFICATION ===
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1089,8 +1093,118 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const handleDeleteInquiry = (id: string) => {
     if (window.confirm('Delete this inquiry record?')) {
       AdminStorage.deleteInquiry(id);
-      if (viewingInquiry?.id === id) setViewingInquiry(null);
+      if (viewingInquiry?.id === id) {
+        setViewingInquiry(null);
+        setIsReplyingEmail(false);
+      }
       showToast('Inquiry deleted.');
+    }
+  };
+
+  const applyEmailTemplate = (template: 'acknowledgement' | 'quote' | 'sample', inq = viewingInquiry) => {
+    if (!inq) return;
+    const author = currentUser?.name || 'Patel Arsh';
+    const dept = currentUser?.department || 'Managing Director & Global Head of Trade';
+    const phone = currentUser?.phone || '+91 70691 82990';
+
+    if (template === 'acknowledgement') {
+      setEmailReplySubject(`Re: Commercial Inquiry for ${inq.product} - Origintra Exim`);
+      setEmailReplyMessage(`Dear ${inq.fullName},\n\nThank you for reaching out to Origintra Exim regarding your requirement for ${inq.product}.\n\nWe have received your specifications for ${inq.quantityRequired}${inq.destinationPort ? ` discharging at ${inq.destinationPort}` : ''}.\n\nOur export desk is currently preparing the latest laboratory Certificate of Analysis (COA) and competitive FOB Mundra / CIF commercial quotation for you.\n\nWe will revert shortly with the complete documentation.\n\nWarm regards,\n${author}\n${dept}\nOrigintra Exim Private Limited\nPhone / WhatsApp: ${phone} | export@origintra.com\nwww.origintra.com`);
+    } else if (template === 'quote') {
+      setEmailReplySubject(`Quotation & Specifications: ${inq.product} - Origintra Exim`);
+      setEmailReplyMessage(`Dear ${inq.fullName},\n\nFollowing up on your commercial inquiry for ${inq.product} (${inq.quantityRequired}), we are pleased to inform you that our export desk has prepared your custom pricing dossier.\n\nKey Export Parameters:\n- Commodity: ${inq.product}\n- Volume Required: ${inq.quantityRequired}\n- Quality: Export Grade 1 (Machine Cleaned / Sortex Purity)\n- Origin: Gujarat / Rajasthan, India\n- Port of Loading: Mundra / Kandla Port, India\n- Inspection: SGS / Geo-Chem certified prior to vessel stuffing\n\nPlease let us know if you would like us to send the detailed Proforma Invoice (PI) and laboratory analysis sheet.\n\nWarm regards,\n${author}\n${dept}\nOrigintra Exim Private Limited\nPhone / WhatsApp: ${phone} | export@origintra.com\nwww.origintra.com`);
+    } else if (template === 'sample') {
+      setEmailReplySubject(`Complimentary Sample Sourcing: ${inq.product} - Origintra Exim`);
+      setEmailReplyMessage(`Dear ${inq.fullName},\n\nRegarding your inquiry for ${inq.product}, we would be delighted to courier an authentic commercial sample (100g - 500g) directly to your facility for physical and sensory quality appraisal.\n\nPlease confirm your preferred courier delivery address and recipient contact details, and our logistics team will dispatch the sample with DHL/FedEx tracking.\n\nWarm regards,\n${author}\n${dept}\nOrigintra Exim Private Limited\nPhone / WhatsApp: ${phone} | export@origintra.com\nwww.origintra.com`);
+    }
+  };
+
+  const handleSendEmailReply = async () => {
+    if (!viewingInquiry || !viewingInquiry.businessEmail) {
+      showToast('Client email address is missing.');
+      return;
+    }
+    if (!emailReplyMessage.trim()) {
+      showToast('Please enter your reply message before sending.');
+      return;
+    }
+
+    setIsSendingEmailReply(true);
+    try {
+      const author = currentUser?.name || 'Patel Arsh';
+      const dept = currentUser?.department || 'Managing Director & Global Head of Trade';
+      const phone = currentUser?.phone || '+91 70691 82990';
+      const subject = emailReplySubject.trim() || `Re: Inquiry regarding ${viewingInquiry.product} - Origintra Exim`;
+
+      const escapedMessage = emailReplyMessage
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      const htmlContent = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+          <div style="background: #0A1C3E; padding: 24px 28px; color: #ffffff;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td>
+                  <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">ORIGINTRA EXIM</h2>
+                  <p style="margin: 4px 0 0; font-size: 11px; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Global Export Trade Desk</p>
+                </td>
+                <td style="text-align: right;">
+                  <span style="background: #0284c7; color: #ffffff; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 9999px; text-transform: uppercase;">
+                    Official Response
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="padding: 28px; color: #334155; line-height: 1.6; font-size: 14px;">
+            <div style="background-color: #f8fafc; border-left: 4px solid #0070E0; padding: 18px 20px; border-radius: 6px; margin-bottom: 24px; font-size: 14px; color: #1e293b; white-space: pre-wrap; line-height: 1.6;">${escapedMessage}</div>
+
+            <div style="background: #f1f5f9; padding: 14px 18px; border-radius: 8px; margin: 24px 0; font-size: 12px; color: #475569; border: 1px solid #e2e8f0;">
+              <strong style="color: #0f172a; display: block; margin-bottom: 6px;">Reference Inquiry Details:</strong>
+              &bull; <strong>Commodity:</strong> ${viewingInquiry.product}<br/>
+              &bull; <strong>Quantity / Volume:</strong> ${viewingInquiry.quantityRequired}<br/>
+              ${viewingInquiry.destinationPort ? `&bull; <strong>Destination Port:</strong> ${viewingInquiry.destinationPort}<br/>` : ''}
+              &bull; <strong>Lead ID:</strong> <code style="font-family: monospace; color: #0070E0;">${viewingInquiry.id}</code>
+            </div>
+
+            <p style="margin-top: 24px; margin-bottom: 4px; font-size: 13px; color: #64748b;">Best Regards,</p>
+            <p style="margin: 0; font-weight: 700; color: #0A1C3E; font-size: 15px;">${author}</p>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b; font-weight: 500;">${dept} &bull; Origintra Exim Private Limited</p>
+            <p style="margin: 4px 0 0; font-size: 12px; color: #0070E0;">${phone} | export@origintra.com</p>
+          </div>
+
+          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px 28px; text-align: center; font-size: 11px; color: #94a3b8;">
+            Origintra Exim Private Limited &bull; Verified Indian Spices, Agro Commodities & Global Supply Chain &bull; <a href="https://www.origintra.com" style="color: #0070E0; text-decoration: none;">www.origintra.com</a>
+          </div>
+        </div>
+      `;
+
+      const result = await MailService.sendDirectEmail({
+        to: viewingInquiry.businessEmail.trim(),
+        subject,
+        body: emailReplyMessage.trim(),
+        html: htmlContent
+      });
+
+      if (result.success) {
+        if (viewingInquiry.status === 'new') {
+          handleUpdateInquiryStatus(viewingInquiry.id, 'contacted');
+          setViewingInquiry({ ...viewingInquiry, status: 'contacted' });
+        }
+        setIsReplyingEmail(false);
+        showToast(`Email reply sent successfully to ${viewingInquiry.businessEmail}!`);
+      } else {
+        showToast(`Email delivery error: ${result.message}`);
+      }
+    } catch (err: any) {
+      console.error('Email send error:', err);
+      showToast(`Error sending email: ${err?.message || err}`);
+    } finally {
+      setIsSendingEmailReply(false);
     }
   };
 
@@ -5457,7 +5571,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
       {/* ======================================= */}
       {viewingInquiry && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8">
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 max-h-[92vh] flex flex-col">
             
             <div className="bg-[#0A1C3E] px-6 py-4 text-white flex items-center justify-between">
               <div>
@@ -5469,14 +5583,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </h3>
               </div>
               <button
-                onClick={() => setViewingInquiry(null)}
+                onClick={() => { setViewingInquiry(null); setIsReplyingEmail(false); }}
                 className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 text-xs">
+            <div className="p-6 space-y-4 text-xs overflow-y-auto">
               <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <span className="text-slate-400 block font-medium">Buyer Name</span>
@@ -5526,7 +5640,132 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
               )}
 
-              <div className="pt-2 flex items-center justify-between">
+              {/* Inline Animated Email Reply Composer */}
+              {isReplyingEmail && (
+                <div className="p-4 bg-gradient-to-br from-blue-50/70 to-slate-50 rounded-2xl border border-blue-200/90 space-y-3.5 shadow-2xs animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-blue-100">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#0070E0] text-white flex items-center justify-center shadow-xs">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <span>Email Reply Composer</span>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-blue-100 text-blue-800 border border-blue-200">Pure Nodemailer</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Sending directly to: <strong className="text-blue-700 font-mono">{viewingInquiry.businessEmail}</strong>
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsReplyingEmail(false)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
+                      title="Close composer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 1-Click Response Template Chips */}
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                      1-Click Response Templates:
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => applyEmailTemplate('acknowledgement')}
+                        className="px-2.5 py-1 text-[11px] rounded-lg bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/70 text-slate-700 font-medium transition cursor-pointer shadow-2xs"
+                      >
+                        💬 RFQ Acknowledgement
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyEmailTemplate('quote')}
+                        className="px-2.5 py-1 text-[11px] rounded-lg bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/70 text-slate-700 font-medium transition cursor-pointer shadow-2xs"
+                      >
+                        📋 Quotation & Specifications
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyEmailTemplate('sample')}
+                        className="px-2.5 py-1 text-[11px] rounded-lg bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/70 text-slate-700 font-medium transition cursor-pointer shadow-2xs"
+                      >
+                        📦 Courier Sample Offer
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subject Line Input */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Email Subject <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={emailReplySubject}
+                      onChange={(e) => setEmailReplySubject(e.target.value)}
+                      placeholder="e.g. Re: Commercial Inquiry for Bulk Indian Spices - Origintra Exim"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition shadow-2xs"
+                    />
+                  </div>
+
+                  {/* Reply Message Body */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Reply Message Body <span className="text-red-500">*</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400">Branded Origintra Exim HTML template applied automatically</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      required
+                      value={emailReplyMessage}
+                      onChange={(e) => setEmailReplyMessage(e.target.value)}
+                      placeholder="Write your email reply to the client here..."
+                      className="w-full p-3 text-xs rounded-xl border border-slate-200 bg-white text-slate-800 font-medium leading-relaxed focus:outline-none focus:border-[#0070E0] focus:ring-2 focus:ring-blue-100 transition shadow-2xs"
+                    />
+                  </div>
+
+                  {/* Composer Bottom Bar */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-blue-100">
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>From: <strong>{currentUser?.name || 'Patel Arsh'}</strong> ({currentUser?.email || 'export@origintra.com'})</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 self-end sm:self-auto">
+                      <button
+                        type="button"
+                        onClick={() => setIsReplyingEmail(false)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleSendEmailReply}
+                        disabled={isSendingEmailReply || !emailReplyMessage.trim()}
+                        className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#0070E0] to-[#0A1C3E] hover:from-blue-600 hover:to-slate-900 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50"
+                      >
+                        {isSendingEmailReply ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>{isSendingEmailReply ? 'Sending to Client...' : 'Send Email to Client'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                 <div className="flex items-center space-x-2">
                   <span className="text-slate-500 font-medium">Status:</span>
                   <select
@@ -5536,7 +5775,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                       handleUpdateInquiryStatus(viewingInquiry.id, newStatus);
                       setViewingInquiry({ ...viewingInquiry, status: newStatus });
                     }}
-                    className="px-3 py-1 rounded-lg border font-semibold"
+                    className="px-3 py-1.5 rounded-lg border font-semibold bg-white text-xs text-slate-800"
                   >
                     <option value="new">NEW</option>
                     <option value="contacted">CONTACTED</option>
@@ -5545,15 +5784,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                   </select>
                 </div>
 
-                <a
-                  href={`https://wa.me/${viewingInquiry.phoneWhatsApp.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(viewingInquiry.fullName)},%20thank%20you%20for%20contacting%20Origintra%20Exim%20regarding%20${encodeURIComponent(viewingInquiry.product)}.`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center space-x-1.5 transition"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Reply on WhatsApp</span>
-                </a>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isReplyingEmail) {
+                        setIsReplyingEmail(true);
+                        applyEmailTemplate('acknowledgement');
+                      } else {
+                        setIsReplyingEmail(false);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-xl text-white font-semibold flex items-center space-x-1.5 transition cursor-pointer text-xs shadow-2xs ${
+                      isReplyingEmail ? 'bg-slate-700 hover:bg-slate-800' : 'bg-[#0070E0] hover:bg-blue-600'
+                    }`}
+                    title="Send an email response directly to buyer"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>{isReplyingEmail ? 'Hide Email Composer' : 'Reply via Email'}</span>
+                  </button>
+
+                  <a
+                    href={`https://wa.me/${viewingInquiry.phoneWhatsApp.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(viewingInquiry.fullName)},%20thank%20you%20for%20contacting%20Origintra%20Exim%20regarding%20${encodeURIComponent(viewingInquiry.product)}.`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center space-x-1.5 transition"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Reply on WhatsApp</span>
+                  </a>
+                </div>
               </div>
 
             </div>
@@ -6595,7 +6855,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-4 text-xs">
+            <div className="p-6 space-y-4 text-xs overflow-y-auto">
               <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-900">
                 <p className="font-semibold text-xs text-emerald-950 flex items-center gap-1.5">
                   <Mail className="w-4 h-4 text-emerald-600 shrink-0" />
