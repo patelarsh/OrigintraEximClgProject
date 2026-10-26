@@ -77,7 +77,7 @@ import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
 import { compressImage, compressDataUrl } from '../utils/imageCompressor';
 import { slugify } from '../utils/slugify';
-import { getCountryFlag } from '../utils/countryFlags';
+import { getCountryFlag, TRADE_DESTINATIONS } from '../utils/countryFlags';
 
 interface AdminPageProps {
   onNavigate: (page: string) => void;
@@ -3117,7 +3117,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               {/* Testimonials Grid (Homepage Synced Live Preview Design) */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredTestimonials.map((item) => {
-                  const countryFlag = getCountryFlag(item.country);
+                  const countryFlag = getCountryFlag(item.country || item.destinationPort);
 
                   return (
                     <div
@@ -5240,7 +5240,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                     </div>
                   </div>
 
-                  {/* Company & Country */}
+                  {/* Company & Commodity Supplied */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-semibold text-slate-700 block mb-1">
@@ -5258,36 +5258,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
                     <div>
                       <label className="text-xs font-semibold text-slate-700 block mb-1">
-                        Buyer Country *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={editingTestimonial.country}
-                        onChange={(e) => setEditingTestimonial({ ...editingTestimonial, country: e.target.value })}
-                        placeholder="e.g. United Arab Emirates"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#0070E0]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Destination Port & Commodity */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 block mb-1">
-                        Destination Discharge Port
-                      </label>
-                      <input
-                        type="text"
-                        value={editingTestimonial.destinationPort}
-                        onChange={(e) => setEditingTestimonial({ ...editingTestimonial, destinationPort: e.target.value })}
-                        placeholder="e.g. Port of Jebel Ali, UAE"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#0070E0]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 block mb-1">
                         Commodity Supplied
                       </label>
                       <input
@@ -5296,6 +5266,163 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                         onChange={(e) => setEditingTestimonial({ ...editingTestimonial, commodity: e.target.value })}
                         placeholder="e.g. Guntur S17 Whole Chillies & Powder"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#0070E0]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Destination & Country Selector with Dynamic Flag */}
+                  <div className="bg-slate-50/90 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5 text-[#0070E0]" />
+                        <span>Trade Destination Country & Flag *</span>
+                      </label>
+                      {/* Live Flag Badge in Form Header */}
+                      {(() => {
+                        const activeFlag = getCountryFlag(editingTestimonial.country || editingTestimonial.destinationPort);
+                        return (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-800 shadow-2xs self-start sm:self-auto">
+                            <img
+                              src={`https://flagcdn.com/w40/${activeFlag.code}.png`}
+                              alt={activeFlag.name}
+                              className="w-4.5 h-3 object-cover rounded-[2px] shadow-2xs"
+                              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                            />
+                            <span className="text-[#0070E0]">{activeFlag.name}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">({activeFlag.code.toUpperCase()})</span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Destination Select Dropdown & Country Input */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                          Select Destination Country (Dropdown)
+                        </label>
+                        <select
+                          value={
+                            TRADE_DESTINATIONS.some(d => d.country.toLowerCase() === (editingTestimonial.country || '').toLowerCase() || d.shortName.toLowerCase() === (editingTestimonial.country || '').toLowerCase())
+                              ? TRADE_DESTINATIONS.find(d => d.country.toLowerCase() === (editingTestimonial.country || '').toLowerCase() || d.shortName.toLowerCase() === (editingTestimonial.country || '').toLowerCase())?.country
+                              : 'custom'
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === 'custom') return;
+                            const matched = TRADE_DESTINATIONS.find(d => d.country === val);
+                            if (matched) {
+                              setEditingTestimonial({
+                                ...editingTestimonial,
+                                country: matched.country,
+                                destinationPort: matched.defaultPort
+                              });
+                            }
+                          }}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs bg-white font-medium focus:ring-2 focus:ring-[#0070E0] cursor-pointer"
+                        >
+                          <option value="" disabled>-- Select Export Destination --</option>
+                          {['Middle East & GCC', 'Europe & UK', 'Asia-Pacific', 'Americas & Africa', 'South Asia', 'Domestic / Origin'].map(reg => (
+                            <optgroup key={reg} label={reg}>
+                              {TRADE_DESTINATIONS.filter(d => d.region === reg).map(d => (
+                                <option key={d.code} value={d.country}>
+                                  {d.emoji} {d.country} ({d.shortName})
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                          <option value="custom">✏️ Enter Custom Destination...</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                          Country Name (Editable) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingTestimonial.country}
+                          onChange={(e) => {
+                            const newCountry = e.target.value;
+                            const detected = getCountryFlag(newCountry);
+                            const matchingDest = TRADE_DESTINATIONS.find(d => d.code === detected.code);
+                            setEditingTestimonial({
+                              ...editingTestimonial,
+                              country: newCountry,
+                              destinationPort: (!editingTestimonial.destinationPort || editingTestimonial.destinationPort === 'Port of Jebel Ali, UAE') && matchingDest
+                                ? matchingDest.defaultPort
+                                : editingTestimonial.destinationPort
+                            });
+                          }}
+                          placeholder="e.g. United Arab Emirates, Netherlands, UK..."
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#0070E0]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Pick Popular Destination Badges */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none pt-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">Quick Pick:</span>
+                      {[
+                        { name: 'UAE', country: 'United Arab Emirates', port: 'Port of Jebel Ali, UAE', emoji: '🇦🇪' },
+                        { name: 'Saudi Arabia', country: 'Saudi Arabia', port: 'Jeddah Islamic Port, KSA', emoji: '🇸🇦' },
+                        { name: 'Malaysia', country: 'Malaysia', port: 'Port Klang, Malaysia', emoji: '🇲🇾' },
+                        { name: 'Singapore', country: 'Singapore', port: 'Port of Singapore (PSA)', emoji: '🇸🇬' },
+                        { name: 'Netherlands', country: 'Netherlands', port: 'Port of Rotterdam, Netherlands', emoji: '🇳🇱' },
+                        { name: 'Germany', country: 'Germany', port: 'Port of Hamburg, Germany', emoji: '🇩🇪' },
+                        { name: 'UK', country: 'United Kingdom', port: 'Port of Felixstowe, UK', emoji: '🇬🇧' },
+                        { name: 'USA', country: 'United States', port: 'Port of New York / New Jersey, USA', emoji: '🇺🇸' },
+                        { name: 'Australia', country: 'Australia', port: 'Port of Melbourne, Australia', emoji: '🇦🇺' },
+                        { name: 'Japan', country: 'Japan', port: 'Port of Yokohama / Tokyo, Japan', emoji: '🇯🇵' }
+                      ].map((quick, qIdx) => (
+                        <button
+                          key={qIdx}
+                          type="button"
+                          onClick={() => {
+                            setEditingTestimonial({
+                              ...editingTestimonial,
+                              country: quick.country,
+                              destinationPort: quick.port
+                            });
+                          }}
+                          className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-[11px] transition cursor-pointer shrink-0 ${
+                            editingTestimonial.country === quick.country || editingTestimonial.country === quick.name
+                              ? 'bg-blue-100/90 border-[#0070E0] text-[#0070E0] font-bold shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <span>{quick.emoji}</span>
+                          <span>{quick.name}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Destination Discharge Port Input */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px] font-semibold text-slate-600">
+                          Destination Discharge Port (Customizable)
+                        </label>
+                        <span className="text-[10px] text-slate-400">Updates flag automatically based on port</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={editingTestimonial.destinationPort}
+                        onChange={(e) => {
+                          const newPort = e.target.value;
+                          const detected = getCountryFlag(newPort);
+                          const matchingDest = TRADE_DESTINATIONS.find(d => d.code === detected.code);
+                          setEditingTestimonial({
+                            ...editingTestimonial,
+                            destinationPort: newPort,
+                            country: (!editingTestimonial.country || editingTestimonial.country === 'United Arab Emirates') && matchingDest
+                              ? matchingDest.country
+                              : editingTestimonial.country
+                          });
+                        }}
+                        placeholder="e.g. Port of Jebel Ali, UAE / Port of Rotterdam / Port of Felixstowe"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-[#0070E0]"
                       />
                     </div>
                   </div>
@@ -5509,7 +5636,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
 
                       {/* Right: Modern Country Pill with National Flag */}
                       {(() => {
-                        const modalFlag = getCountryFlag(editingTestimonial.country);
+                        const modalFlag = getCountryFlag(editingTestimonial.country || editingTestimonial.destinationPort);
                         return (
                           <div className="bg-slate-100/90 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1.5 border border-slate-200/60 shrink-0">
                             <img

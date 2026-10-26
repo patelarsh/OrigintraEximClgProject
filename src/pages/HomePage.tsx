@@ -39,6 +39,7 @@ import { HOME_FAQS } from '../utils/seo';
 import { ProductImage } from '../components/ProductImage';
 import { ExportProcessSection } from '../components/ExportProcessSection';
 import { formatCardOrigin, getDisplayExportForms, formatSupplyGrade } from '../utils/productHelpers';
+import { getCountryFlag } from '../utils/countryFlags';
 
 const COUNTRY_FLAG_MAP: Record<string, { code: string; name: string }> = {
   'Malaysia': { code: 'my', name: 'Malaysia' },
@@ -1169,10 +1170,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 ? [...testimonials, ...testimonials, ...testimonials, ...testimonials]
                 : [...testimonials, ...testimonials]
               ).map((item, idx) => {
-                const countryFlag = COUNTRY_FLAG_MAP[item.country] || {
-                  code: item.country?.toLowerCase().slice(0, 2) || 'un',
-                  name: item.country || 'Global'
-                };
+                const countryFlag = getCountryFlag(item.country || item.destinationPort);
 
                 return (
                   <div 
