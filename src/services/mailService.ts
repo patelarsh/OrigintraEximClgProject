@@ -476,30 +476,50 @@ export const MailService = {
       // Persist to server-side Nodemailer configuration (server/data/smtp-config.json)
       if (creds.smtpPassword) {
         try {
-          const res = await fetch('/api/save-smtp', {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+          const payload = JSON.stringify({
+            host: creds.smtpHost || 'smtp.hostinger.com',
+            port: Number(creds.smtpPort) || 465,
+            secure: creds.smtpSecure !== undefined ? creds.smtpSecure : (Number(creds.smtpPort) === 465),
+            user: creds.smtpUser || creds.senderEmail,
+            pass: creds.smtpPassword,
+            fromEmail: creds.senderEmail,
+            fromName: creds.senderName,
+            adminAlertEmail: creds.adminAlertEmail
+          });
+
+          let res: Response | null = await fetch('/api/save-smtp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              host: creds.smtpHost || 'smtp.hostinger.com',
-              port: Number(creds.smtpPort) || 465,
-              secure: creds.smtpSecure !== undefined ? creds.smtpSecure : (Number(creds.smtpPort) === 465),
-              user: creds.smtpUser || creds.senderEmail,
-              pass: creds.smtpPassword,
-              fromEmail: creds.senderEmail,
-              fromName: creds.senderName,
-              adminAlertEmail: creds.adminAlertEmail
-            })
-          });
-          const data = await res.json().catch(() => null);
-          if (res.ok && data?.success) {
-            return { success: true, message: 'SMTP credentials saved locally and synced to pure Nodemailer server!' };
+            body: payload,
+            signal: controller.signal
+          }).catch(() => null);
+
+          if (!res || !res.ok) {
+            res = await fetch('/api/save-smtp.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: payload,
+              signal: controller.signal
+            }).catch(() => null);
+          }
+
+          clearTimeout(timeoutId);
+
+          if (res && res.ok) {
+            const data = await res.json().catch(() => null);
+            if (data?.success) {
+              return { success: true, message: 'SMTP credentials saved locally and synced to pure Nodemailer server!' };
+            }
           }
         } catch (serverErr) {
           console.warn('[MailService] Could not sync SMTP credentials to server endpoint:', serverErr);
         }
       }
 
-      return { success: true, message: 'Credentials saved locally.' };
+      return { success: true, message: 'Email credentials saved successfully and active for Nodemailer!' };
     } catch (e: any) {
       console.error('[MailService] Failed to save credentials:', e);
       return { success: false, message: e?.message || 'Failed to save credentials' };

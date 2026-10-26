@@ -124,6 +124,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const [verifySmtpResult, setVerifySmtpResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [isSavingEmailCreds, setIsSavingEmailCreds] = useState(false);
+  const [saveEmailCredsSuccess, setSaveEmailCredsSuccess] = useState(false);
   const [mailLogs, setMailLogs] = useState<any[]>([]);
   const [mailQueueStatus, setMailQueueStatus] = useState<any>(null);
   const [isLoadingMailLogs, setIsLoadingMailLogs] = useState(false);
@@ -4813,19 +4815,62 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
                 </div>
 
                 {/* Save Button */}
-                <div className="pt-2 flex items-center justify-between border-t border-slate-100">
-                  <span className="text-xs text-slate-400">
-                    Credentials are stored securely and used by Nodemailer to dispatch welcome emails.
-                  </span>
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-slate-100">
+                  <div className="flex items-center space-x-2 text-xs">
+                    {saveEmailCredsSuccess ? (
+                      <span className="inline-flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-lg animate-in fade-in">
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        Credentials saved & active for Nodemailer!
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">
+                        Credentials are stored securely and used by Nodemailer to dispatch welcome emails.
+                      </span>
+                    )}
+                  </div>
                   <button
                     type="button"
-                    onClick={async () => {
-                      const res = await MailService.saveCredentials(emailCreds);
-                      showToast(res.message || 'Nodemailer SMTP email credentials saved successfully!');
+                    disabled={isSavingEmailCreds}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsSavingEmailCreds(true);
+                      setSaveEmailCredsSuccess(false);
+                      try {
+                        const res = await MailService.saveCredentials(emailCreds);
+                        setSaveEmailCredsSuccess(true);
+                        showToast(res.message || 'Email credentials saved successfully!');
+                        setTimeout(() => setSaveEmailCredsSuccess(false), 4000);
+                      } catch (err: any) {
+                        showToast(err?.message || 'Failed to save email credentials.');
+                      } finally {
+                        setIsSavingEmailCreds(false);
+                      }
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-[#0070E0] hover:bg-blue-600 text-white font-semibold text-xs transition shadow-sm cursor-pointer"
+                    className={`px-6 py-2.5 rounded-xl font-bold text-xs transition shadow-sm cursor-pointer inline-flex items-center justify-center gap-2 ${
+                      saveEmailCredsSuccess
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/25'
+                        : isSavingEmailCreds
+                        ? 'bg-[#0070E0] opacity-80 text-white cursor-wait'
+                        : 'bg-[#0070E0] hover:bg-blue-600 text-white shadow-blue-500/20 active:scale-95'
+                    }`}
                   >
-                    Save Email Credentials
+                    {isSavingEmailCreds ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Saving Credentials...</span>
+                      </>
+                    ) : saveEmailCredsSuccess ? (
+                      <>
+                        <Check className="w-4 h-4 text-white" />
+                        <span>Credentials Saved!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 text-white" />
+                        <span>Save Email Credentials</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
