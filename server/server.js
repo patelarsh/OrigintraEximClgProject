@@ -18,7 +18,14 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import sharp from 'sharp';
+// Safe dynamic import for sharp (resilient startup)
+let sharp = null;
+try {
+  const sharpModule = await import('sharp');
+  sharp = sharpModule.default || sharpModule;
+} catch (err) {
+  console.warn('[Origintra Exim] Optional module "sharp" not found. Image optimization fallback active.');
+}
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
@@ -399,6 +406,14 @@ app.post('/api/settings.php', handlePostSettings);
 // ===============================================================
 
 async function processImageBuffer(buffer, originalName = 'upload', prefix = 'spice') {
+  if (!sharp) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const hash = Math.random().toString(36).substring(2, 8);
+    const baseName = `${prefix}_${timestamp}_${hash}`;
+    const jpgFile = `${baseName}.jpg`;
+    fs.writeFileSync(path.join(UPLOADS_DIR, jpgFile), buffer);
+    return { master: '/uploads/' + jpgFile, webp: '/uploads/' + jpgFile, w450: '/uploads/' + jpgFile, thumb: '/uploads/' + jpgFile };
+  }
   const timestamp = Math.floor(Date.now() / 1000);
   const hash = Math.random().toString(36).substring(2, 8);
   const baseName = `${prefix}_${timestamp}_${hash}`;
