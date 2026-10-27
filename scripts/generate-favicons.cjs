@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function generateFavicons() {
-  const src = 'C:/Users/Arsh/.gemini/antigravity/brain/33609ea4-7430-4827-aea8-d84fb0e3cca0/.user_uploaded/media_1792517022131_322f28a4.png';
+  const src = path.join(__dirname, '../public/favicon.png');
   const pubDir = path.join(__dirname, '../public');
 
   // 1. Extract the ship circle emblem cleanly

@@ -1,13 +1,10 @@
 node_modules
 dist
 dist-ssr
-dist.zip
-hostinger_deploy.zip
+*.zip
 .git
 .github
 .env
 .env.*
-.impeccable
-.gemini
 *.log
 npm-debug.log*
