@@ -8,6 +8,7 @@ import { TESTIMONIALS as DEFAULT_TESTIMONIALS } from '../data/testimonials';
 import { slugify } from '../utils/slugify';
 import { supabase } from './supabaseClient';
 import { MailService } from './mailService';
+import { DEFAULT_LEGAL_POLICIES, LegalPoliciesMap, LegalPolicyType } from '../data/legalPolicies';
 
 export interface DatabaseStatusInfo {
   connected: boolean;
@@ -55,6 +56,7 @@ const STORAGE_KEYS = {
   LEADERSHIP_VISIBILITY: 'origintra_admin_leadership_visibility_v1',
   DELETED_GALLERY: 'origintra_admin_deleted_gallery_v1',
   DELETED_PRODUCTS: 'origintra_admin_deleted_products_v1',
+  LEGAL_POLICIES: 'origintra_admin_legal_policies_v1',
 };
 
 // Automatic cleanup of legacy storage snapshots across mobile and desktop clients
@@ -1522,6 +1524,14 @@ export const AdminStorage = {
             }
           }
 
+          if (settings.legalPolicies && typeof settings.legalPolicies === 'object') {
+            try {
+              localStorage.setItem(STORAGE_KEYS.LEGAL_POLICIES, JSON.stringify(settings.legalPolicies));
+              window.dispatchEvent(new CustomEvent('origintra_legal_policies_updated', { detail: settings.legalPolicies }));
+              notifyCrossTab('origintra_legal_policies_updated');
+            } catch {}
+          }
+
           if (Array.isArray(settings.deletedProductIds)) {
             const serverDeleted = settings.deletedProductIds.filter((id: unknown) => typeof id === 'string');
             const localDeleted = this.getDeletedProductIds();
@@ -1735,6 +1745,70 @@ export const AdminStorage = {
       console.error('Error reading company config:', e);
     }
     return DEFAULT_COMPANY_CONFIG;
+  },
+
+  // === LEGAL & POLICY PAGES MANAGEMENT ===
+  getLegalPolicies(): LegalPoliciesMap {
+    try {
+      if (typeof window === 'undefined') return DEFAULT_LEGAL_POLICIES;
+      const data = localStorage.getItem(STORAGE_KEYS.LEGAL_POLICIES);
+      if (data) {
+        const parsed = JSON.parse(data);
+        return {
+          privacy: { ...DEFAULT_LEGAL_POLICIES.privacy, ...(parsed.privacy || {}) },
+          terms: { ...DEFAULT_LEGAL_POLICIES.terms, ...(parsed.terms || {}) },
+          shipping: { ...DEFAULT_LEGAL_POLICIES.shipping, ...(parsed.shipping || {}) },
+          cookies: { ...DEFAULT_LEGAL_POLICIES.cookies, ...(parsed.cookies || {}) }
+        };
+      }
+    } catch (e) {
+      console.warn('[AdminStorage] Error reading legal policies:', e);
+    }
+    return DEFAULT_LEGAL_POLICIES;
+  },
+
+  async saveLegalPolicies(policies: LegalPoliciesMap): Promise<boolean> {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEYS.LEGAL_POLICIES, JSON.stringify(policies));
+        window.dispatchEvent(new CustomEvent('origintra_legal_policies_updated', { detail: policies }));
+        notifyCrossTab('origintra_legal_policies_updated');
+      }
+
+      const payload = JSON.stringify({ legalPolicies: policies });
+      fetch('/api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      }).catch(() => fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      })).catch(() => {});
+
+      if (supabase.isConfigured()) {
+        supabase.from('site_settings').upsert({
+          key: 'legal_policies',
+          value: policies,
+          updated_at: new Date().toISOString()
+        }, 'key').catch(err => console.warn('Supabase legal_policies sync optional:', err));
+      }
+
+      return true;
+    } catch (e) {
+      console.error('[AdminStorage] Error saving legal policies:', e);
+      return false;
+    }
+  },
+
+  resetLegalPoliciesToDefault(): LegalPoliciesMap {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.LEGAL_POLICIES, JSON.stringify(DEFAULT_LEGAL_POLICIES));
+      window.dispatchEvent(new CustomEvent('origintra_legal_policies_updated', { detail: DEFAULT_LEGAL_POLICIES }));
+      notifyCrossTab('origintra_legal_policies_updated');
+    }
+    this.saveLegalPolicies(DEFAULT_LEGAL_POLICIES).catch(() => {});
+    return DEFAULT_LEGAL_POLICIES;
   },
 
   saveCompanyConfig(config: CompanyConfig): CompanyConfig {

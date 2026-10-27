@@ -61,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $currentSettings['deletedProductIds'] = array_values(array_unique(array_filter($input['deletedProductIds'], 'is_string')));
     }
 
+    if (isset($input['legalPolicies']) && is_array($input['legalPolicies'])) {
+        $currentSettings['legalPolicies'] = $input['legalPolicies'];
+    }
+
     $currentSettings['updatedAt'] = date('c');
 
     // Save atomically

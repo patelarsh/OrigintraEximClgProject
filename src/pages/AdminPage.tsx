@@ -65,7 +65,8 @@ import {
   ChevronDown,
   ArrowRight,
   Ship,
-  Menu
+  Menu,
+  Scale
 } from 'lucide-react';
 import { Product, BlogPost, Inquiry, TeamMember, User, UserRole, Testimonial } from '../types';
 import { AdminStorage } from '../services/adminStorage';
@@ -73,6 +74,7 @@ import { supabase } from '../services/supabaseClient';
 import { MailService, WelcomeEmailPayload, EmailCredentials } from '../services/mailService';
 import { PRODUCT_CATEGORIES } from '../data/products';
 import { MediaGalleryModal } from '../components/MediaGalleryModal';
+import { LegalPoliciesManager } from '../components/LegalPoliciesManager';
 import { ProductEditor } from '../components/ProductEditor';
 import { SupabaseModal } from '../components/SupabaseModal';
 import { GalleryImage } from '../data/gallery';
@@ -85,7 +87,7 @@ interface AdminPageProps {
   onOpenProductDetail: (product: Product) => void;
 }
 
-type AdminTab = 'dashboard' | 'products' | 'blog' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings' | 'profile';
+type AdminTab = 'dashboard' | 'products' | 'blog' | 'team' | 'testimonials' | 'gallery' | 'inquiries' | 'users' | 'settings' | 'legal' | 'profile';
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductDetail }) => {
   // === AUTH STATE ===
@@ -107,6 +109,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
   const canAccessInquiries = ['admin', 'sales'].includes(currentRole);
   const canAccessUsers = currentRole === 'admin';
   const canAccessSettings = currentRole === 'admin';
+  const canAccessLegal = ['admin', 'editor'].includes(currentRole);
 
   // === USER MANAGEMENT MODAL STATES ===
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -1721,6 +1724,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
               <ChevronRight className="w-3.5 h-3.5 opacity-60" />
             </button>
           )}
+          {/* Legal Policies */}
+          {canAccessLegal && (
+            <button
+              onClick={() => { setActiveTab('legal'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                activeTab === 'legal'
+                  ? 'bg-[#0A1C3E] text-white shadow-xs font-bold'
+                  : 'text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Scale className="w-4 h-4 text-sky-500" />
+                <span>Legal Policies</span>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === 'legal' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+              }`}>
+                4
+              </span>
+            </button>
+          )}
+
           {/* Edit Profile */}
           <button
             onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
@@ -5149,6 +5174,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
             </div>
           )}
 
+
+          {/* ======================================= */}
+          {/* TAB: LEGAL POLICIES MANAGER */}
+          {/* ======================================= */}
+          {activeTab === 'legal' && canAccessLegal && (
+            <LegalPoliciesManager
+              showToast={showToast}
+              onNavigate={onNavigate}
+            />
+          )}
 
           {/* ======================================= */}
           {/* TAB: EDIT PROFILE (DEDICATED PROFILE PAGE) */}
