@@ -109,6 +109,12 @@ docker run -d -p 5000:5000 --name origintra_exim_container origintra-exim-app
 
 # 3. Check logs
 docker logs -f origintra_exim_container
+### Docker Hub Image
+- **Docker Hub Repository**: [hub.docker.com/r/patelarsh/origintra-exim](https://hub.docker.com/r/patelarsh/origintra-exim)
+- **Pull & Run Directly from Docker Hub**:
+```bash
+docker pull patelarsh/origintra-exim:latest
+docker run -d -p 5000:5000 --name origintra_exim_container patelarsh/origintra-exim:latest
 ```
 
 ---
