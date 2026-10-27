@@ -1,0 +1,12 @@
+services:
+  origintra-exim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: origintra_exim_app
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+    restart: unless-stopped

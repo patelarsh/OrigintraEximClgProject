@@ -71,24 +71,59 @@ The entire design system is built to strictly reflect the maritime and trade ess
 
 ---
 
-## 🚀 Running the Project
+## 🎓 Academic Criteria Fulfillment & Architecture
 
-The project is located at:
-`C:\Users\Arsh\.gemini\antigravity\scratch\origintra-exim`
+| # | Evaluation Criteria | Implementation Details |
+|---|---------------------|------------------------|
+| **2** | **Languages & Starter Kit / Environment** | Built using **Node.js 20+**, **TypeScript**, **React 19**, **Vite**, and **Express.js** backend with Tailwind CSS. |
+| **3** | **Database Connectivity & Dynamic Content (CRUD)** | Integrated with **Supabase PostgreSQL** cloud database and REST API backend (`/api/products`, `/api/upload`, `/api/settings`, `/api/send-mail`). Supports full Create, Read, Update, Delete for products, inquiries, and site configuration with live UI synchronization. |
+| **4** | **GIT Repos & Version Control** | Complete repository and version progression maintained across **115+ Git commits** tracking milestones, refactors, and feature additions. |
+| **5** | **Docker Containerization** | Multi-stage production `Dockerfile` and `docker-compose.yml` configured to build and serve the application as an isolated container on port `5000`. |
 
-### Development Server:
+---
+
+## 🐳 Docker Deployment (Criteria 5)
+
+### Option 1: Using Docker Compose (Recommended)
 ```bash
+# Build image and start container in foreground
+docker compose up --build
+
+# Or start in detached mode (background)
+docker compose up -d --build
+```
+Access the application live at: **http://localhost:5000**
+
+To stop the container:
+```bash
+docker compose down
+```
+
+### Option 2: Using Pure Docker CLI
+```bash
+# 1. Build the Docker Image
+docker build -t origintra-exim-app .
+
+# 2. Run the Container
+docker run -d -p 5000:5000 --name origintra_exim_container origintra-exim-app
+
+# 3. Check logs
+docker logs -f origintra_exim_container
+```
+
+---
+
+## 🚀 Local Development
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run local frontend dev server (Vite)
 npm run dev
 # Live at: http://localhost:5173/
-```
 
-### Production Build:
-```bash
-npm run build
-# Outputs optimized static files into dist/
-```
-
-### Production Preview:
-```bash
-npm run preview
+# 3. Run backend Express server
+npm run server
+# Live API at: http://localhost:5000/
 ```

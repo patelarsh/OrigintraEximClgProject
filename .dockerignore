@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+dist.zip
+hostinger_deploy.zip
+.git
+.github
+.env
+.env.*
+.impeccable
+.gemini
+*.log
+npm-debug.log*
