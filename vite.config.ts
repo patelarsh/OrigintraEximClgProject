@@ -9,7 +9,7 @@ function nodemailerPlugin(): Plugin {
         const url = req.url ? req.url.split('?')[0] : '';
 
         // Handle POST /api/send-mail
-        if (req.method === 'POST' && (url === '/api/send-mail' || url === '/api/send-mail.php')) {
+        if (req.method === 'POST' && (url === '/api/send-mail')) {
           let body = '';
           req.on('data', (chunk) => { body += chunk; });
           req.on('end', async () => {
@@ -65,7 +65,7 @@ function nodemailerPlugin(): Plugin {
         }
 
         // Handle POST /api/verify-smtp
-        if (req.method === 'POST' && (url === '/api/verify-smtp' || url === '/api/verify-smtp.php')) {
+        if (req.method === 'POST' && (url === '/api/verify-smtp')) {
           let body = '';
           req.on('data', (chunk) => { body += chunk; });
           req.on('end', async () => {
@@ -91,7 +91,7 @@ function nodemailerPlugin(): Plugin {
         }
 
         // Handle POST /api/save-smtp
-        if (req.method === 'POST' && (url === '/api/save-smtp' || url === '/api/save-smtp.php')) {
+        if (req.method === 'POST' && (url === '/api/save-smtp')) {
           let body = '';
           req.on('data', (chunk) => { body += chunk; });
           req.on('end', async () => {

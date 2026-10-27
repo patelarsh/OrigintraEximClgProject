@@ -490,7 +490,7 @@ export const MailService = {
             adminAlertEmail: creds.adminAlertEmail
           });
 
-          const endpoints = ['/api/save-smtp', '/api/save-smtp.php'];
+          const endpoints = ['/api/save-smtp'];
           for (const ep of endpoints) {
             try {
               const res = await fetch(ep, {
@@ -569,7 +569,7 @@ export const MailService = {
       } : null
     };
 
-    const endpoints = ['/api/send-mail', '/api/send-mail.php'];
+    const endpoints = ['/api/send-mail'];
     let lastError = '';
 
     for (const ep of endpoints) {
@@ -671,7 +671,7 @@ export const MailService = {
       pass: creds.smtpPassword
     });
 
-    const endpoints = ['/api/verify-smtp', '/api/verify-smtp.php'];
+    const endpoints = ['/api/verify-smtp'];
     for (const ep of endpoints) {
       try {
         const controller = new AbortController();

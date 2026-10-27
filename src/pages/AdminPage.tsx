@@ -687,7 +687,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
         prodToSave.shortDescription = prodToSave.tagline?.trim() || `${prodToSave.name} - Export grade agricultural commodity from Origintra Exim.`;
       }
 
-      // 1. Offload heavy base64 images to server /api/upload.php to protect LocalStorage quota
+      // 1. Offload heavy base64 images to server /api/upload to protect LocalStorage quota
       if (prodToSave.image && prodToSave.image.startsWith('data:')) {
         try {
           showToast('Uploading & optimizing spice photo...');
@@ -1103,7 +1103,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate, onOpenProductD
     try {
       showToast('Processing & uploading photo...');
       
-      // 1. Try real server upload to /api/upload.php first
+      // 1. Try real server upload to /api/upload first
       let serverImageUrl: string | null = null;
       try {
         serverImageUrl = await AdminStorage.uploadImageFile(file);

@@ -257,7 +257,7 @@ app.use('/api', (req, res, next) => {
 // 1. PRODUCTS API
 // ===============================================================
 
-// GET /api/products & /api/products.php
+// GET /api/products
 const handleGetProducts = (req, res) => {
   const products = readProducts();
   res.json({
@@ -267,9 +267,8 @@ const handleGetProducts = (req, res) => {
   });
 };
 app.get('/api/products', handleGetProducts);
-app.get('/api/products.php', handleGetProducts);
 
-// POST /api/products & /api/products.php
+// POST /api/products
 const handlePostProducts = (req, res) => {
   try {
     const body = req.body;
@@ -309,7 +308,6 @@ const handlePostProducts = (req, res) => {
   }
 };
 app.post('/api/products', handlePostProducts);
-app.post('/api/products.php', handlePostProducts);
 
 // DELETE /api/products/:id
 app.delete('/api/products/:id', (req, res) => {
@@ -357,7 +355,7 @@ app.delete('/api/products/:id', (req, res) => {
 // 2. SETTINGS API
 // ===============================================================
 
-// GET /api/settings & /api/settings.php
+// GET /api/settings
 const handleGetSettings = (req, res) => {
   const settings = readSettings();
   res.json({
@@ -366,9 +364,8 @@ const handleGetSettings = (req, res) => {
   });
 };
 app.get('/api/settings', handleGetSettings);
-app.get('/api/settings.php', handleGetSettings);
 
-// POST /api/settings & /api/settings.php
+// POST /api/settings
 const handlePostSettings = (req, res) => {
   try {
     const current = readSettings();
@@ -399,7 +396,6 @@ const handlePostSettings = (req, res) => {
   }
 };
 app.post('/api/settings', handlePostSettings);
-app.post('/api/settings.php', handlePostSettings);
 
 // ===============================================================
 // 3. SECURE IMAGE UPLOAD API (with Sharp optimization)
@@ -462,7 +458,7 @@ async function processImageBuffer(buffer, originalName = 'upload', prefix = 'spi
   };
 }
 
-// POST /api/upload & /api/upload.php
+// POST /api/upload
 const handleUpload = async (req, res) => {
   try {
     // 1. Multipart file upload
@@ -503,13 +499,12 @@ const handleUpload = async (req, res) => {
 };
 
 app.post('/api/upload', upload.single('file'), handleUpload);
-app.post('/api/upload.php', upload.single('file'), handleUpload);
 
 // ===============================================================
 // 4. NODEMAILER PURE POOLED & RESILIENT QUEUE EMAIL API
 // ===============================================================
 
-// POST /api/send-mail & /api/send-mail.php (strictly pure Nodemailer)
+// POST /api/send-mail (strictly pure Nodemailer)
 const handleSendMail = async (req, res) => {
   try {
     const data = req.body || {};
@@ -548,9 +543,8 @@ const handleSendMail = async (req, res) => {
   }
 };
 app.post('/api/send-mail', handleSendMail);
-app.post('/api/send-mail.php', handleSendMail);
 
-// POST /api/verify-smtp & /api/verify-smtp.php
+// POST /api/verify-smtp
 const handleVerifySmtp = async (req, res) => {
   try {
     const result = await mailerEngine.verifySmtp(req.body || {});
@@ -566,9 +560,8 @@ const handleVerifySmtp = async (req, res) => {
   }
 };
 app.post('/api/verify-smtp', handleVerifySmtp);
-app.post('/api/verify-smtp.php', handleVerifySmtp);
 
-// POST /api/save-smtp & /api/save-smtp.php - Persist credentials to server disk & reset pool
+// POST /api/save-smtp - Persist credentials to server disk & reset pool
 const handleSaveSmtp = (req, res) => {
   try {
     const result = mailerEngine.saveConfig(req.body || {});
@@ -578,7 +571,6 @@ const handleSaveSmtp = (req, res) => {
   }
 };
 app.post('/api/save-smtp', handleSaveSmtp);
-app.post('/api/save-smtp.php', handleSaveSmtp);
 
 // GET /api/mail-queue & /api/mail-logs - Queue diagnostics & audit monitor
 app.get('/api/mail-queue', (req, res) => {

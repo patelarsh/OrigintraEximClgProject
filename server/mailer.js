@@ -65,7 +65,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Verify SMTP Connection Endpoint
-  if (req.method === 'POST' && (url === '/api/verify-smtp' || url === '/api/verify-smtp.php')) {
+  if (req.method === 'POST' && (url === '/api/verify-smtp')) {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
@@ -81,7 +81,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Save SMTP Configuration Endpoint
-  if (req.method === 'POST' && (url === '/api/save-smtp' || url === '/api/save-smtp.php')) {
+  if (req.method === 'POST' && (url === '/api/save-smtp')) {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
@@ -97,7 +97,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Send Email Endpoint (Pure Nodemailer Pooled + Resilient Queue)
-  if (req.method === 'POST' && (url === '/api/send-mail' || url === '/api/send-mail.php')) {
+  if (req.method === 'POST' && (url === '/api/send-mail')) {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {

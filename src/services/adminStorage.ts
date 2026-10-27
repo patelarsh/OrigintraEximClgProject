@@ -981,7 +981,7 @@ export const AdminStorage = {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Try Node.js Express upload first, fallback to PHP endpoint
+      // Pure Node.js Express upload
       let res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -989,7 +989,7 @@ export const AdminStorage = {
       }).catch(() => null);
 
       if (!res || !res.ok) {
-        res = await fetch('/api/upload.php', {
+        res = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
           signal: controller.signal
@@ -1015,7 +1015,7 @@ export const AdminStorage = {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      // Try Node.js Express upload first, fallback to PHP endpoint
+      // Pure Node.js Express upload
       let res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1024,7 +1024,7 @@ export const AdminStorage = {
       }).catch(() => null);
 
       if (!res || !res.ok) {
-        res = await fetch('/api/upload.php', {
+        res = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ dataUrl, prefix }),
@@ -1049,9 +1049,9 @@ export const AdminStorage = {
     try {
       // 1. Try Node.js Express API first
       let res = await fetch('/api/products', { cache: 'no-store' }).catch(() => null);
-      // 2. Fallback to PHP endpoint if Node server not on same port
+      // 2. Fallback endpoint
       if (!res || !res.ok) {
-        res = await fetch('/api/products.php', { cache: 'no-store' }).catch(() => null);
+        res = await fetch('/api/products', { cache: 'no-store' }).catch(() => null);
       }
       // 3. Fallback to static JSON file
       if (!res || !res.ok) {
@@ -1108,7 +1108,7 @@ export const AdminStorage = {
       const updatedDeleted = deletedIds.filter(id => id !== product.id && id !== product.slug);
       try {
         localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(updatedDeleted));
-        fetch('/api/settings.php', {
+        fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deletedProductIds: updatedDeleted })
@@ -1154,13 +1154,13 @@ export const AdminStorage = {
     window.dispatchEvent(new Event('origintra_products_updated'));
     notifyCrossTab('origintra_products_updated');
 
-    // Sync to Node.js Express server with fallback to PHP
+    // Sync to Node.js Express server
     try {
       fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
-      }).catch(() => fetch('/api/products.php', {
+      }).catch(() => fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
@@ -1214,7 +1214,7 @@ export const AdminStorage = {
     // 2. Persist updated products list to backend server (DELETE /api/products/:id or POST)
     try {
       fetch(`/api/products/${encodeURIComponent(productId)}`, { method: 'DELETE' })
-        .catch(() => fetch('/api/products.php', {
+        .catch(() => fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(filtered)
@@ -1230,7 +1230,7 @@ export const AdminStorage = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deletedProductIds: updatedDeletedIds })
-      }).catch(() => fetch('/api/settings.php', {
+      }).catch(() => fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deletedProductIds: updatedDeletedIds })
@@ -1254,12 +1254,12 @@ export const AdminStorage = {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
 
     try {
-      fetch('/api/settings.php', {
+      fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deletedProductIds: [] })
       }).catch(() => {});
-      fetch('/api/products.php', {
+      fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(DEFAULT_PRODUCTS)
@@ -1493,7 +1493,7 @@ export const AdminStorage = {
     try {
       let res = await fetch('/api/settings', { cache: 'no-store' }).catch(() => null);
       if (!res || !res.ok) {
-        res = await fetch('/api/settings.php', { cache: 'no-store' }).catch(() => null);
+        res = await fetch('/api/settings', { cache: 'no-store' }).catch(() => null);
       }
       if (!res || !res.ok) {
         res = await fetch('/api/site-settings.json', { cache: 'no-store' }).catch(() => null);
@@ -1577,7 +1577,7 @@ export const AdminStorage = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ leadershipVisible: visible })
-    }).catch(() => fetch('/api/settings.php', {
+    }).catch(() => fetch('/api/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ leadershipVisible: visible })
@@ -1585,13 +1585,13 @@ export const AdminStorage = {
 
     // Persist to Hostinger server-side PHP so ALL DEVICES globally update immediately
     try {
-      await fetch('/api/settings.php', {
+      await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ leadershipVisible: visible })
       });
     } catch (err) {
-      console.warn('Could not sync settings to /api/settings.php:', err);
+      console.warn('Could not sync settings to /api/settings:', err);
     }
 
     if (supabase.isConfigured()) {
@@ -1776,7 +1776,7 @@ export const AdminStorage = {
       }
 
       const payload = JSON.stringify({ legalPolicies: policies });
-      fetch('/api/settings.php', {
+      fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: payload
@@ -1954,7 +1954,7 @@ export const AdminStorage = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deletedGalleryIds: updatedDeletedIds })
-        }).catch(() => fetch('/api/settings.php', {
+        }).catch(() => fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deletedGalleryIds: updatedDeletedIds })
@@ -1982,7 +1982,7 @@ export const AdminStorage = {
     localStorage.removeItem(STORAGE_KEYS.DELETED_GALLERY);
 
     try {
-      fetch('/api/settings.php', {
+      fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deletedGalleryIds: [] })
